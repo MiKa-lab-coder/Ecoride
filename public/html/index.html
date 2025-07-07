@@ -6,10 +6,69 @@
     <meta name="description" content="Ecoride - Votre partenaire de mobilité durable">
     <meta name="keywords" content="Ecoride, mobilité durable, transport écologique, covoiturage, partage">
     <link rel="stylesheet" href="../css/style.css">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
 <body>
+<header id="header-placeholder"></header>
+<h1>Bienvenue chez Ecoride</h1>
 
+<section class="intro">
+    <div class="intro-container">
+    <p class="intro-sentence">Chez Ecoride, nous croyons en une mobilité durable et respectueuse de l'environnement. Notre mission est de vous offrir des solutions de transport qui réduisent votre empreinte carbone tout en vous permettant de vous déplacer facilement.
+    Nous proposons une gamme de services de covoiturage.
+    </p>
+    <img src="../img/covoiturage1.jpg" alt="image de presentation 1" class="intro-img">
+    </div>
+</section>
+<section class="rapid-search">
+    <div class="rapid-search-container">
+        <h3>Recherche rapide</h3>
+        <form class="search-form" action="/search" method="GET">
+            <label for="departure"></label>
+            <input type="text" id="departure" name="departure" placeholder="Ville de départ" required>
+
+            <label for="arrival"></label>
+            <input type="text" id="arrival" name="arrival" placeholder="Ville d'arrivée" required>
+
+            <label for="date"></label>
+            <input type="date" id="date" name="date" required>
+            <div class="valid-search-form">
+                <button type="submit">Rechercher</button>
+            </div>
+        </form>
+    </div>
+</section>
+<h2>Les avantages du covoiturage</h2>
+<section class="services">
+    <div class="services-container1">
+        <img src="../img/covoiturage2.jpg" alt="image de presentation 2" class="service-img">
+        <div class="card-container">
+            <div class="services-card">
+                <p>Réduction des coûts de transport, en partageant les frais de carburant et de péage avec d'autres
+                    passagers.</p>
+            </div>
+            <div class="services-card">
+                <p>Impact réduit sur l'environnement, en limitant les émissions de co2</p>
+            </div>
+        </div>
+    </div>
+    <div class="services-container2">
+        <div class="card-container">
+            <div class="services-card">
+                <p>Réduction des coûts de transport, en partageant les frais de carburant et de péage avec d'autres
+                    passagers.</p>
+            </div>
+            <div class="services-card">
+                <p>Impact réduit sur l'environnement, en limitant les émissions de co2</p>
+            </div>
+        </div>
+        <img src="../img/covoiturage3.jpg" alt="image de presentation 3" class="service-img">
+    </div>
+</section>
+<p class="contactUs">Une question ?<a href="/contact">Contactez-nous</a>.</p>
+    <footer id="footer-placeholder"></footer>
+<script src="../js/burger.js" type="module"></script>
 </body>
 </html>
