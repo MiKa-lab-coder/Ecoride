@@ -1,5 +1,5 @@
-//inclusion du burger menu
-export async function loadBurger(url, elementId) {
+//inclusion du header et du footer
+export async function loadHeadFoot(url, elementId) {
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -10,7 +10,6 @@ export async function loadBurger(url, elementId) {
         if (target) {
             const DivTemp = document.createElement('div');
             DivTemp.innerHTML = content;
-
 
             while (DivTemp.firstChild) {
                 target.appendChild(DivTemp.firstChild);
@@ -37,7 +36,7 @@ export function setBurger(){
 }
 //execution au chargement de la page
 document.addEventListener('DOMContentLoaded',async () => {
-    await loadBurger('/Ecoride/public/html/includes/header.html', 'header-placeholder');
-    await loadBurger('/Ecoride/public/html/includes/footer.html', 'footer-placeholder');
+    await loadHeadFoot('/Ecoride/public/html/includes/header.html', 'header-placeholder');
+    await loadHeadFoot('/Ecoride/public/html/includes/footer.html', 'footer-placeholder');
     setBurger();
 });

@@ -16,6 +16,7 @@ body {
 /* Typography (Mobile First) */
 h1 {
     font-size: 2rem;
+    font-weight: bold;
     text-align: center;
     color: #181B40;
     margin: 30px 15px;
@@ -25,6 +26,7 @@ h2 {
     font-size: 1.6rem;
     text-align: center;
     color: #181B40;
+    font-weight: bold;
     margin: 30px 15px;
 }
 
@@ -32,6 +34,7 @@ h3 {
     font-size: 1.2rem;
     text-align: center;
     color: #181B40;
+    font-weight: bold;
     margin: 20px 15px;
 }
 
@@ -202,6 +205,10 @@ a:hover {
     border-radius: 5px;
     font-size: 1rem;
 }
+.search-form input::placeholder {
+    color: #181B40;
+    font-size: 1rem;
+}
 
 .search-form button {
     background-color: #3F48CC;
@@ -211,7 +218,7 @@ a:hover {
 }
 
 .search-form button:hover {
-    background-color: #181B40;
+    background-color: #232ED1;
 }
 
 .valid-search-form {
@@ -233,20 +240,32 @@ a:hover {
     color: #181B40;
     font-size: 1rem;
     text-align: center;
-    padding: 15px;
+    padding: 0 15px 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: auto;
+    min-height: 250px;
+    background-color: #FFFFFF;
     border: 1px solid #3F48CC;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
 }
-
-.services-card p {
-    margin-top: 10px;
+.text-wrap{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
 }
+.card-txt{
+    text-align: center;
+}
+.card-icons{
+    width: 20%;
+    height: auto;
+}
+
 
 .service-img {
     height: auto;
@@ -283,30 +302,60 @@ a:hover {
 .contactUs a {
     color: #181B40;
 }
-.footer-nav{
+.footer-nav {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background-color: #FFFFFF;
     border: 1px solid #3F48CC;
     min-height: 80px;
-
+    padding: 15px;
+    gap: 15px;
 }
-.social-links{
+
+.social-links {
     display: flex;
     align-items: center;
-}
-.social-icon{
-    display: flex;
-    gap: 10px;
-    color: #181B40;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
 }
 
-.footer-about{
+.social-icon {
+    width: 30px;
+    height: 30px;
+    color: #181B40;
+    display: block;
+    vertical-align: middle;
+    transition: transform 0.3s ease;
+}
+
+.social-icon:hover {
+    transform: scale(1.1);
+}
+
+.footer-about {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 8px;
+    text-align: center;
 }
+
 .footer-about a {
     color: #181B40;
     text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-about a:hover {
+    color: #3F48CC;
+}
+
+.footer-text {
+    font-size: 0.8rem;
+    color: #181B40;
+    margin-top: 5px;
 }

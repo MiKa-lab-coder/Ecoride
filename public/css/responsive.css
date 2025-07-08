@@ -1,21 +1,35 @@
 /*(min-width: 768px)*/
 @media screen and (min-width: 768px) {
     /* typo */
-    h1 { font-size: 2.5rem; }
-    h2 { font-size: 2rem; }
-    h3 { font-size: 1.5rem; }
-    p { font-size: 1.1rem; }
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
 
     .header-nav {
         padding: 10px 25px;
     }
+
     .logo {
         height: 100px;
         width: 122px;
     }
+
     .logo-text {
         font-size: 1.6rem;
     }
+
     .nav-links a {
         font-size: 1.4rem;
     }
@@ -37,6 +51,7 @@
         align-items: center;
         text-align: center;
     }
+
     .intro-sentence {
         justify-content: center;
         align-items: center;
@@ -44,6 +59,7 @@
         width: 50%;
         height: auto;
     }
+
     .intro-img {
         width: 50%;
         height: auto;
@@ -54,20 +70,24 @@
         width: 100%;
         max-width: 1200px;
     }
+
     .search-form {
         flex-direction: row;
         justify-content: center;
         flex-wrap: wrap;
         gap: 20px;
     }
+
     .search-form input {
         width: calc(33% - 20px);
         max-width: 300px;
     }
+
     .search-form button {
         width: auto;
         padding: 10px 25px;
     }
+
     .valid-search-form {
         width: auto;
     }
@@ -107,43 +127,58 @@
     }
 
     .services-card {
+        display: flex;
         width: calc(50% - 10px);
         max-width: 280px;
         height: 320px;
         font-size: 1.2rem;
+        text-align: center;
     }
+
+    .card-icons {
+        justify-content: center;
+        gap: 10px;
+        width: 25%;
+        height: auto;
+    }
+
     .contactUs {
         display: flex;
         justify-content: end;
         margin-right: 60px;
         color: #181B40;
     }
+
     .contactUs a {
         color: #181B40;
     }
-    .footer-nav{
+
+    .footer-nav {
         background-color: #FFFFFF;
         border: 1px solid #3F48CC;
         display: flex;
         justify-content: space-between;
     }
-    .social-links{
+
+    .social-links {
         display: flex;
         align-items: center;
     }
-    .social-icon{
+
+    .social-icon {
         display: flex;
         gap: 10px;
         color: #181B40;
     }
 
-    .footer-about{
+    .footer-about {
         display: flex;
         flex-direction: row;
         gap: 10px;
         align-items: center;
         margin-right: 15px;
     }
+
     .footer-about a {
         color: #181B40;
         text-decoration: none;
@@ -153,24 +188,35 @@
 /*(min-width: 1024px)*/
 @media screen and (min-width: 1024px) {
     /* Ajustements typographie */
-    h1 { font-size: 3rem; }
-    h2 { font-size: 2.5rem; }
-    h3 { font-size: 1.8rem; }
-    p { font-size: 1.2rem; }
-
-    .header-nav {
-        padding: 15px 50px;
+    h1 {
+        font-size: 3rem;
     }
+
+    h2 {
+        font-size: 2.5rem;
+    }
+
+    h3 {
+        font-size: 1.8rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+
     .logo {
         width: 122px;
         height: 100px;
     }
+
     .logo-text {
         font-size: 2.2rem;
     }
+
     .toggle {
         display: none;
     }
+
     .nav-wrapper {
         display: block;
         position: static;
@@ -181,22 +227,26 @@
         left: auto;
         right: auto;
     }
+
     .nav-links {
         flex-direction: row;
         gap: 30px;
         padding: 20px;
         width: auto;
     }
+
     .nav-links li {
         width: auto;
         border-bottom: none;
         padding: 0;
         text-align: left;
     }
+
     .nav-links a {
         font-size: 1.5rem;
         padding: 0;
     }
+
     /* section adjust */
     .intro,
     .rapid-search,
@@ -210,10 +260,12 @@
         margin: 50px auto;
         gap: 30px;
     }
+
     .intro-sentence {
         width: 700px;
         font-size: 1.5rem;
     }
+
     .intro-img {
         width: auto;
         height: 340px;
@@ -223,6 +275,7 @@
         width: 100%;
         margin: 50px auto;
     }
+
     .search-form input,
     .search-form button {
         width: auto;
@@ -237,7 +290,8 @@
         margin: 50px auto;
         gap: 50px;
     }
-    .services-container2{
+
+    .services-container2 {
         flex-direction: row;
         justify-content: space-between;
         align-items: flex-end;
@@ -262,12 +316,22 @@
     }
 
     .services-card {
+        display: flex;
         width: calc(50% - 10px);
         max-width: 350px;
         max-height: 300px;
         font-size: 1.5rem;
     }
-    .footer-about{
+
+    .card-icons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        width:30%;
+        height: auto;
+    }
+
+    .footer-about {
         margin-right: 20px;
         gap: 15px;
     }
