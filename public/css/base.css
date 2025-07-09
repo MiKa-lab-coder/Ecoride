@@ -13,8 +13,9 @@ body {
     overflow-x: hidden;
 }
 
-/* Typography (Mobile First) */
+/* Typo------------------------------------------------------------- */
 h1 {
+    text-transform: uppercase;
     font-size: 2rem;
     font-weight: bold;
     text-align: center;
@@ -23,6 +24,7 @@ h1 {
 }
 
 h2 {
+    text-transform: capitalize;
     font-size: 1.6rem;
     text-align: center;
     color: #181B40;
@@ -52,7 +54,7 @@ a:hover {
     color: #181B40;
 }
 
-/* Header & Nav (Mobile First) */
+/* Header & Nav -------------------------------------------------------*/
 .header-nav {
     display: flex;
     justify-content: space-between;
@@ -71,9 +73,8 @@ a:hover {
 }
 
 .logo {
-    height: 70px;
+    height: 65px;
     width: 85px;
-    padding: 5px;
 }
 
 .logo-text {
@@ -82,7 +83,8 @@ a:hover {
     margin-left: 5px;
     font-weight: 700;
 }
-/*² Toggle Button */
+
+/* Toggle Btn */
 .toggle {
     display: block;
     background: none;
@@ -116,7 +118,8 @@ a:hover {
 .nav-wrapper.active {
     display: block;
 }
-/* Navigation Links */
+
+/* Navigation Links------------------------------------------------------- */
 .nav-links {
     display: flex;
     flex-direction: column;
@@ -143,9 +146,13 @@ a:hover {
     color: #181B40;
     display: block;
 }
+.nav-links li :hover {
+    color: #3F48CC;
+}
 
-/* Body Content*/
+/* Body Content------------------------------------------------------ */
 
+/*general styles for sections*/
 .intro,
 .rapid-search,
 .services {
@@ -172,7 +179,8 @@ a:hover {
     box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
     padding: 15px;
 }
-/* Intro Section */
+
+/* Intro Section--------------------------------------------- */
 .intro-sentence {
     font-size: 1rem;
     width: 100%;
@@ -187,7 +195,8 @@ a:hover {
     box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
     border: 1px solid #3F48CC;
 }
-/* Rapid Search Section */
+
+/* Rapid Search Section-------------------------------------- */
 .search-form {
     display: flex;
     flex-direction: column;
@@ -201,13 +210,21 @@ a:hover {
 .search-form button {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1rem;
+    border: 1px solid #3F48CC;
 }
+.search-form input[type="date"]{
+    color: #181B40;
+}
+
 .search-form input::placeholder {
     color: #181B40;
     font-size: 1rem;
+}
+.search-form input:focus {
+    outline: 2px solid #3F48CC;
+    border-color: #3F48CC;
 }
 
 .search-form button {
@@ -226,7 +243,8 @@ a:hover {
     display: flex;
     justify-content: center;
 }
-/* Services Section */
+
+/* Services Section----------------------------------------------- */
 .card-container {
     display: flex;
     flex-direction: column;
@@ -251,21 +269,23 @@ a:hover {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
 }
-.text-wrap{
+
+.text-wrap {
     display: flex;
     flex-direction: column;
     justify-content: center;
     height: 100%;
     width: 100%;
 }
-.card-txt{
+
+.card-txt {
     text-align: center;
 }
-.card-icons{
+
+.card-icons {
     width: 20%;
     height: auto;
 }
-
 
 .service-img {
     height: auto;
@@ -279,6 +299,7 @@ a:hover {
     width: 100%;
     max-width: 500px;
 }
+
 .services-container1 .card-container {
     order: 2;
 }
@@ -287,11 +308,13 @@ a:hover {
 .services-container2 .card-container {
     order: 1;
 }
+
 .services-container2 .service-img {
     order: 2;
     width: 100%;
     max-width: 500px;
 }
+/*Contact us--------------------------------------------------- */
 .contactUs {
     display: flex;
     justify-content: end;
@@ -299,9 +322,15 @@ a:hover {
     margin-bottom: 25px;
     color: #181B40;
 }
+
 .contactUs a {
     color: #181B40;
 }
+.contactUs a:hover {
+    color: #3F48CC;
+}
+
+/* Footer------------------------------------------------------- */
 .footer-nav {
     display: flex;
     flex-direction: column;
@@ -355,7 +384,207 @@ a:hover {
 }
 
 .footer-text {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #181B40;
     margin-top: 5px;
+}
+
+/* ------------------------------------------------------About.html-------------------------------------------------- */
+.story{
+    padding: 15px;
+}
+.story-container {
+    border: 1px solid #3F48CC;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
+    background-color: #FFFFFF;
+    padding: 15px;
+    margin: 80px auto 100px auto;
+    text-align: center;
+}
+.story-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
+    border: 1px solid #3F48CC;
+    margin-bottom: 50px;
+}
+/* --------------------------------------------------end of about page----------------------------------------------- */
+
+/* ----------------------------------------------Connection/Inscription pages---------------------------------------- */
+/* Connection Page ---------------------------------- */
+.connection{
+    padding: 15px;
+    text-align: center;
+}
+.connection-help {
+    color: #181B40;
+    text-decoration: none;
+    font-size: 1rem;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+.connection-help:hover {
+    color: #3F48CC;
+}
+.connection-container{
+    border: 1px solid #3F48CC;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
+    background-color: #FFFFFF;
+    padding: 15px;
+    margin: 60px auto 80px auto;
+}
+.login-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+.login-form input[type="text"],.login-form input[type="password"]{
+    border: 1px solid #3F48CC;
+    border-radius: 5px;
+    padding: 10px;
+}
+.login-form input[type="text"]::placeholder,.login-form input[type="password"]::placeholder{
+    color: #181B40;
+    font-size: 1rem;
+}
+.login-form input[type="text"]:focus,.login-form input[type="password"]:focus{
+    outline: 2px solid #3F48CC;
+    border-color: #3F48CC;
+}
+.login-form button {
+    background-color: #3F48CC;
+    color: white;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-top: 50px;
+    margin-bottom:50px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+.login-form button:hover {
+    background-color: #232ED1;
+}
+.login-form a {
+    color: #181B40;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+.login-form a:hover {
+    color: #3F48CC;
+}
+/* Inscription Page ---------------------------------- */
+.registration{
+    padding: 15px;
+    text-align: center;
+}
+.registration-help {
+    color: #181B40;
+    text-decoration: none;
+    font-size: 1rem;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+.registration-help:hover {
+    color: #3F48CC;
+}
+.registration-container{
+    border: 1px solid #3F48CC;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
+    background-color: #FFFFFF;
+    padding: 15px;
+    margin: 60px auto 80px auto;
+}
+.registration-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+.registration-form input[type="text"],
+.registration-form input[type="email"],
+.registration-form input[type="password"],
+.registration-form input[type="file"] {
+    border: 1px solid #3F48CC;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+}
+.registration-form input[type="text"]::placeholder,
+.registration-form input[type="email"]::placeholder,
+.registration-form input[type="password"]::placeholder
+ {
+    color: #181B40;
+    font-size: 1rem;
+}
+.registration-form input[type="text"]:focus,
+.registration-form input[type="email"]:focus,
+.registration-form input[type="password"]:focus{
+    outline: 2px solid #3F48CC;
+    border-color: #3F48CC;
+}
+.registration-form input[type="file"]::file-selector-button {
+    background-color: #3F48CC;
+    color: white;
+    cursor: pointer;
+    padding: 5px 10px;
+
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+.registration-form button {
+    background-color: #3F48CC;
+    color: white;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-top: 30px;
+    margin-bottom:50px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+.registration-form button:hover {
+    background-color: #232ED1;
+}
+.registration-form a {
+    color: #181B40;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+.registration-form a:hover {
+    color: #3F48CC;
+}
+.registration-help {
+    color: #181B40;
+    text-decoration: none;
+    font-size: 1rem;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+/* -----------------------------------------end of connection/inscription pages-------------------------------------- */
+/* ------------------------------------------------terms page-------------------------------------------------------- */
+.terms {
+    padding: 15px;
+}
+.terms h2{
+    text-align: start;
+}
+.terms p {
+    text-align: justify;
+    margin: 10px 0;
 }

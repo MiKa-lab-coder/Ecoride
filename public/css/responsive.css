@@ -1,6 +1,6 @@
 /*(min-width: 768px)*/
 @media screen and (min-width: 768px) {
-    /* typo */
+    /* Typo------------------------------------------------------------- */
     h1 {
         font-size: 2.5rem;
     }
@@ -22,8 +22,8 @@
     }
 
     .logo {
-        height: 100px;
-        width: 122px;
+        height: 85px;
+        width: 100px;
     }
 
     .logo-text {
@@ -33,15 +33,15 @@
     .nav-links a {
         font-size: 1.4rem;
     }
-
-    /* section adjust */
+    /* Body Content ----------------------------------------------*/
+    /*general styles for sections*/
     .intro,
     .rapid-search,
     .services {
         margin: 80px 20px;
         padding: 0 15px;
     }
-
+    /* Intro Section--------------------------------------------- */
     .intro-container {
 
         flex-direction: row;
@@ -65,7 +65,7 @@
         height: auto;
         margin-right: 0;
     }
-
+    /* Rapid Search Section-------------------------------------- */
     .rapid-search-container {
         width: 100%;
         max-width: 1200px;
@@ -91,7 +91,7 @@
     .valid-search-form {
         width: auto;
     }
-
+    /* Services Section----------------------------------------------- */
     .services-container1,
     .services-container2 {
         flex-direction: column;
@@ -141,7 +141,7 @@
         width: 25%;
         height: auto;
     }
-
+    /*Contact us--------------------------------------------------- */
     .contactUs {
         display: flex;
         justify-content: end;
@@ -152,7 +152,7 @@
     .contactUs a {
         color: #181B40;
     }
-
+    /* Footer------------------------------------------------------- */
     .footer-nav {
         background-color: #FFFFFF;
         border: 1px solid #3F48CC;
@@ -183,11 +183,46 @@
         color: #181B40;
         text-decoration: none;
     }
+    /*----------------------------------------------- about page ---------------------------------------------------- */
+    .story{
+        padding: 60px;
+    }
+    .story-container {
+        padding: 20px 60px 60px 60px;
+    }
+    .story1,.story2,.story3{
+        padding: 25px;
+    }
+    /* --------------------------------------------------end of about page------------------------------------------- */
+
+    /* ----------------------------------------------Connection/Inscription pages------------------------------------ */
+    .connection,
+    .registration {
+        padding-left: 25%;
+        padding-right: 25%;
+    }
+
+
+    /* -------------------------------------------end of Connection/Inscription page--------------------------------- */
+    /* ------------------------------------------------terms page-------------------------------------------------------- */
+    .terms {
+        padding: 40px;
+    }
+    .terms h1 {
+
+        margin-bottom: 80px;
+    }
+    .terms p {
+        text-align: justify;
+        font-size: 1.2rem;
+        margin: 40px 0;
+    }
+
 }
 
 /*(min-width: 1024px)*/
 @media screen and (min-width: 1024px) {
-    /* Ajustements typographie */
+    /*  typographie -------------------------------------- */
     h1 {
         font-size: 3rem;
     }
@@ -247,7 +282,7 @@
         padding: 0;
     }
 
-    /* section adjust */
+    /* Body Content ----------------------------------- */
     .intro,
     .rapid-search,
     .services {
@@ -330,9 +365,50 @@
         width:30%;
         height: auto;
     }
+    /* Footer------------------------------------------------------- */
 
     .footer-about {
         margin-right: 20px;
         gap: 15px;
     }
+    /* ------------------------------------------------about page---------------------------------------------------- */
+    .story{
+        padding-left: 30%;
+        padding-right: 30%;
+    }
+    .story-img{
+        margin-top: 80px;
+    }
+    /* --------------------------------------------------end of about page------------------------------------------- */
+    /* ----------------------------------------------Connection/Inscription pages------------------------------------ */
+
+    .connection {
+        padding-left: 33%;
+        padding-right: 33%;
+        height: 100vh;
+    }
+    .connection-container{
+        margin: 200px auto 80px auto;
+    }
+    .registration{
+        padding-left: 33%;
+        padding-right: 33%;
+    }
+
+    /* -------------------------------------------end of Connection/Inscription page--------------------------------- */
+    /* ------------------------------------------------terms page-------------------------------------------------------- */
+    .terms {
+        padding: 70px;
+    }
+    .terms h1 {
+
+        margin-bottom: 100px;
+    }
+
+    .terms p {
+        text-align: justify;
+        font-size: 1.5rem;
+        margin: 70px 0;
+    }
 }
+
