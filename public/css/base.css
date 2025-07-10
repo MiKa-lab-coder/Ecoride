@@ -354,7 +354,7 @@ a:hover {
 .social-icon {
     width: 30px;
     height: 30px;
-    color: #181B40;
+    color: red;
     display: block;
     vertical-align: middle;
     transition: transform 0.3s ease;
@@ -587,4 +587,102 @@ a:hover {
 .terms p {
     text-align: justify;
     margin: 10px 0;
+}
+/*--------------------------------------------------end of terms page------------------------------------------------ */
+/* -------------------------------------------------Contact page----------------------------------------------------- */
+.infos h2{
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    margin-left: 0;
+}
+.contact {
+    padding: 15px;
+}
+
+.contact-container {
+    border: 1px solid #3F48CC;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(5, 10, 4, 0.25);
+    background-color: #FFFFFF;
+    padding: 15px;
+    margin: 60px auto 80px auto;
+}
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+.contact-form input[type="text"],
+.contact-form input[type="email"]{
+    border: 1px solid #3F48CC;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+}
+.contact-form input[type="text"]::placeholder,
+.contact-form input[type="email"]::placeholder {
+    color: #181B40;
+    font-size: 1rem;
+}
+.contact-form input[type="text"]:focus,
+.contact-form input[type="email"]:focus {
+    outline: 2px solid #3F48CC;
+    border-color: #3F48CC;
+}
+.contact-form textarea {
+    border: 1px solid #3F48CC;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+    height: 150px;
+    resize: none;
+}
+.contact-form textarea::placeholder {
+    color: #181B40;
+    font-size: 1rem;
+}
+.contact-form textarea:focus {
+    outline: 2px solid #3F48CC;
+    border-color: #3F48CC;
+}
+.contact-form button {
+    background-color: #3F48CC;
+    color: white;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-top: 30px;
+    margin-bottom:50px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+.contact-form button:hover {
+    background-color: #232ED1;
+}
+.infos{
+    display: flex;
+
+    flex-direction: column;
+    align-items: start;
+    margin-top: 20px;
+    margin-bottom: 50px;}
+.link{
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    color: #181B40;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.contact-icons{
+    width: 10%;
+    height: auto;
+    color: #181B40;
+
 }
