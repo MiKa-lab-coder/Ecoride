@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+          content="Tableau de bord de l'application, où vous pouvez accéder à toutes les fonctionnalités.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <title>Bienvenue !!!</title>
+</head>
+<body>
+<header id="header-placeholder"></header>
+
+<main class="dashboard-wrap">
+    <h1>Bienvenue ${user}</h1>
+
+    <div class="dashboard-container">
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-top">
+                <nav class="admin-nav">
+                    <h2>Actions administratives</h2>
+                    <ul>
+                        <li><a href="#" data-action="manage-users-content">Gestion des utilisateurs</a></li>
+                        <li><a href="#" data-action="manage-stats-content">Statistiques de l'application</a></li>
+                    </ul>
+                </nav>
+
+                <nav class="moderator-nav">
+                    <h2>Actions de modération</h2>
+                    <ul>
+                        <li><a href="#" data-action="review-content-content">Revue du contenu</a></li>
+                        <li><a href="#" data-action="user-reports-content">Rapports d'utilisateurs</a></li>
+                    </ul>
+                </nav>
+
+                <nav class="user-nav">
+                    <h2>Actions disponibles</h2>
+                    <ul>
+                        <li><a href="#" data-action="view-profile-content">Voir mon profil</a></li>
+                        <li><a href="#" data-action="manage-trips-content">Gérer mes trajets</a></li>
+                        <li><a href="#" data-action="past-trips-content">Mes précédents trajets</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <nav class="sidebar-bottom">
+                <ul>
+                    <li><a href="#" id="logout-button">Déconnexion</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <section class="dashboard-main-content">
+            <div id="view-profile-content" class="dashboard-section active">
+                <h2>Mon Profil</h2>
+                <p>Gérez vos informations.</p>
+                <div class="profils-infos">
+                    <div class="user-pics">
+                        <img src="../img/default-profile.png" alt="Photo de profil">
+                        <button class="edit-pic-btn" id="edit-pic-btn">Modifier</button>
+                        <form class="change-pic-form js-hidden" method="post" action="">
+                            <label for="profile-pic">Choisir une nouvelle photo :</label>
+                            <input type="file" id="profile-pic" name="profile-pic" accept="image/*" required>
+                            <input type="submit" class="save-pic-btn" value="Enregistrer">
+                            <input type="submit" class="cancel-pic-btn" id="cancel-pic-btn" value="Annuler">
+                        </form>
+                    </div>
+                    <div class="user-details" id="user-details">
+                        <p>Nom d'utilisateur: ${username}</p>
+                        <p>Nom: ${Name}</p>
+                        <p>Prénom: ${firstName}</p>
+                        <p>Email: ${email}</p>
+                        <p>Crédits disponibles : ${solde_credit}</p>
+                        <button class="edit-profile-btn" id="edit-profile-btn">Modifier</button>
+                        <div class="edit-profile js-hidden">
+                            <h3>Modifier vos informations</h3>
+                            <form method="post" action="">
+                                <label for="edit-username">Nom d'utilisateur</label>
+                                <input type="text" id="edit-username" name="edit-username" required>
+                                <label for="edit-name">Nom</label>
+                                <input type="text" id="edit-name" name="edit-name" required>
+                                <label for="edit-surname">Prénom</label>
+                                <input type="text" id="edit-surname" name="edit-surname" required>
+                                <label for="edit-email">Email</label>
+                                <input type="email" id="edit-email" name="edit-email" required>
+                                <input type="submit" class="save-profile-btn" value="Enregistrer">
+                                <input type="submit" class="cancel-edit-btn" id="cancel-edit-btn" value="Annuler">
+                            </form>
+                        </div>
+
+
+                        <h3>Mes véhicules</h3>
+                        <div class="my-cars">
+
+                            <ul class="my-car-list">
+                                <label for="car-choose">Ma voiture</label>
+                                <select id="car-choose" name="car-select">
+                                    <option value="car1">Véhicule 1</option>
+                                    <option value="car2">Véhicule 2</option>
+                                    <option value="car3">Véhicule 3</option>
+                                </select>
+                                <li>
+                                    <p>Véhicule sélectionné :</p>
+                                    <p>Plaque : ${car_plate}</p>
+                                    <p>Année : ${car_year}</p>
+                                    <p>Marque : ${car_make}</p>
+                                    <p>Modèle : ${car_model}</p>
+                                    <p>Couleur : ${car_color}</p>
+                                    <p>Nombre de places : ${car_seats}</p>
+                                    <p>Énergie : ${car_energie}</p>
+                                    <p>Préférence : ${car_preference}</p>
+                                    <button class="edit-car-btn" id="edit-car-btn">Modifier</button>
+                                    <div class="add-car-form js-hidden">
+                                        <form method="post" action="">
+                                            <label for="car-plate">Plaque d'immatriculation</label>
+                                            <input type="text" id="car-plate" name="car-plate" required>
+                                            <label for="car-year">Année</label>
+                                            <input type="number" id="car-year" name="car-year" required min="1886">
+                                            <label for="car-make">Marque</label>
+                                            <input type="text" id="car-make" name="car-make" required>
+                                            <label for="car-model">Modèle</label>
+                                            <input type="text" id="car-model" name="car-model" required>
+                                            <label for="car-color">Couleur</label>
+                                            <input type="text" id="car-color" name="car-color" required>
+                                            <label for="car-seats">Nombre de places</label>
+                                            <input type="number" id="car-seats" name="car-seats" required min="1">
+                                            <label for="car-energie">Énergie</label>
+                                            <select id="car-energie" name="car-energie" required>
+                                                <option value="essence">Essence</option>
+                                                <option value="diesel">Diesel</option>
+                                                <option value="electrique">Électrique</option>
+                                                <option value="hybride">Hybride</option>
+                                            </select>
+                                            <div class="checkbox-group">
+                                                <input type="checkbox" id="car-pref1" name="car-preference">
+                                                <label for="car-pref1">Fumeurs</label>
+                                            </div>
+
+                                            <div class="checkbox-group">
+                                                <input type="checkbox" id="car-pref2" name="car-preference">
+                                                <label for="car-pref2">Animaux</label>
+                                            </div>
+                                            <br>
+                                            <input type="submit" class="save-car-btn" value="Enregistrer">
+                                            <input type="submit" class="cancel-car-btn" id="cancel-car-btn"
+                                                   value="Annuler">
+                                        </form>
+                                        <br>
+                                    </div>
+                                    <input type="submit" class="delete-car-btn" value="Supprimer">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="manage-trips dashboard-section js-hidden " id="manage-trips-content">
+                <h2>Gérer mes trajets</h2>
+                <div class="trips-list-passenger">
+                    <h3>Vos trajets réservés :</h3>
+                    <ul>
+                        <li>
+                            <p>Titre trajet : ${titre}</p>
+                            <p>Départ : ${depart}</p>
+                            <p>Arrivée : ${arrivee}</p>
+                            <p>Date : ${date}</p>
+                            <p>Heure de départ : ${heure_depart}</p>
+                            <p>Heure d'arrivée : ${heure_arrivee}</p>
+                            <p>Conducteur : ${conducteur}</p>
+                            <p>Coût en crédit : ${prix} </p>
+                            <form action="" method="post">
+                                <label for="rating">Notez le trajet :</label>
+                                <select id="rating" name="rating">
+                                    <option value="1">1 étoile</option>
+                                    <option value="2">2 étoiles</option>
+                                    <option value="3">3 étoiles</option>
+                                    <option value="4">4 étoiles</option>
+                                    <option value="5">5 étoiles</option>
+                                </select>
+                                <label for="comment">Laissez un commentaire :</label>
+                                <textarea id="comment" name="comment" rows="4" cols="30"></textarea>
+                            </form>
+                            <input type="submit" class="end-trip-btn" value="Terminer le trajet">
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="trips-list-driver" id="drivers-content">
+                    <h3>Mes propositions de trajet :</h3>
+                    <form action="" method="post">
+                        <label for="title-new-trips">Nom du trajet :</label>
+                        <input type="text" id="title-new-trips" name="titre" required>
+                        <label for="depart-new-trips">Départ :</label>
+                        <input type="text" id="depart-new-trips" name="depart" required>
+                        <label for="arrival-new-trips">Arrivée :</label>
+                        <input type="text" id="arrival-new-trips" name="arrivee" required>
+                        <label for="date-new-trips">Date :</label>
+                        <input type="date" id="date-new-trips" name="date" required>
+                        <label for="time-depart-new-trips">Heure de départ :</label>
+                        <input type="time" id="time-depart-new-trips" name="heure_depart" required>
+                        <label for="time-arrival-new-trips">Heure d'arrivée :</label>
+                        <input type="time" id="time-arrival-new-trips" name="heure_arrivee" required>
+                        <label for="price-new-trips">Prix en crédit :</label>
+                        <input type="number" id="price-new-trips" name="prix" required min="0">
+                        <label for="seat-new-trips">Nombre de places disponibles :</label>
+                        <input type="number" id="seat-new-trips" name="places_disponibles" required min="1">
+                        <input type="submit" class="create-new-trips-btn" value="Créer le trajet">
+                        <label for="car-select-new-trips">Véhicule :</label>
+                        <select id="car-select-new-trips" name="car-select" required>
+                            <option value="car1">Véhicule 1</option>
+                            <option value="car2">Véhicule 2</option>
+                            <option value="car3">Véhicule 3</option>
+                        </select>
+                    </form>
+                    <ul>
+                        <li>
+                            <p>Titre trajet : ${titre}</p>
+                            <p>Départ : ${depart}</p>
+                            <p>Arrivée : ${arrivee}</p>
+                            <p>Date : ${date}</p>
+                            <p>Heure de départ : ${heure_depart}</p>
+                            <p>Heure d'arrivée : ${heure_arrivee}</p>
+                            <p>Prix en crédit : ${prix} </p>
+                            <p>Nombre de places disponibles : ${places_disponibles}</p>
+                            <p>Véhicule : ${vehicule}</p>
+                            <input type="submit" class="start-trip-btn" value="Lancer le trajet">
+                            <input type="submit" class="edit-trip-btn" value="Modifier le trajet">
+                            <input type="submit" class="delete-trip-btn" value="Supprimer le trajet">
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="past-trips dashboard-section js-hidden" id="past-trips-content">
+                <h3>Mes précédents trajets :</h3>
+                <ul>
+                    <li>
+                        <p>Titre trajet : ${titre}</p>
+                        <p>Départ : ${depart}</p>
+                        <p>Arrivée : ${arrivee}</p>
+                        <p>Date : ${date}</p>
+                        <p>Heure de départ : ${heure_depart}</p>
+                        <p>Heure d'arrivée : ${heure_arrivee}</p>
+                        <p>Conducteur : ${conducteur}</p>
+                        <p>Prix en crédit : ${prix} </p>
+                    </li>
+                </ul>
+            </div>
+            <div id="review-content-content" class="dashboard-section js-hidden">
+                <h2>Gestion des annonces</h2>
+                <ul>
+                    <li>
+                        <p>Titre annonce : ${titre_annonce}</p>
+                        <p>ID Chaufeur : ${id}</p>
+                        <p>Description : ${description_annonce}</p>
+                        <p>Date de création : ${date_creation}</p>
+                        <p>Prix : ${prix}</p>
+                        <input type="submit" class="validate-announcement-btn" value="Valider l'annonce">
+                        <input type="submit" class="reject-announcement-btn" value="Refuser l'annonce">
+                    </li>
+                </ul>
+            </div>
+            <div id="user-reports-content" class="dashboard-section js-hidden">
+                <h2>Gestion des litiges</h2>
+                <ul>
+                    <li>
+                        <p>ID Trajet : ${id_trajet}</p>
+                        <p>Titre trajet : ${titre_trajet}</p>
+                        <p>ID chauffeur : ${id_chaufeur}</p>
+                        <input type="submit" class="contact-users-btn" value="Contacter chauffeur">
+                        <p>ID passager : ${id_passager}</p>
+                        <input type="submit" class="contact-users-btn" value="Contacter passager">
+                        <p>Heure de départ : ${heure_depart}</p>
+                        <p>Heure d'arrivée : ${heure_arrivee}</p>
+                        <p>Commentaires : ${commentaire} </p>
+                        <input type="submit" class="close-dispute-btn" value="Clore le litige">
+                    </li>
+                </ul>
+            </div>
+            <div id="manage-users-content" class="dashboard-section js js-hidden">
+                <h2>Gestion des Utilisateurs</h2>
+                <form method="post" action="">
+                    <label for="new-username">Nom d'utilisateur</label>
+                    <input type="text" id="new-username" name="new-username" required>
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required>
+                    <label for="user-role">Rôle</label>
+                    <select id="user-role" name="user-role" required>
+                        <option value="moderator">Modérateur</option>
+                        <option value="user">Utilisateur</option>
+                    </select>
+                    <input type="submit" class="create-user-btn" value="Créer un utilisateur">
+                    <input type="submit" class="delete-user-btn" value="Supprimer un utilisateur">
+                    <input type="submit" class="update-user-btn" value="Modifier un utilisateur">
+                </form>
+            </div>
+            <div id="manage-stats-content" class="dashboard-section js-hidden">
+                <h2>Statistiques</h2>
+
+                <h3>Trajet de la semaine</h3>
+                <div class="stat-trips-board">
+                </div>
+                <h3>Crédits gagnés par plateforme</h3>
+                <div class="stat-credits-board">
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer id="footer-placeholder"></footer>
+<script src="../js/main.js" type="module"></script>
+</body>
+</html>

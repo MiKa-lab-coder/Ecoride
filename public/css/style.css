@@ -1,8 +1,41 @@
-/* Importing fonts */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+/* Reset */
+@import url('bases/reset.css');
 
-/* CSS Base */
-@import url('base.css');
+/* Colors */
+@import url('bases/colors.css');
 
-/* Media Queries */
-@import url('responsive.css');
+/* Font */
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+/* Typo */
+@import url('bases/typo.css');
+
+/*templates */
+@import url('templates/header.css');
+@import url('templates/footer.css');
+
+/* Composants */
+@import url('compos/container.css');
+@import url('compos/form.css');
+@import url('compos/cards.css');
+@import url('compos/link.css');
+
+
+/* Layout */
+@import url('layout/home/intro.css');
+@import url('layout/home/services.css');
+@import url('layout/home/rapid_search.css');
+@import url('layout/about/about.css');
+@import url('layout/terms/terms.css');
+@import url('layout/login/regitration.css');
+@import url('layout/login/connexion.css');
+@import url('layout/carpool/advanced_search.css');
+@import url('layout/contact/contact.css');
+@import url('layout/carpool/search_results.css');
+@import url('layout/details/details.css');
+@import url('layout/dashboard/sidebar.css');
+@import url('layout/dashboard/dashboard.css');
+@import url('layout/dashboard/profile.css');
+
+/* Others */
+@import url('others/other.css');

@@ -1,0 +1,116 @@
+/* Section Intro */
+.intro {
+    background-color: var(--spcing-white);
+    padding: 60px 20px;
+    text-align: center;
+}
+.intro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.intro-sentence{
+    font-size: 1.05rem;
+    color: var(--text-color);
+    max-width: 600px;
+    line-height: 1.7;
+}
+.intro img{
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+}
+/* media queries */
+/* tablets */
+@media (min-width: 768px) {
+    .intro {
+        padding: 80px 40px;
+    }
+    .intro-container {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+    .intro-sentence {
+        text-align: left;
+        flex:1;
+        font-size: 1.1rem;
+        max-width: 50%;
+    }
+    .intro img {
+        flex-shrink: 0;
+        width: 45%;
+        max-width: 450px;
+    }
+}
+/* desktops 1024 */
+@media (min-width: 1024px) {
+    .intro {
+        padding: 100px 60px;
+    }
+    .intro-container {
+        gap:70px;
+    }
+    .intro-sentence {
+        font-size: 1.2rem;
+        max-width: 50%;
+    }
+    .intro img {
+        width: 40%;
+        max-width: 500px;
+    }
+}
+/* desktops 1200 */
+@media (min-width: 1200px) {
+    .intro {
+        padding: 120px 80px;
+    }
+    .intro-container {
+        gap: 90px;
+    }
+    .intro-sentence {
+        font-size: 1.2rem;
+        max-width: 50%;
+    }
+    .intro img {
+        width: 35%;
+        max-width: 550px;
+    }
+}
+/* desktops 1440 */
+@media (min-width: 1440px) {
+    .intro {
+        padding: 140px 100px;
+    }
+    .intro-container {
+        gap: 120px;
+    }
+    .intro-sentence {
+        font-size: 1.3rem;
+        max-width: 65%;
+    }
+    .intro img {
+        max-width: 650px;
+    }
+}
+/* desktops 1920*/
+@media (min-width: 1920px) {
+    .intro {
+        padding: 170px 120px;
+    }
+    .intro-container {
+        gap: 150px;
+    }
+    .intro-sentence {
+        font-size: 1.4rem;
+        max-width: 70%;
+    }
+    .intro img {
+        max-width: 750px;
+    }
+}

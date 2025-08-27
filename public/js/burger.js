@@ -1,12 +1,13 @@
 //burger menu
 export function setBurger(){
     const toggle = document.querySelector('.toggle');
-    const wrapper = document.querySelector('.nav-wrapper');
+    const navWrap = document.querySelector('.nav-wrap');
 
-    if (toggle && wrapper) {
+    if (toggle && navWrap) {
         toggle.addEventListener('click', () => {
-            wrapper.classList.toggle('active');
-            const isActive = wrapper.classList.contains('active');
+            navWrap.classList.toggle('active');
+            toggle.classList.toggle('active');
+            const isActive = navWrap.classList.contains('active');
             toggle.setAttribute('aria-expanded', isActive);
         });
     }

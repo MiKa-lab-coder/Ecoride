@@ -1,0 +1,111 @@
+/* section registration */
+.registration{
+    padding: 60px 20px;
+    text-align: center;
+}
+.registration-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+.registration h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color-dark);
+    margin-bottom: 20px;
+}
+.registration p {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 30px;
+}
+.registration-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+/* styles pour le paragraphe qui contient le checkbox et le lien */
+.registration-help {
+    text-align: start;
+    font-size: 0.9rem;
+    color: var(--text-color-light);
+    margin-bottom: 20px;
+}
+/* styles pour l'input radio */
+.radio-input {
+    margin-right: 5px;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+/* media queries */
+/* tablets */
+@media screen and (min-width: 768px) {
+    .registration {
+        padding: 80px 40px;
+    }
+    .registration-container {
+        padding: 40px;
+        max-width: 600px;
+    }
+    .registration-container h1 {
+        font-size: 3rem;
+    }
+    .registration-container p {
+        font-size: 1.05rem;
+    }
+    .registration-form {
+        gap: 20px;
+    }
+}
+/* desktops 1024 */
+@media screen and (min-width: 1024px) {
+    .registration {
+        padding: 100px 60px;
+    }
+    .registration-container {
+        padding: 50px;
+        max-width: 650px;
+    }
+    .registration-container h1 {
+        font-size: 3.2rem;
+    }
+    .registration-container p {
+        font-size: 1.1rem;
+    }
+}
+/* desktops 1200 */
+@media screen and (min-width: 1200px) {
+    .registration {
+        padding: 120px 80px;
+    }
+    .registration-container {
+        padding: 60px;
+        max-width: 700px;
+    }
+    .registration-container h1 {
+        font-size: 3.5rem;
+    }
+    .registration-container p {
+        font-size: 1.15rem;
+    }
+}
+/* desktops 1440 */
+@media screen and (min-width: 1440px) {
+    .registration {
+        padding: 140px 100px;
+    }
+    .registration-container {
+        padding: 70px;
+        max-width: 800px;
+    }
+    .registration-container h1 {
+        font-size: 3.8rem;
+    }
+    .registration-container p {
+        font-size: 1.2rem;
+    }
+}

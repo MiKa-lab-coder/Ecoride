@@ -1,0 +1,16 @@
+/* Section Terms */
+.terms {
+    background-color: var(--background-gradient-start);
+    padding: 60px 20px;
+    text-align: center;
+}
+.terms-container {
+    display: flex;
+    background-color: var(--spcing-white);
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    gap: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+}

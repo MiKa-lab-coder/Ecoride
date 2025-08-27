@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Connectez-vous à Ecoride - La porte d'entrée votre solutions de covoiturage.">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
     <title>Connectez-vous !!!</title>
 </head>
 <body>
 <header id="header-placeholder"></header>
-
-<section class="connection">
-  <div class="connection-container">
-    <h1>Connexion</h1>
-    <p>Pas encore inscrit? <a class="connection-help" href="./inscription.html">Inscrivez-vous ici</a></p>
-    <form id="login-form" class="login-form" action="" method="post">
-      <label for="id"></label>
-      <input type="text" id="id" name="identifiant" placeholder="Identifiant" required>
-      <a  href="/contact"> Identifiant oublié ?</a>
-      <label for="password"></label>
-      <input type="password" id="password" name="password" placeholder="Mot de passe" required>
-      <a href="/contact"> Mot de passe oublié ?</a>
-      <button type="submit">Se connecter</button>
-    </form>
-  </div>
-</section>
+<main>
+    <section class="connexion">
+        <div class="connexion-container container card">
+            <h1>Connexion</h1>
+            <p>Pas encore inscrit ? <a class="link-primary" href="registration.html">Inscrivez-vous ici</a></p>
+            <form id="login-form" class="connexion-form" action="" method="post">
+                <label class="labels-hidden" for="id">Nom d'utilisateur</label>
+                <input type="text" id="id" name="identifiant" placeholder="Nom d'utilisateur" required>
+                <a class="connexion-help" href="/help"> Identifiant oublié ?</a>
+                <label class="labels-hidden" for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Mot de passe" required>
+                <a class="connexion-help" href=""> Mot de passe oublié ?</a>
+                <input type="submit" value="Connexion">
+            </form>
+        </div>
+    </section>
+</main>
 <footer id="footer-placeholder"></footer>
 <script src="../js/main.js" type="module"></script>
 </body>

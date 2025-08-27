@@ -1,0 +1,10 @@
+.link-primary {
+    color: var(--primary-color-eco);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.link-primary:hover {
+    color: var(--primary-color-dark);
+}

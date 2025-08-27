@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="trouvez ici un covoiturage écoresponsable avec Ecoride.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <title>rechercher un covoiturage</title>
+</head>
+<body>
+<header id="header-placeholder"></header>
+<main>
+    <section class="advanced-search">
+        <h1>Rechercher un covoiturage</h1>
+        <div class="advanced-search-container card">
+            <h3>Trouvez votre covoiturage</h3>
+            <form class="advanced-search-form" action="/search" method="GET">
+                <label class="labels-hidden" for="departure">départ</label>
+                <input type="text" id="departure" name="departure" list="cities" placeholder="Ville de départ" required>
+
+                <label class="labels-hidden" for="arrival">arrivée</label>
+                <input type="text" id="arrival" name="arrival" list="cities" placeholder="Ville d'arrivée" required>
+                <datalist id="cities">
+                    <option value="Paris"></option>
+                    <option value="Lyon"></option>
+                    <option value="Grenoble"></option>
+                    <option value="Clermont-Ferrand"></option>
+                    <option value="Marseille"></option>
+                    <option value="Nice"></option>
+                    <option value="Bordeaux"></option>
+                    <option value="Poitiers"></option>
+                    <option value="Limoges"></option>
+                    <option value="Toulouse"></option>
+                    <option value="Montpellier"></option>
+                    <option value="Perpignan"></option>
+                    <option value="Nantes"></option>
+                    <option value="Rennes"></option>
+                    <option value="Brest"></option>
+                    <option value="Orléans"></option>
+                    <option value="Tours"></option>
+                    <option value="Rouen"></option>
+                    <option value="Caen"></option>
+                    <option value="Lille"></option>
+                    <option value="Strasbourg"></option>
+                    <option value="Nancy"></option>
+                    <option value="Dijon"></option>
+                    <option value="Besançon"></option>
+                </datalist>
+
+                <label class="labels-hidden" for="date">date de départ</label>
+                <input type="date" id="date" name="date" required>
+
+                <input class="valid-search-form" type="submit" value="Rechercher">
+            </form>
+            <br>
+
+
+            <button class="filters-btn" id="filters-btn" type="button">Filtres</button>
+
+            <div class="advanced-search-filters js-hidden" id="advanced-search-filters">
+                <label for="carpool-type">Type de covoiturage:</label>
+                <select id="carpool-type" name="carpool-type">
+                    <option value="all">Tous</option>
+                    <option value="ecologic">Ecologique</option>
+                </select>
+                <label for="time">Heure de départ :</label>
+                <input type="time" id="time" name="time">
+                <label for="time2">Heure d'arrivée :</label>
+                <input type="time" id="time2" name="time2">
+
+                <label for="seats">Nombre de places restantes :</label>
+                <input type="number" id="seats" name="seats" min="1" max="6" placeholder="Nombre de places">
+
+                <label for="price">Prix maximum :</label>
+                <input type="number" id="price" name="price" min="0" step="1" placeholder="selectionnez un prix">
+
+                <label for="eco-rating">Note Ecorider :</label>
+                <input type="number" id="eco-rating" name="eco-rating" min="1" max="5" step="1"
+                       placeholder="Note de 1 à 5">
+
+                <button class="reset-btn" id="reset-filter" type="button">Effacer les filtres</button>
+            </div>
+        </div>
+    </section>
+    <section class="search-results">
+        <div class="results-container">
+            <h2>Résultats de votre recherche</h2>
+            <div class="grid-container">
+                <div class="results-card card">
+                    <!-- données mockées -->
+                    <div class="results-card-header">
+                        <h4 class="results-card-road">Paris <span class="arrow">→</span> Lyon</h4>
+                        <div class="results-card-driver">
+                            <img src="../img/bx-user.svg" alt="image profil conducteur" class="results-card-img"
+                                 width="80" height="80">
+                            <p>Conducteur : <span class="results-details">Jean Dupont</span></p>
+                        </div>
+                    </div>
+                    <div class="results-card-details">
+                        <p>Départ : <span class="results-details">Aujourd'hui, 14:00</span></p>
+                        <p>Arrivée : <span class="results-details">Aujourd'hui, 18:30</span></p>
+                        <p>Places restantes : <span class="results-details">3</span></p>
+                        <p>Prix : <span class="results-details">5 credits</span></p>
+                        <p>Type de trajet : <span class="results-details">Ecologique</span></p>
+                        <p>Note Ecorider : <span class="s">4.5 <span class="star">⭐</span></span></p>
+                    </div>
+                    <div class="ride-footer">
+                        <input class="details-btn" type="button" value="Voir les détails">
+                    </div>
+                </div>
+                <div class="results-card card">
+                    <!-- données mockées -->
+                    <div class="results-card-header">
+                        <h4 class="results-card-road">Paris <span class="arrow">→</span> Lyon</h4>
+                        <div class="results-card-driver">
+                            <img src="../img/bx-user.svg" alt="image profil conducteur" class="results-card-img"
+                                 width="80" height="80">
+                            <p>Conducteur : <span class="results-details">Jean Dupont</span></p>
+                        </div>
+                    </div>
+                    <div class="results-card-details">
+                        <p>Départ : <span class="results-details">Aujourd'hui, 14:00</span></p>
+                        <p>Arrivée : <span class="results-details">Aujourd'hui, 18:30</span></p>
+                        <p>Places restantes : <span class="results-details">3</span></p>
+                        <p>Prix : <span class="results-details">2 credits</span></p>
+                        <p>Type de trajet : <span class="results-details">Ecologique</span></p>
+                        <p>Note Ecorider : <span class="s">4.5 <span class="star">⭐</span></span></p>
+                    </div>
+                    <div class="ride-footer">
+                        <input class="details-btn" type="button" value="Voir les détails">
+                    </div>
+                </div>
+                <div class="results-card card">
+                    <!-- données mockées -->
+                    <div class="results-card-header">
+                        <h4 class="results-card-road">Paris <span class="arrow">→</span> Lyon</h4>
+                        <div class="results-card-driver">
+                            <img src="../img/bx-user.svg" alt="image profil conducteur" class="results-card-img"
+                                 width="80" height="80">
+                            <p>Conducteur : <span class="results-details">Jean Dupont</span></p>
+                        </div>
+                    </div>
+                    <div class="results-card-details">
+                        <p>Départ : <span class="results-details">Aujourd'hui, 14:00</span></p>
+                        <p>Arrivée : <span class="results-details">Aujourd'hui, 18:30</span></p>
+                        <p>Places restantes : <span class="results-details">3</span></p>
+                        <p>Prix : <span class="results-details">3 credits</span></p>
+                        <p>Type de trajet : <span class="results-details">Ecologique</span></p>
+                        <p>Note Ecorider : <span class="s">4.5 <span class="star">⭐</span></span></p>
+                    </div>
+                    <div class="ride-footer">
+                        <input class="details-btn" type="button" value="Voir les détails">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="no-results">
+            <p>Essayez de modifier vos critères de recherche.</p>
+        </div>
+    </section>
+</main>
+<footer id="footer-placeholder"></footer>
+<script src="../js/main.js" type="module"></script>
+</body>
+</html>

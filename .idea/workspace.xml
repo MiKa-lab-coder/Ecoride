@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d04e4e49-dd9f-4e36-97ee-85add3205624" name="Changes" comment="feat html files + js functions + rewrite all css">
+      <change afterPath="$PROJECT_DIR$/public/css/compos/cards.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/compos/container.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/compos/form.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/compos/link.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/layout/dashboard/dashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/layout/dashboard/profile.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/layout/dashboard/sidebar.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/layout/details/details.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/html/carpool.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/html/dashboard.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/html/details.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/js/dashboardBTNManager.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/js/displaySidebarByRoles.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/js/moreDetails.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/js/sectionMenuManager.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/base.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/responsive.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/about.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/connexion.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/connexion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/contact.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/contact.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/includes/footer.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/includes/footer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/includes/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/includes/header.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/inscription.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/registration.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/terms.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/terms.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/img/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/burger.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/burger.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/main.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+        <option value="CSS File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;MiKa-lab-coder&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/MiKa-lab-coder/Ecoride.git&quot;,
+    &quot;accountId&quot;: &quot;92cd2516-e294-43ed-a912-511ce11d2bd2&quot;
+  }
+}</component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:/xampp/php/php.exe" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2zXQk02itLl7AZxvOl9sSGEoYvi" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;JavaScript Debug.about.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.carpool.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.connection.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.connexion.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.contact.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.dashboard.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.details.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.header.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.home.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.inscription.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.registration.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.terms.html.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#1 on dev&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Git/Ecoride/public/img&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Git\Ecoride\public\img" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Git\Ecoride\public\css\layout" />
+      <recent name="D:\Git\Ecoride\public\css\layout\sections" />
+      <recent name="D:\Git\Ecoride\public\css\layout\sections\details" />
+      <recent name="D:\Git\Ecoride\public\css\templates" />
+      <recent name="D:\Git\Ecoride\public\css\layout\sections\home" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JavaScript Debug.dashboard.html">
+    <configuration name="about.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Ecoride/public/html/about.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="connexion.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Ecoride/public/html/connexion.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="dashboard.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Ecoride/public/html/dashboard.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="home.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Ecoride/public/html/home.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="terms.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/Ecoride/public/html/terms.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.dashboard.html" />
+        <item itemvalue="JavaScript Debug.home.html" />
+        <item itemvalue="JavaScript Debug.terms.html" />
+        <item itemvalue="JavaScript Debug.about.html" />
+        <item itemvalue="JavaScript Debug.connexion.html" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d04e4e49-dd9f-4e36-97ee-85add3205624" name="Changes" comment="" />
+      <created>1751875081554</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1751875081554</updated>
+      <workItem from="1751875081845" duration="226000" />
+      <workItem from="1751875315308" duration="41788000" />
+      <workItem from="1751969661888" duration="7956000" />
+      <workItem from="1751977989184" duration="4390000" />
+      <workItem from="1751986360758" duration="2509000" />
+      <workItem from="1752044410130" duration="7213000" />
+      <workItem from="1752055842583" duration="23783000" />
+      <workItem from="1752134230288" duration="3320000" />
+      <workItem from="1752146138368" duration="9871000" />
+      <workItem from="1752209868528" duration="40429000" />
+      <workItem from="1752312569885" duration="27422000" />
+      <workItem from="1752480383822" duration="10048000" />
+      <workItem from="1752494702719" duration="9266000" />
+      <workItem from="1752564740343" duration="3694000" />
+      <workItem from="1752586537077" duration="28000" />
+      <workItem from="1752586594120" duration="5147000" />
+      <workItem from="1752651888755" duration="2159000" />
+      <workItem from="1752654123696" duration="905000" />
+      <workItem from="1752737839367" duration="96000" />
+      <workItem from="1752737968894" duration="2648000" />
+      <workItem from="1752748120286" duration="10727000" />
+      <workItem from="1752826118347" duration="13222000" />
+      <workItem from="1753007254324" duration="10056000" />
+      <workItem from="1753084334337" duration="13491000" />
+      <workItem from="1753533866728" duration="47000" />
+      <workItem from="1753533935771" duration="28000" />
+      <workItem from="1756121937899" duration="48000" />
+      <workItem from="1756122152638" duration="791000" />
+      <workItem from="1756125307197" duration="12032000" />
+      <workItem from="1756192200655" duration="43117000" />
+      <workItem from="1756304164579" duration="104000" />
+      <workItem from="1756306867076" duration="893000" />
+    </task>
+    <task id="LOCAL-00001" summary="add /public + index.html &amp; style.css">
+      <option name="closed" value="true" />
+      <created>1751875805738</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1751875805738</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add /public + index.html &amp; style.css + burger">
+      <option name="closed" value="true" />
+      <created>1751919252314</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1751919252314</updated>
+    </task>
+    <task id="LOCAL-00003" summary="fix layout &amp; style + resize img index.html">
+      <option name="closed" value="true" />
+      <created>1751988277515</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1751988277515</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat html(connexion,inscription, terms) &amp; rework css(general &amp; responsive)">
+      <option name="closed" value="true" />
+      <created>1752073577604</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1752073577604</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat html(contact)+css">
+      <option name="closed" value="true" />
+      <created>1752136291005</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1752136291005</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fix route(html)statique">
+      <option name="closed" value="true" />
+      <created>1752137562801</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1752137562801</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add /public + index.html &amp; style.css" />
+    <MESSAGE value="add /public + index.html &amp; style.css + burger" />
+    <MESSAGE value="fix layout &amp; style + resize img index.html" />
+    <MESSAGE value="feat html(connexion,inscription, terms) &amp; rework css(general &amp; responsive)" />
+    <MESSAGE value="feat html(contact)+css" />
+    <MESSAGE value="fix route(html)statique" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix route(html)statique" />
+  </component>
+</project>

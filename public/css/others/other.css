@@ -1,0 +1,9 @@
+/* hide label */
+.labels-hidden{
+    display: none;
+}
+
+/* hide element with 'js-hidden' */
+.js-hidden {
+    display: none;
+}

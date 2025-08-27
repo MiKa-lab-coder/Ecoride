@@ -1,0 +1,23 @@
+:root {
+
+    /* Primary Colors */
+    --primary-color-dark: #2f4f4f;
+    --primary-color-medium: #4682b4;
+
+    /* Eco Colors */
+    --primary-color-eco: #6b8e23;
+    --primary-color-eco-hover: #556b2f;
+
+    /* Spacing Colors */
+    --spcing-white: #FFFFFF;
+    --spcing-light: #f8f8f8;
+
+    /* Text & Borders Colors */
+    --text-color: #4a4a4a;
+    --text-color-light: #7d7d7d;
+    --boder-color: #d3d3d3;
+
+    /* Background Colors */
+    --background-gradient-start: #e0ffe0;
+    --background-gradient-end: #c8e6c9;
+}

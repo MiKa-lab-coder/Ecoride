@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenu chez Ecoride</title>
+    <meta name="description" content="Ecoride - Votre partenaire de mobilité durable">
+    <meta name="keywords" content="Ecoride, mobilité durable, transport écologique, covoiturage, partage">
+    <link rel="stylesheet" href="../css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+
+</head>
+<body>
+<header id="header-placeholder"></header>
+<main>
+    <h1>Bienvenue chez Ecoride</h1>
+
+    <section class="intro">
+        <!-- Section d'introduction -->
+        <div class="container intro-container">
+            <p class="intro-sentence">Chez Ecoride, nous croyons en une mobilité durable et respectueuse de
+                l'environnement.
+                Notre mission est de vous offrir des solutions de transport qui réduisent votre empreinte carbone tout
+                en
+                vous permettant de vous déplacer facilement.
+                Nous proposons une gamme de services de covoiturage.
+            </p>
+            <img src="../img/covoiturage1.jpg" alt="image de presentation 1" class="intro-img" loading="lazy">
+        </div>
+    </section>
+    <section class="rapid-search">
+        <!-- Section pour la recherche rapide de covoiturage -->
+        <div class="rapid-search-container">
+            <h3>Recherche rapide</h3>
+            <form class="search-form" action="/search" method="GET">
+                <label class="labels-hidden" for="departure">Départ : </label>
+                <input type="text" id="departure" name="departure" list="cities" placeholder="Ville de départ" required>
+
+                <label class="labels-hidden" for="arrival">Arrivée : </label>
+                <input type="text" id="arrival" name="arrival" list="cities" placeholder="Ville d'arrivée" required>
+                <datalist id="cities">
+                    <option value="Paris"></option>
+                    <option value="Lyon"></option>
+                    <option value="Grenoble"></option>
+                    <option value="Clermont-Ferrand"></option>
+                    <option value="Marseille"></option>
+                    <option value="Nice"></option>
+                    <option value="Bordeaux"></option>
+                    <option value="Poitiers"></option>
+                    <option value="Limoges"></option>
+                    <option value="Toulouse"></option>
+                    <option value="Montpellier"></option>
+                    <option value="Perpignan"></option>
+                    <option value="Nantes"></option>
+                    <option value="Rennes"></option>
+                    <option value="Brest"></option>
+                    <option value="Orléans"></option>
+                    <option value="Tours"></option>
+                    <option value="Rouen"></option>
+                    <option value="Caen"></option>
+                    <option value="Lille"></option>
+                    <option value="Strasbourg"></option>
+                    <option value="Nancy"></option>
+                    <option value="Dijon"></option>
+                    <option value="Besançon"></option>
+                </datalist>
+                <label class="labels-hidden" for="date">Date de départ souhaitée</label>
+                <input type="date" id="date" name="date" required>
+                <div class="valid-search-form">
+                    <input type="submit" value="Rechercher" class="btn" id="search-btn">
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="services">
+        <!-- Section pour présenter les avantages du covoiturage -->
+        <h2>Les avantages du covoiturage</h2>
+        <div class="services-container1">
+            <img src="../img/covoiturage2.jpg" alt="image de presentation 2" class="service-img" loading="lazy">
+            <div class="card-container">
+                <div class="services-card">
+                    <img class="card-icons" src="../img/leaf.png" alt="icons feuille" loading="lazy">
+                    <div class="text-wrap">
+                        <p class="card-txt">Faites un geste concret pour la planète à chaque déplacement. Choisir le
+                            covoiturage, c'est limiter
+                            activement les émissions de CO2.</p>
+                    </div>
+                </div>
+                <div class="services-card">
+                    <img class="card-icons" src="../img/euro.png" alt="icons euros" loading="lazy">
+                    <div class="text-wrap">
+                        <p class="card-txt">Voyagez plus intelligemment et réduisez vos dépenses. En partageant les
+                            frais d'essence et de péage avec vos passagers, chaque trajet permet d'économiser.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="services-container2">
+            <div class="card-container">
+                <div class="services-card">
+                    <img class="card-icons" src="../img/car.png" alt="icons voiture" loading="lazy">
+                    <div class="text-wrap">
+                        <p class="card-txt">Avec chaque voiture partagée, transformez vos trajets en économies
+                            concrètes.
+                            Réduisez significativement vos frais en divisant les coûts.</p>
+                    </div>
+                </div>
+                <div class="services-card">
+                    <img class="card-icons" src="../img/community.png" alt="icons communauté" loading="lazy">
+                    <div class="text-wrap">
+                        <p class="card-txt">Rejoignez notre communauté de covoitureurs engagés pour un avenir plus vert.
+                            Chaque trajet partagé
+                            est un pas de plus vers la réduction des émissions de CO2.</p>
+                    </div>
+                </div>
+            </div>
+            <img src="../img/covoiturage3.jpg" alt="image de presentation 3" class="service-img" loading="lazy">
+        </div>
+    </section>
+    <p class="contactUs">Une question ? <a href="/contact"> Contactez-nous</a>.</p>
+</main>
+<footer id="footer-placeholder"></footer>
+<script src="../js/main.js" type="module"></script>
+</body>
+</html>

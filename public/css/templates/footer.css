@@ -1,0 +1,165 @@
+/* footer */
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--spcing-light);
+    border-top: 1px solid var(--boder-color);
+    min-height: 80px;
+    padding: 15px 20px;
+    gap: 15px;
+}
+
+.social-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.social-icon {
+    width: 30px;
+    height: 30px;
+    color: var(--primary-color-dark);
+    display: block;
+    vertical-align: middle;
+    transition: transform 0.3s ease;
+}
+
+.social-icon:hover {
+    transform: scale(1.1);
+}
+
+.footer-about {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.footer-about a {
+
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-about a:hover {
+    color: var(--primary-color-eco);
+}
+
+.footer-text {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-top: 5px;
+}
+
+.footer-text a {
+    color: var(--primary-color-eco);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+/* media queries */
+/* tablets */
+@media (min-width: 768px) {
+    .footer-about {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px 30px;
+    }
+
+    .social-links {
+        gap: 20px;
+    }
+}
+
+/* desktops 1024 */
+@media (min-width: 1024px) {
+    .footer-nav {
+        padding: 25px 40px;
+        gap: 25px;
+    }
+
+    .social-links {
+        gap: 25px;
+    }
+
+    .footer-about {
+        gap: 40px;
+        font-size: 1rem;
+    }
+
+    .footer-text {
+        font-size: 1rem;
+    }
+}
+
+/* desktops 1200 */
+@media (min-width: 1200px) {
+    .footer-nav {
+        padding: 30px 800px;
+        gap: 30px;
+    }
+
+    .social-links {
+        gap: 40px;
+    }
+
+    .footer-about {
+        gap: 55px;
+        font-size: 1.05rem;
+    }
+
+}
+
+/* desktops 1440 */
+@media (min-width: 1440px) {
+    .footer-nav {
+        padding: 35px 100px;
+        gap: 40px;
+    }
+
+    .social-links {
+        gap: 50px;
+    }
+
+    .footer-about {
+        gap: 70px;
+        font-size: 1.1rem;
+    }
+
+    .footer-text {
+        font-size: 1.1rem;
+    }
+}
+
+/* desktops 1920 */
+@media (min-width: 1920px) {
+    .footer-nav {
+        padding: 45px 120px;
+        gap: 50px;
+    }
+
+    .social-links {
+        gap: 60px;
+    }
+
+    .footer-about {
+        gap: 80px;
+        font-size: 1.2rem;
+    }
+
+    .footer-about a {
+        font-size: 1.2rem;
+    }
+
+    .footer-text {
+        font-size: 1.15rem;
+    }
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Inscrivez-vous sur Ecoride - Votre plateforme de covoiturage écoresponsable.">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <title>Inscrivez-vous !!!</title>
+</head>
+<body>
+<header id="header-placeholder"></header>
+<main>
+    <section class="registration">
+        <div class="registration-container card">
+            <h1>Inscription</h1>
+            <p>Déjà inscrit ? <a class="link-primary" href="connexion.html">Connectez-vous ici</a></p>
+            <form id="registration-form" class="registration-form" action="" method="post">
+                <label class="labels-hidden" for="name">nom : </label>
+                <input type="text" id="name" name="name" placeholder="Nom" required>
+                <label class="labels-hidden" for="surname">prénom : </label>
+                <input type="text" id="surname" name="surname" placeholder="Prénom" required>
+                <label class="labels-hidden" for="username">nom d'utilisateur : </label>
+                <input type="text" id="username" name="username" placeholder="Nom d'utilisateur" required>
+                <label class="labels-hidden" for="photo">sélectionnez une photo : </label>
+                <input type="file" id="photo" name="photo" placeholder="Nom" accept="image/*">
+                <label class="labels-hidden" for="email">email : </label>
+                <input type="email" id="email" name="email" placeholder="Email" required>
+                <label class="labels-hidden" for="password">Mot de passe : </label>
+                <input type="password" id="password" name="password" placeholder="Mot de passe" required>
+                <label class="labels-hidden" for="confirm-password"> Confirmez mot de passe : </label>
+                <input type="password" id="confirm-password" name="confirm-password"
+                       placeholder="Confirmer le mot de passe"
+                       required>
+                <p>Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule,
+                    un chiffre et un caractère spécial.</p>
+
+                <p class="registration-help">
+                    <label class="labels-hidden" for="terms">Acceptez nos conditions,</label>
+                    <input class="radio-input" type="radio" value="terms" id="terms" name="terms"
+                           required> acceptez nos <a class="link-primary" href="./terms.html">conditions
+                    d'utilisation</a>.</p>
+                <input type="submit" value="S'inscrire">
+            </form>
+        </div>
+    </section>
+</main>
+<footer id="footer-placeholder"></footer>
+<script src="../js/main.js" type="module"></script>
+</body>
+</html>

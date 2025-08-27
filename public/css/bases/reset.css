@@ -1,0 +1,31 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* Body */
+body {
+    /* Background */
+    background: radial-gradient(circle at center, var(--background-gradient-start), var(--background-gradient-end));
+    /* Font */
+    font-family: 'Lato', sans-serif;
+    /* Font Size */
+    font-size: 1rem;
+    /* Text */
+    color: var(--text-color);
+    /* Text Spacing */
+    line-height: 1.7;
+    /* Overflow */
+    overflow-x: hidden;
+}
+/* Links */
+a {
+    text-decoration: none;
+    color: var(--primary-color-medium);
+    transition: color 0.3s ease-in-out;
+}
+/* Links Hover */
+a:hover {
+    color: var(--primary-color-dark);
+}

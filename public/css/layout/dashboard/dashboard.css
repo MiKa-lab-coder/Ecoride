@@ -1,0 +1,130 @@
+/* section dashboard */
+.dashboard-container{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 0;
+}
+
+.dashboard-wrap {
+    background-color: var(--spcing-white);
+    margin: 15px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-wrap h1 {
+    font-size: 2.3rem;
+    color: var(--primary-color-dark);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* section main-content */
+.dashboard-main-content {
+    flex-grow: 1;
+    background-color: var(--spcing-white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-main-content h3 {
+    font-size: 1.8rem;
+    color: var(--primary-color-dark);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-section {
+    display: none;
+}
+
+.dashboard-section.active {
+    display: block;
+}
+
+/* media queries */
+/* tablets*/
+@media (min-width: 768px) {
+    .dashboard-container {
+        flex-direction: row;
+        gap: 30px;
+    }
+
+    .dashboard-sidebar {
+        flex: 0 0 250px;
+        width: auto;
+        padding: 30px 20px;
+    }
+
+    .dashboard-wrap {
+        max-width: 960px;
+        margin: 30px auto;
+        padding: 30px 20px;
+    }
+
+    .dashboard-wrap h1 {
+        font-size: 2.8rem;
+    }
+
+    .dashboard-main-content {
+        flex-grow: 1;
+        padding: 30px;
+    }
+
+    .dashboard-main-content h3 {
+        font-size: 2.2rem;
+    }
+}
+
+/* desktop 1024 */
+@media (min-width: 1024px) {
+    .dashboard-container {
+        gap: 40px;
+    }
+
+    .dashboard-wrap {
+        max-width: 1200px;
+        margin: 30px 60px;
+        padding: 40px 30px;
+    }
+
+    .dashboard-main-content {
+        padding: 40px;
+    }
+}
+/* desktop 1440 */
+@media (min-width: 1440px) {
+    .dashboard-container {
+        gap: 50px;
+    }
+
+    .dashboard-wrap {
+        max-width: 1400px;
+        margin: 30px 80px;
+        padding: 50px 40px;
+    }
+
+    .dashboard-main-content {
+        padding: 50px;
+    }
+}
+/* desktop 1920 */
+@media (min-width: 1920px) {
+    .dashboard-container {
+        gap: 60px;
+    }
+
+    .dashboard-wrap {
+        max-width: 1900px;
+        margin: 30px 100px;
+        padding: 60px 50px;
+    }
+
+    .dashboard-main-content {
+        padding: 60px;
+    }
+}
