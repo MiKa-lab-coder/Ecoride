@@ -38,6 +38,7 @@
                     <h2>Actions disponibles</h2>
                     <ul>
                         <li><a href="#" data-action="view-profile-content">Voir mon profil</a></li>
+                        <li><a href="#" data-action="review-content">Mes évaluations</a></li>
                         <li><a href="#" data-action="manage-trips-content">Gérer mes trajets</a></li>
                         <li><a href="#" data-action="past-trips-content">Mes précédents trajets</a></li>
                     </ul>
@@ -68,6 +69,7 @@
                         <p>Nom d'utilisateur: ${username}</p>
                         <p>Nom: ${Name}</p>
                         <p>Prénom: ${firstName}</p>
+                        <p>Ma note: ${rating}<span class="star">⭐</span></p>
                         <p>Email: ${email}</p>
                         <p>Crédits disponibles : ${solde_credit}</p>
                         <button class="edit-profile-btn" id="edit-profile-btn">Modifier</button>
@@ -89,6 +91,7 @@
 
 
                         <h3>Mes véhicules</h3>
+                        <br>
                         <div class="my-cars">
 
                             <ul class="my-car-list">
@@ -98,6 +101,8 @@
                                     <option value="car2">Véhicule 2</option>
                                     <option value="car3">Véhicule 3</option>
                                 </select>
+                                <br>
+                                <br>
                                 <li>
                                     <p>Véhicule sélectionné :</p>
                                     <p>Plaque : ${car_plate}</p>
@@ -108,7 +113,7 @@
                                     <p>Nombre de places : ${car_seats}</p>
                                     <p>Énergie : ${car_energie}</p>
                                     <p>Préférence : ${car_preference}</p>
-                                    <button class="edit-car-btn" id="edit-car-btn">Modifier</button>
+                                    <button class="add-car-btn" id="add-car-btn">ajouter</button>
                                     <div class="add-car-form js-hidden">
                                         <form method="post" action="">
                                             <label for="car-plate">Plaque d'immatriculation</label>
@@ -130,19 +135,9 @@
                                                 <option value="electrique">Électrique</option>
                                                 <option value="hybride">Hybride</option>
                                             </select>
-                                            <div class="checkbox-group">
-                                                <input type="checkbox" id="car-pref1" name="car-preference">
-                                                <label for="car-pref1">Fumeurs</label>
-                                            </div>
-
-                                            <div class="checkbox-group">
-                                                <input type="checkbox" id="car-pref2" name="car-preference">
-                                                <label for="car-pref2">Animaux</label>
-                                            </div>
                                             <br>
-                                            <input type="submit" class="save-car-btn" value="Enregistrer">
-                                            <input type="submit" class="cancel-car-btn" id="cancel-car-btn"
-                                                   value="Annuler">
+                                            <br>
+                                            <button class="cancel-car-btn" id="cancel-add-car-btn">Annuler</button>
                                         </form>
                                         <br>
                                     </div>
@@ -167,6 +162,7 @@
                             <p>Heure d'arrivée : ${heure_arrivee}</p>
                             <p>Conducteur : ${conducteur}</p>
                             <p>Coût en crédit : ${prix} </p>
+                            <br>
                             <form action="" method="post">
                                 <label for="rating">Notez le trajet :</label>
                                 <select id="rating" name="rating">
@@ -176,17 +172,23 @@
                                     <option value="4">4 étoiles</option>
                                     <option value="5">5 étoiles</option>
                                 </select>
+                                <br>
+                                <br>
                                 <label for="comment">Laissez un commentaire :</label>
                                 <textarea id="comment" name="comment" rows="4" cols="30"></textarea>
                             </form>
-                            <input type="submit" class="end-trip-btn" value="Terminer le trajet">
+                            <br>
+                            <input type="submit" class="end-trip-btn" value="Terminer">
+                            <input type="submit" class="send issues" value="signaler">
                         </li>
                     </ul>
                 </div>
 
                 <div class="trips-list-driver" id="drivers-content">
                     <h3>Mes propositions de trajet :</h3>
-                    <form action="" method="post">
+                    <button class="add-trips-btn" id="add-trips-btn">proposer</button>
+                    <br>
+                    <form action="" method="post" class="add-trip-form js-hidden">
                         <label for="title-new-trips">Nom du trajet :</label>
                         <input type="text" id="title-new-trips" name="titre" required>
                         <label for="depart-new-trips">Départ :</label>
@@ -203,14 +205,29 @@
                         <input type="number" id="price-new-trips" name="prix" required min="0">
                         <label for="seat-new-trips">Nombre de places disponibles :</label>
                         <input type="number" id="seat-new-trips" name="places_disponibles" required min="1">
-                        <input type="submit" class="create-new-trips-btn" value="Créer le trajet">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="car-pref1" name="car-preference">
+                            <label for="car-pref1">Fumeurs</label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="car-pref2" name="car-preference">
+                            <label for="car-pref2">Animaux</label>
+                        </div>
+                        <br>
                         <label for="car-select-new-trips">Véhicule :</label>
                         <select id="car-select-new-trips" name="car-select" required>
                             <option value="car1">Véhicule 1</option>
                             <option value="car2">Véhicule 2</option>
                             <option value="car3">Véhicule 3</option>
                         </select>
+                        <br>
+                        <br>
+                        <button class="cancel-trip-btn" id="cancel-trip-btn">Annuler</button>
+                        <br>
+                        <input type="submit" class="create-new-trips-btn" value="Créer">
                     </form>
+                    <br>
                     <ul>
                         <li>
                             <p>Titre trajet : ${titre}</p>
@@ -222,28 +239,39 @@
                             <p>Prix en crédit : ${prix} </p>
                             <p>Nombre de places disponibles : ${places_disponibles}</p>
                             <p>Véhicule : ${vehicule}</p>
-                            <input type="submit" class="start-trip-btn" value="Lancer le trajet">
-                            <input type="submit" class="edit-trip-btn" value="Modifier le trajet">
-                            <input type="submit" class="delete-trip-btn" value="Supprimer le trajet">
+                            <br>
+                            <input type="submit" class="start-trip-btn" value="Lancer">
+                            <input type="submit" class="finish-trip-btn" value="Terminer">
+                            <input type="submit" class="edit-trip-btn" value="Modifier">
+                            <input type="submit" class="delete-trip-btn" value="Annuler">
                         </li>
                     </ul>
                 </div>
             </div>
-            <div class="past-trips dashboard-section js-hidden" id="past-trips-content">
-                <h3>Mes précédents trajets :</h3>
+            <div class="review-content dashboard-section js-hidden" id="review-content">
+                <h2>Mes évaluations</h2>
                 <ul>
                     <li>
                         <p>Titre trajet : ${titre}</p>
-                        <p>Départ : ${depart}</p>
-                        <p>Arrivée : ${arrivee}</p>
-                        <p>Date : ${date}</p>
-                        <p>Heure de départ : ${heure_depart}</p>
-                        <p>Heure d'arrivée : ${heure_arrivee}</p>
-                        <p>Conducteur : ${conducteur}</p>
-                        <p>Prix en crédit : ${prix} </p>
+                        <p>Note : ${note} étoiles</p>
+                        <p>Commentaire : ${commentaire}</p>
                     </li>
                 </ul>
-            </div>
+            </div> <div class="past-trips dashboard-section js-hidden" id="past-trips-content">
+            <h3>Mes précédents trajets :</h3>
+            <ul>
+                <li>
+                    <p>Titre trajet : ${titre}</p>
+                    <p>Départ : ${depart}</p>
+                    <p>Arrivée : ${arrivee}</p>
+                    <p>Date : ${date}</p>
+                    <p>Heure de départ : ${heure_depart}</p>
+                    <p>Heure d'arrivée : ${heure_arrivee}</p>
+                    <p>Conducteur : ${conducteur}</p>
+                    <p>Prix en crédit : ${prix} </p>
+                </li>
+            </ul>
+        </div>
             <div id="review-content-content" class="dashboard-section js-hidden">
                 <h2>Gestion des annonces</h2>
                 <ul>
