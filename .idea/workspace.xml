@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d04e4e49-dd9f-4e36-97ee-85add3205624" name="Changes" comment="feat html files + js functions + rewrite all css">
+    <list default="true" id="d04e4e49-dd9f-4e36-97ee-85add3205624" name="Changes" comment="fix css :hover btn">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/compos/form.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/compos/form.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/html/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/dashboardBTNManager.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/dashboardBTNManager.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,8 +130,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.25557.131" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-IU-252.25557.131" />
       </set>
     </attachedChunks>
   </component>
@@ -173,6 +176,7 @@
       <workItem from="1756306867076" duration="893000" />
       <workItem from="1756309279675" duration="666000" />
       <workItem from="1756472478026" duration="1544000" />
+      <workItem from="1756632455926" duration="4688000" />
     </task>
     <task id="LOCAL-00001" summary="add /public + index.html &amp; style.css">
       <option name="closed" value="true" />
@@ -222,7 +226,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752137562801</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="fix css :hover btn">
+      <option name="closed" value="true" />
+      <created>1756632661630</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1756632661630</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -235,6 +247,7 @@
     <MESSAGE value="feat html(connexion,inscription, terms) &amp; rework css(general &amp; responsive)" />
     <MESSAGE value="feat html(contact)+css" />
     <MESSAGE value="fix route(html)statique" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix route(html)statique" />
+    <MESSAGE value="fix css :hover btn" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix css :hover btn" />
   </component>
 </project>
