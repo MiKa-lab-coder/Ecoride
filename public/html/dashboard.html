@@ -30,7 +30,7 @@
                     <h2>Actions de modération</h2>
                     <ul>
                         <li><a href="#" data-action="review-content-content">Revue du contenu</a></li>
-                        <li><a href="#" data-action="user-reports-content">Rapports d'utilisateurs</a></li>
+                        <li><a href="#" data-action="user-reports-content">Gestion des litiges</a></li>
                     </ul>
                 </nav>
 
@@ -191,6 +191,8 @@
                     <form action="" method="post" class="add-trip-form js-hidden">
                         <label for="title-new-trips">Nom du trajet :</label>
                         <input type="text" id="title-new-trips" name="titre" required>
+                        <label for ="description-new-trips">Description :</label>
+                        <textarea id="description-new-trips" name="description" rows="2"  required></textarea>
                         <label for="depart-new-trips">Départ :</label>
                         <input type="text" id="depart-new-trips" name="depart" required>
                         <label for="arrival-new-trips">Arrivée :</label>
@@ -276,13 +278,19 @@
                 <h2>Gestion des annonces</h2>
                 <ul>
                     <li>
+                        <!-- Exemple d'annonce à modérer -->
+                        <!-- css sous fornme de carte?? -->
+                        <!-- Mettre en place une boucle pour afficher toutes les annonces en attente de modération,
+                         max 9 pour eviter poid trop important-->
+                        <p>ID Annonce : ${id_annonce}</p>
                         <p>Titre annonce : ${titre_annonce}</p>
                         <p>ID Chaufeur : ${id}</p>
+                        <!-- Verifier si conform avec regle de la plateforme? -->
                         <p>Description : ${description_annonce}</p>
-                        <p>Date de création : ${date_creation}</p>
+                        <p>Date du trajet : ${date_trajet}</p>
                         <p>Prix : ${prix}</p>
-                        <input type="submit" class="validate-announcement-btn" value="Valider l'annonce">
-                        <input type="submit" class="reject-announcement-btn" value="Refuser l'annonce">
+                        <input type="submit" class="validate-announcement-btn" value="Accepter">
+                        <input type="submit" class="reject-announcement-btn" value="Rejeter">
                     </li>
                 </ul>
             </div>
@@ -293,9 +301,9 @@
                         <p>ID Trajet : ${id_trajet}</p>
                         <p>Titre trajet : ${titre_trajet}</p>
                         <p>ID chauffeur : ${id_chaufeur}</p>
-                        <input type="submit" class="contact-users-btn" value="Contacter chauffeur">
+                        <input type="submit" class="contact-users-btn" value="Mail chauffeur">
                         <p>ID passager : ${id_passager}</p>
-                        <input type="submit" class="contact-users-btn" value="Contacter passager">
+                        <input type="submit" class="contact-users-btn" value="Mail passager">
                         <p>Heure de départ : ${heure_depart}</p>
                         <p>Heure d'arrivée : ${heure_arrivee}</p>
                         <p>Commentaires : ${commentaire} </p>
@@ -306,18 +314,24 @@
             <div id="manage-users-content" class="dashboard-section js js-hidden">
                 <h2>Gestion des Utilisateurs</h2>
                 <form method="post" action="">
-                    <label for="new-username">Nom d'utilisateur</label>
+                    <label for="new-username"  >Nom d'utilisateur</label>
                     <input type="text" id="new-username" name="new-username" required>
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password" required>
-                    <label for="user-role">Rôle</label>
-                    <select id="user-role" name="user-role" required>
+                    <br>
+                    <br>
+                    <label for="password" >Mot de passe</label>
+                    <input type="password" id="password" name="password"  required>
+                    <br>
+                    <br>
+                    <label for="user-role" >Rôle</label>
+                    <select id="user-role" name="user-role"  required>
                         <option value="moderator">Modérateur</option>
                         <option value="user">Utilisateur</option>
                     </select>
-                    <input type="submit" class="create-user-btn" value="Créer un utilisateur">
-                    <input type="submit" class="delete-user-btn" value="Supprimer un utilisateur">
-                    <input type="submit" class="update-user-btn" value="Modifier un utilisateur">
+                    <br>
+                    <br>
+                    <input type="submit" class="create-user-btn" value="Créer">
+                    <input type="submit" class="delete-user-btn" value="Suspendre">
+                    <input type="submit" class="update-user-btn" value="Modifier">
                 </form>
             </div>
             <div id="manage-stats-content" class="dashboard-section js-hidden">
