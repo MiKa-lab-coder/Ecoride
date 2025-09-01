@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded',async () => {
     initSectionMenu();
 
     //role en dur pour test
-    const userRole = document.body.dataset.userRole || 'moderator'; // Valeur par défaut 'user' si non définie
+    const userRole = document.body.dataset.userRole || 'admin'; // Valeur par défaut 'user' si non définie
     displaySidebarByRoles(userRole);
 
 });
