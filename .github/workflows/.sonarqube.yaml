@@ -1,29 +1,25 @@
-name: Sonarqube Scan
-
+name: Build
 on:
   push:
     branches:
       - main
-      - dev
-
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
-  analyze:
-    name: Sonarqube Scan
-    runs-on: ubuntu-latest
+  sonarqube:
+    name: SonarQube
+    runs-on: windows-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: '0'
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=ecoride_graduate_project
-            -Dsonar.organization=MiKa-lab-coder-XFMNb@github
-            -Dsonar.sources=.
-            -Dsonar.tests=tests/php/,tests/js/
+            sonar.projectKey=MiKa-lab-coder_Ecoride
+            sonar.organization=mika-lab-coder
+            sonar.sources=.
+            sonar.tests=tests/php/,tests/js/
