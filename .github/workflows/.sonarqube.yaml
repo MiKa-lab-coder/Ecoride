@@ -1,4 +1,4 @@
-name: Build
+name: sonarqube scan
 on:
   push:
     branches:
@@ -16,10 +16,11 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            sonar.projectKey=MiKa-lab-coder_Ecoride
-            sonar.organization=mika-lab-coder
-            sonar.sources=.
-            sonar.tests=tests/php/,tests/js/
+            -Dsonar.projectKey=MiKa-lab-coder_Ecoride
+            -Dsonar.organization=mika-lab-coder
+            -Dsonar.sources=.
+            -Dsonar.tests=tests/php/,tests/js/
