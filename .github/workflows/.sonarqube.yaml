@@ -27,3 +27,4 @@ jobs:
             -Dsonar.organization=mika-lab-coder
             -Dsonar.sources=.
             -Dsonar.tests=tests/php/,tests/js/
+            -Dsonar.exclusions=tests/php/**,tests/js/**
