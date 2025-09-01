@@ -22,5 +22,5 @@ jobs:
           args: >
             -Dsonar.projectKey=MiKa-lab-coder_Ecoride
             -Dsonar.organization=mika-lab-coder
-            -Dsonar.sources=.
-            -Dsonar.tests=tests/php/,tests/js/
+            -Dsonar.sources=Ecoride/
+            -Dsonar.tests=Ecoride/tests/php/,Ecoride/tests/js/
