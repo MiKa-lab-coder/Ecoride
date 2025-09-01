@@ -1,0 +1,29 @@
+name: Sonarqube Scan
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  analyze:
+    name: Sonarqube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=ecoride_graduate_project
+            -Dsonar.organization=MiKa-lab-coder-XFMNb@github
+            -Dsonar.sources=.
+            -Dsonar.tests=tests/php/
