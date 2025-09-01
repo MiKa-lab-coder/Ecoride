@@ -1,0 +1,49 @@
+# Fichiers de configuration sensibles
+.env
+.env.*local
+.env.production.local
+.env.staging.local
+.env.development.local
+
+# Fichiers de base de données générés localement
+*.db
+
+# Dépendances du gestionnaire de paquets PHP (Composer)
+/vendor/
+composer.lock
+# Dépendances du gestionnaire de paquets JavaScript (npm, yarn)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers d'IDE
+.idea/
+Thumbs.db
+*.log
+
+# Fichiers de test
+coverage/
+*.test.js
+*.phpunit.xml
+*.phpunit.xml.dist
+.phpunit.result.cache
+
+# Fichiers de session PHP
+/sessions/
+
+# Fichiers de cache et temporaires générés par l'application
+/cache/
+/tmp/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Logs de l'application
+/storage/*.log
+/storage/logs/
+/storage/cache/
+/storage/framework/
+/storage/app/
