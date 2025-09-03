@@ -5,6 +5,9 @@ namespace App\Services;
 /**
  * Class Validator
  * contient les méthodes de validation des différents champs
+ * Ne verifie pas la securité des entrées, mais s'assure qu'elles sont conformes aux attentes
+ * La sécurité est gérée dans les controllers (XSS, JWT) et dans les methodes de classe (requetes préparées))
+ * Utilisé dans AuthController et UserController
  */
 class Validator
 {
