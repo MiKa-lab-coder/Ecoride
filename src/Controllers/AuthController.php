@@ -49,6 +49,8 @@ class AuthController
         $password = $data['password'] ?? null;
         $confirmPassword = $data['confirmPassword'] ?? null;
 
+
+
         // Validator des champs
         if ($validate->validateName($name)) {
             $errors['name'] = 'Nom invalide. Utilisez uniquement des lettres et espaces, entre 2 et 50 caractères.';
@@ -81,6 +83,16 @@ class AuthController
         }
 
         // Si des erreurs de validation existent, on les retourne
+        if (!empty($errors)) {
+            throw new Exception("Données invalides.", 400);
+        }
+        //Verification de la disponibilité de l'username et de l'email
+        if (User::existsEmail($email)) {
+            $errors['email'] = 'Email déjà utilisé.';
+        }
+        if (User::existUsername($username)) {
+            $errors['username'] = 'Nom d\'utilisateur déjà pris.';
+        }
         if (!empty($errors)) {
             throw new Exception("Données invalides.", 400);
         }
@@ -152,6 +164,7 @@ class AuthController
 
         // Récupération des données (username et password)
         $data = json_decode(file_get_contents('php://input'), true);
+
         // Échappement des données pour éviter les failles XSS
         $username = htmlspecialchars($data['username'] ?? '');
         $password = $data['password'] ?? '';
@@ -162,8 +175,8 @@ class AuthController
         }
         // Authentification
         try {
-            $user = User::find($username);
-            if ($user && $user->verifyPassword($_POST['password'])) {
+            $user = User::findByUsername($username);
+            if ($user && $user->verifyPassword($password)) {
                 // Authentification réussie on log l'info
                 $logger->info("Authentification réussie pour l'utilisateur: $username");
 
