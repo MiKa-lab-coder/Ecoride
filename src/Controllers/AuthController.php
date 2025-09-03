@@ -163,7 +163,7 @@ class AuthController
         // Authentification
         try {
             $user = User::find($username);
-            if ($user && password_verify($password, $user->getPassword())) {
+            if ($user && $user->verifyPassword($_POST['password'])) {
                 // Authentification réussie on log l'info
                 $logger->info("Authentification réussie pour l'utilisateur: $username");
 
