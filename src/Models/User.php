@@ -152,7 +152,7 @@ class User extends BaseModel
         $this->username = $username;
         $this->photo = $photo;
         $this->email = $email;
-        $this->password = $password;
+        $this->setPassword($password);
         $this->credit = $credit;
         $this->driver_rating = $driver_rating;
         $this->account_status = $account_status;
