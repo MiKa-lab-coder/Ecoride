@@ -7,11 +7,16 @@ use App\Services\Validator;
 use App\Services\TokenManager;
 use DateTime;
 use PDOException;
+use Exception;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
 /**
- * gere le controleur d'inscription
+ * Class AuthController
+ * Gère les actions liées à l'authentification, l'inscription et la connexion des utilisateurs
+ * On y gère le XSS dans le controller (htmlspecialchars), le JWT avec TokenManager,
+ * et la validation de format des données avec Validator
+ *
  */
 class AuthController
 {
@@ -25,9 +30,7 @@ class AuthController
 
         // Vérification que la requête est bien en POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405); // Méthode non autorisée
-            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée.']);
-            exit;
+            throw new Exception("Méthode non autorisée.", 405);
         }
         // Récupération des données et du fichier uploadé
         $data = $_POST;
@@ -79,10 +82,7 @@ class AuthController
 
         // Si des erreurs de validation existent, on les retourne
         if (!empty($errors)) {
-            http_response_code(400); // Requête incorrecte
-            echo json_encode(['success' => false, 'errors' => $errors]);
-            //message générique
-            exit;
+            throw new Exception("Données invalides.", 400);
         }
 
         //si ok, traitement de l'inscription
@@ -104,10 +104,7 @@ class AuthController
             }
 
             if (!empty($errors)) {
-                http_response_code(500); // Erreur serveur
-                echo json_encode(['success' => false, 'errors' => $errors]);
-                //message générique
-                exit;
+                throw new Exception("Données invalides.", 400);
             }
 
             // Création de l'utilisateur
@@ -126,25 +123,17 @@ class AuthController
             );
             // Enregistrement de l'utilisateur en base de données
             if ($user->save()) {
-                http_response_code(201); // Créé
-                echo json_encode(['success' => true, 'message' => 'Inscription réussie.']);
-                exit;
+                http_response_code(200);
+                $logger->info("Nouvel utilisateur inscrit: $username");
             } else {
-                http_response_code(500); // Erreur serveur
-                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'inscription.']);
-                exit;
+                throw new Exception("Erreur lors de l'inscription.", 500);
             }
         } catch (PDOException $e) {
             $logger->error('Erreur PDO: ' . $e->getMessage());
-            http_response_code(500); // Erreur serveur
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'inscription.']);
-            exit;
-        } catch (\Exception $e) {
+            throw new Exception("Erreur d'accès serveur.", 500);
+        } catch (Exception $e) {
             $logger->error('Erreur inscription: ' . $e->getMessage());
-            http_response_code(500); // Erreur serveur
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'inscription.']);
-            //message générique pour ne pas divulguer d'infos
-            exit;
+            throw new Exception("Erreur d'inscription en bdd.", 500);
         }
         // fin de l'inscription
     }
@@ -158,9 +147,7 @@ class AuthController
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405); // Méthode non autorisée
-            echo json_encode(['success' => false, 'message' => 'Méthode non autorisée.']);
-            exit;
+            throw new Exception("Méthode non autorisée.", 405);
         }
 
         // Récupération des données (username et password)
@@ -171,9 +158,7 @@ class AuthController
 
         // Verification des champs
         if (empty($username) || empty($password)) {
-            http_response_code(400); // Requête incorrecte
-            echo json_encode(['success' => false, 'message' => 'Nom d\'utilisateur et mot de passe sont requis.']);
-            exit;
+            throw new Exception("Champs requis manquants.", 400);
         }
         // Authentification
         try {
@@ -193,29 +178,20 @@ class AuthController
 
                 // on génère le token
                 $jwt = $tokenManager->generateToken($sequence);
-                http_response_code(200);
-                echo json_encode(['success' => true, 'message' => 'Authentification réussie.', 'token' => $jwt]);
-                exit;
+                throw new Exception("Authentification réussie.", 200);
                 // redirect vers la page d'accueil ou tableau de bord gerer par le front
 
             } else {
                 // Échec de l'authentification
                 $logger->warning("Échec de l'authentification pour l'utilisateur: $username");
-                http_response_code(401); // Non autorisé
-                echo json_encode(['success' => false, 'message' => 'Nom d\'utilisateur ou mot de passe incorrect.']);
-                exit;
+                throw new Exception("Erreur lors de l'authentification.", 500);
             }
         } catch (PDOException $e) {
             $logger->error('Erreur PDO: ' . $e->getMessage());
-            http_response_code(500); // Erreur serveur
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'authentification.']);
-            exit;
+            throw new Exception("Erreur serveur.", 500);
         } catch (\Exception $e) {
-            $logger->error('Erreur d\'authentification: ' . $e->getMessage());
-            http_response_code(500); // Erreur serveur
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'authentification.']);
-            //message générique pour ne pas divulguer d'infos
-            exit;
+            $logger->error("Erreur d\'authentification: " . $e->getMessage());
+            throw new Exception("Erreur de reuperation des données.", 500);
         }
         // fin de l'authentification
     }
@@ -224,9 +200,6 @@ class AuthController
     {
         header('Content-Type: application/json');
         // Pour une API RESTful, le logout côté serveur est inutile car javascript(client) va detruire le token.
-
-        http_response_code(200);// OK
-        echo json_encode(['success' => true, 'message' => 'Déconnexion réussiee.']);
-        exit;
+        throw new Exception("Déconnexion réussie.", 200);
     }
 }
