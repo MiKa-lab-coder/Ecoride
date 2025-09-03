@@ -213,6 +213,26 @@ class User extends BaseModel
 
         return null;
     }
+    public static function findByUsername(string $username): ?self
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt->bindParam(':username', $username, \PDO::PARAM_STR);
+        try {
+            $stmt->execute();
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($data) {
+                return self::hydrate($data);
+            }
+        } catch (PDOException $e) {
+            // Log d'erreur
+            $log = new Logger('find_username_errors');
+            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $log->error("Erreur lors de la récupération du nom d'utilisateur: " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+        }
+        return null;
+    }
 
     public static function findByEmail(string $email): ?self
     {
