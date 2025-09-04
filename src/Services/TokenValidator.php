@@ -21,8 +21,7 @@ class TokenValidator
 
     public function validateToken(string $token): object
     {
-        //Verification du Jwt dans le header Authorization
-        $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        // Vérification de la présence du token
         if (!$token) {
             throw new Exception("Token manquant.", 401);// Non autorisé
         }
