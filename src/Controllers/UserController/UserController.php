@@ -40,9 +40,12 @@ class UserController
         header('Content-Type: application/json');
 
         try {
-            // Validation du jeton JWT
+            // Récupération du token depuis l'en-tête Authorization
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+            // On valide le token JWT et on récupère les données décodées
             $tokenValidator = new TokenValidator();
-            $decodedToken = $tokenValidator->validateToken();
+            $decodedToken = $tokenValidator->validateToken($token);
 
             // Vérification de l'autorisation
             if ((int)$decodedToken->data->id !== $userId) {
@@ -97,9 +100,12 @@ class UserController
         header('Content-Type: application/json');
 
         try {
-            // Validation du JWT et récupération de l'ID depuis le jeton
+            // Récupération du token depuis l'en-tête Authorization
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+            // On valide le token JWT et on récupère les données décodées
             $tokenValidator = new TokenValidator();
-            $decodedToken = $tokenValidator->validateToken();
+            $decodedToken = $tokenValidator->validateToken($token);
 
             // Vérification de l'autorisation
             if ((int)$decodedToken->data->id !== $userId) {
@@ -172,9 +178,12 @@ class UserController
         header('Content-Type: application/json');
 
         try {
-            // Validation du JWT et récupération de l'ID depuis le jeton
+            // Récupération du token depuis l'en-tête Authorization
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+            // On valide le token JWT et on récupère les données décodées
             $tokenValidator = new TokenValidator();
-            $decodedToken = $tokenValidator->validateToken();
+            $decodedToken = $tokenValidator->validateToken($token);
 
             // Vérification de l'autorisation
             if ((int)$decodedToken->data->id !== $userId) {
