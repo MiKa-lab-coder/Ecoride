@@ -173,12 +173,19 @@ class AuthController
         if (empty($username) || empty($password)) {
             throw new Exception("Champs requis manquants.", 400);
         }
+
         // Authentification
         try {
             $user = User::findByUsername($username);
             if ($user && $user->verifyPassword($password)) {
                 // Authentification réussie on log l'info
                 $logger->info("Authentification réussie pour l'utilisateur: $username");
+
+                // Verification du statut du compte
+                if ($user->getStatus() !== 'active') {
+                    $logger->warning("Compte inactif pour l'utilisateur: $username");
+                    throw new Exception("Compte inactif. Contactez l'administrateur.", 403);
+                }
 
                 // on protège la route avec JWT
                 $tokenManager = new TokenManager();
