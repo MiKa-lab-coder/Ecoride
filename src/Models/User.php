@@ -146,17 +146,17 @@ class User extends BaseModel
                                 string $email, string $password, int $credit, int $driver_rating, string $account_status, int $role_id = 3)
     {
         parent::__construct();
-        $this->name = $name;
-        $this->firstname = $firstname;
-        $this->birthdate = $birthdate;
-        $this->username = $username;
-        $this->photo = $photo;
-        $this->email = $email;
+        $this->setName($name);
+        $this->setFirstname($firstname);
+        $this->setBirthdate($birthdate);
+        $this->setUsername($username);
+        $this->setPhoto($photo);
+        $this->setEmail($email);
         $this->setPassword($password);
-        $this->credit = $credit;
-        $this->driver_rating = $driver_rating;
-        $this->account_status = $account_status;
-        $this->role_id = $role_id;
+        $this->setCredit($credit);
+        $this->setDriverRating($driver_rating);
+        $this->setAccountStatus($account_status);
+        $this->setRoleId($role_id);
     }
 
 
