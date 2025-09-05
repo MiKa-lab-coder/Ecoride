@@ -106,4 +106,46 @@ class Validator
         }
         return $errors;
     }
+    // Valider le numéro d'immatriculation (format français standard)
+    public function validateRegistrationNumber(string $registration): bool
+    {
+        $reg = '/^[A-Z]{2}-\d{3}-[A-Z]{2}$/';
+        return preg_match($reg, $registration) === 1;
+    }
+
+    public function validateDateFormat(string $date): bool
+    {
+        $date = \DateTime::createFromFormat('d-m-Y', $date);
+        return $date && $date->format('d-m-Y') === $date;
+    }
+
+    // Valider la capacité d'accueil (entre 1 et 9 sièges maximum pour un véhicule standard)
+    public function validateSeatCapacity(int $seat_capacity): bool
+    {
+        return $seat_capacity >= 1 && $seat_capacity <= 9;
+    }
+    public function validateColor(string $color): bool
+    {
+        // Lettres et espaces, entre 2 et 30 caractères
+        $col = '^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,30}$';
+        return mb_ereg_match($col, $color) === 1;
+    }
+    // Valider le type d'énergie (thermique, électrique, hybride)
+    public function validateEnergyType(string $energy): bool
+    {
+        $valid_energies = ['thermique', 'électrique', 'hybride'];
+        return in_array($energy, $valid_energies);
+    }
+    // Valider la marque (lettres et espaces, entre 2 et 50 caractères)
+    public function validateBrand(string $brand): bool
+    {
+        $marque = '^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,50}$';
+        return mb_ereg_match($marque, $brand) === 1;
+    }
+    // Valider le modèle (lettres, chiffres et espaces, entre 1 et 50 caractères)
+    public function validateModel(string $model): bool
+    {
+        $mod = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-]{1,50}$';
+        return mb_ereg_match($mod, $model) === 1;
+    }
 }
