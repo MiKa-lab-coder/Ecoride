@@ -143,7 +143,8 @@ class User extends BaseModel
 
     // Constructeur
     public function __construct(string $name, string $firstname, DateTime $birthdate, string $username, string $photo,
-                                string $email, string $password, int $credit, int $driver_rating, string $account_status, int $role_id = 3)
+                                string $email, string $password, int $credit, int $driver_rating,
+                                string $account_status = 'active', int $role_id = 3)
     {
         parent::__construct();
         $this->setName($name);
