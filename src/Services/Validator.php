@@ -11,7 +11,7 @@ namespace App\Services;
  */
 class Validator
 {
-
+    //profils utilisateurs
     public function validateEmail(string $email): bool
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
@@ -106,6 +106,7 @@ class Validator
         }
         return $errors;
     }
+    // véhicules
     // Valider le numéro d'immatriculation (format français standard)
     public function validateRegistrationNumber(string $registration): bool
     {
@@ -148,4 +149,49 @@ class Validator
         $mod = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-]{1,50}$';
         return mb_ereg_match($mod, $model) === 1;
     }
+
+    // trajets
+    public function validateTripName(string $trip_name): bool
+    {
+        // Lettres, chiffres, espaces et certains caractères spéciaux, entre 2 et 100 caractères
+        $name = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-_,.!?]{2,100}$';
+        return mb_ereg_match($name, $trip_name) === 1;
+    }
+    public function validateDescription(string $description): bool
+    {
+        // Lettres, chiffres, espaces et certains caractères spéciaux, entre 10 et 1000 caractères
+        $desc = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-_,.!?]{10,1000}$';
+        return mb_ereg_match($desc, $description) === 1;
+    }
+    public function validateDepartureOrArrival(string $location): bool
+    {
+        // Lettres, chiffres, espaces et certains caractères spéciaux, entre 2 et 100 caractères
+        $loc = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-_,.!?]{2,100}$';
+        return mb_ereg_match($loc, $location) === 1;
+    }
+
+    public function validateTripDate(string $date): bool
+    {
+        $tripDate = \DateTime::createFromFormat('d-m-Y H:i', $date);
+        return $tripDate && $tripDate->format('d-m-Y H:i') === $date;
+    }
+
+    public function validateTripPrice(int $price): bool
+    {
+        // La plage minimale est ajustée à 1 pour ne pas permettre un prix nul.
+        return filter_var($price, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]) !== false;
+    }
+
+    public function validateSeatsAvailable(int $seats): bool
+    {
+        // Doit être un entier positif (au moins 1 siège disponible) et en maximum le nombre de sièges du véhicule
+        return $seats >= 1 && $seats <= 9;
+    }
+
+    public function validatePetOrSmokingAllowed(int $petAllowed , int $smokingAllowed): bool
+    {
+        // Doit être 0 (non autorisé) ou 1 (autorisé) pour contraindre le format boolean en bdd
+        return ($petAllowed === 0 || $petAllowed === 1) && ($smokingAllowed === 0 || $smokingAllowed === 1);
+    }
+
 }
