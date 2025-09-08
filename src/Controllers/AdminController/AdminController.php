@@ -105,12 +105,12 @@ class AdminController
             }
 
             // Confirmation du statut "pending"
-            if ($trip->status !== 'pending') {
+            if ($trip->getStatus() !== 'pending') {
                 throw new Exception("L'annonce n'est pas en attente de validation.", 400);
             }
 
             //mise à jour du statut de l'annonce
-            $trip->status = 'approved';
+            $trip->setStatus('approved');
 
             // Sauvegarde de l'annonce mise à jour
             if (!$trip->save()) {
@@ -162,7 +162,7 @@ class AdminController
             }
 
             // Confirmation du statut "pending"
-            if ($trip->status !== 'pending') {
+            if ($trip->getStatus() !== 'pending') {
                 throw new Exception("L'annonce n'est pas en attente de validation.", 400);
             }
 
