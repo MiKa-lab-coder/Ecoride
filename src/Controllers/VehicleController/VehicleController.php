@@ -19,7 +19,6 @@ use Exception;
  * Pour la sécurité, on gere le XSS dans le controller (htmlspecialchars), le JWT avec TokenValidator,
  *  et la validation de format des données avec Validator
  */
-
 class VehicleController
 {
     private $logger;
@@ -55,36 +54,36 @@ class VehicleController
             }
 
             // Verification des champs obligatoires
-            if(empty($data['registration'])
+            if (empty($data['registration'])
                 || empty($data['first_service'])
                 || empty($data['brand'])
                 || empty($data['model'])
                 || empty($data['color'])
                 || empty($data['seat_capacity'])
-                || empty($data['energy'])){
+                || empty($data['energy'])) {
                 throw new Exception("Tous les champs obligatoires doivent être remplis.", 400);
             }
             // Validation des données
             $validator = new Validator();
-            if(!$validator->validateRegistrationNumber($data['registration'])){
+            if (!$validator->validateRegistrationNumber($data['registration'])) {
                 throw new Exception("Numéro d'immatriculation invalide.", 400);
             }
-            if(!$validator->validateDate($data['first_service'])){
+            if (!$validator->validateDateFormat($data['first_service'])) {
                 throw new Exception("Date de première mise en circulation invalide. Format attendu: d-m-Y.", 400);
             }
-            if(!$validator->validateName($data['brand'])){
+            if (!$validator->validateBrand($data['brand'])) {
                 throw new Exception("Marque invalide.", 400);
             }
-            if(!$validator->validateName($data['model'])){
+            if (!$validator->validateModel($data['model'])) {
                 throw new Exception("Modèle invalide.", 400);
             }
-            if(!$validator->validateName($data['color'])){
+            if (!$validator->validateColor($data['color'])) {
                 throw new Exception("Couleur invalide.", 400);
             }
-            if(!$validator->validateSeatCapacity($data['seat_capacity'])){
+            if (!$validator->validateSeatCapacity($data['seat_capacity'])) {
                 throw new Exception("Capacité d'accueil invalide. Doit être un nombre entier entre 1 et 9.", 400);
             }
-            if(!$validator->validateEnergy($data['energy'])){
+            if (!$validator->validateEnergyType($data['energy'])) {
                 throw new Exception("Type d'énergie invalide.", 400);
             }
             // Protection contre les attaques XSS
@@ -100,13 +99,13 @@ class VehicleController
             // vérification que la date de première mise en circulation n'est pas dans le futur
             $date_first_service = new DateTime($first_service);
             $now = new DateTime();
-            if($date_first_service > $now){
+            if ($date_first_service > $now) {
                 throw new Exception("La date de première mise en circulation ne peut pas être dans le futur.", 400);
             }
 
             // Verification que le numéro d'immatriculation est unique (donc que le véhicule n'existe pas déjà)
             $existingVehicle = Vehicle::findByRegistration($registration);
-            if($existingVehicle){
+            if ($existingVehicle) {
                 throw new Exception("Un véhicule avec ce numéro d'immatriculation existe déjà.", 400);
             }
 
@@ -122,20 +121,21 @@ class VehicleController
                 $owner_id
             );
             // Enregistrement du véhicule en base de données
-            if($vehicle->save()){
+            if ($vehicle->save()) {
                 http_response_code(201);
                 echo json_encode(["message" => "Véhicule ajouté avec succès."]);
                 $this->logger->info("Véhicule ajouté avec succès: " . $registration . " par l'utilisateur ID: " . $owner_id);
                 exit;
-            }else{
+            } else {
                 throw new Exception("Erreur lors de l'ajout du véhicule.", 500);
             }
 
-    }catch (Exception $e){
-        $this->logger->error("Erreur lors de l'ajout du véhicule: " . $e->getMessage());}
-            http_response_code($e->getCode() ?: 500);
-            echo json_encode(["error" => $e->getMessage()]);
-            exit;
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de l'ajout du véhicule: " . $e->getMessage());
+        }
+        http_response_code($e->getCode() ?: 500);
+        echo json_encode(["error" => $e->getMessage()]);
+        exit;
     }
 
     // supprimer un véhicule
@@ -200,5 +200,4 @@ class VehicleController
             exit;
         }
     }
-
 }
