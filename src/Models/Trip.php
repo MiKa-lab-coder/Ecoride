@@ -29,6 +29,7 @@ class Trip extends BaseModel
     private bool $pet_allowed;
     private bool $smoking_allowed;
     private int $id_car;
+    private int $id_user;
     private string $status;
 
     // Getters
@@ -92,6 +93,11 @@ class Trip extends BaseModel
         return $this->id_car;
     }
 
+    public function getIdUser(): int
+    {
+        return $this->id_user;
+    }
+
     public function getStatus(): string
     {
         return $this->status;
@@ -152,6 +158,10 @@ class Trip extends BaseModel
     {
         $this->id_car = $id_car;
     }
+    public function setIdUser(int $id_user): void
+    {
+        $this->id_user = $id_user;
+    }
 
     public function setStatus(string $status): void
     {
@@ -171,6 +181,7 @@ class Trip extends BaseModel
         bool     $pet_allowed,
         bool     $smoking_allowed,
         int      $id_car,
+        int      $id_user,
         string   $status = 'pending' // Statut par défaut
     )
     {
@@ -187,6 +198,7 @@ class Trip extends BaseModel
         $this->setPetAllowed($pet_allowed);
         $this->setSmokingAllowed($smoking_allowed);
         $this->setIdCar($id_car);
+        $this->setIdUser($id_user);
         $this->setStatus($status);
     }
 
@@ -205,6 +217,7 @@ class Trip extends BaseModel
             (bool)$data['pet_allowed'],
             (bool)$data['smoking_allowed'],
             (int)$data['id_car'],
+            (int)$data['id_user'],
             $data['status'] ?? 'pending' // Statut par défaut si non fourni
         );
         $trip->id_trip = isset($data['id_trip']) ? (int)$data['id_trip'] : null;
@@ -326,6 +339,28 @@ class Trip extends BaseModel
             return null;
         }
     }
+    // Méthode pour récupérer tous les trajets d'un utilisateur
+    public static function findByUser(int $id_user): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM trips WHERE id_user = :id_user ORDER BY departure_date_time ASC');
+        $stmt->bindParam(':id_user', $id_user, PDO::PARAM_INT);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la récupération des trajets par utilisateur: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return [];
+        }
+    }
 
     // Méthode pour créer un nouveau trajet
     public function save(): bool
@@ -345,25 +380,26 @@ class Trip extends BaseModel
                 'pet_allowed' => $this->isPetAllowed() ? 1 : 0,
                 'smoking_allowed' => $this->isSmokingAllowed() ? 1 : 0,
                 'id_car' => $this->getIdCar(),
+                'id_user' => $this->getIdUser(),
                 'status' => $this->getStatus()
             ];
 
             // verifier si le trajet est nouveau ou existant
             if ($this->id_trip === null) {
                 $stmt = $db->prepare('INSERT INTO trips (trip_name, trip_description, departure_location, arrival_location,
-                   departure_date_time, arrival_date_time, trip_price, seats_available, pet_allowed, smoking_allowed,
-                   id_car, status) VALUES (:trip_name, :trip_description, :departure_location, :arrival_location,
-                   :departure_date_time, :arrival_date_time, :trip_price, :seats_available, :pet_allowed, :smoking_allowed,
-                   :id_car, :status)');
+               departure_date_time, arrival_date_time, trip_price, seats_available, pet_allowed, smoking_allowed,
+               id_car, id_user, status) VALUES (:trip_name, :trip_description, :departure_location, :arrival_location,
+               :departure_date_time, :arrival_date_time, :trip_price, :seats_available, :pet_allowed, :smoking_allowed,
+               :id_car, :id_user, :status)'); // Correction : ':id_user' a été ajouté ici
                 $stmt->execute($data);
                 $this->id_trip = (int)$db->lastInsertId(); // Récupérer l'ID du dernier enregistrement inséré
 
             } else {
                 $stmt = $db->prepare('UPDATE trips SET trip_name = :trip_name, trip_description = :trip_description,
-                   departure_location = :departure_location, arrival_location = :arrival_location,
-                   departure_date_time = :departure_date_time, arrival_date_time = :arrival_date_time,
-                   trip_price = :trip_price, seats_available = :seats_available, pet_allowed = :pet_allowed,
-                   smoking_allowed = :smoking_allowed, id_car = :id_car, status = :status WHERE id_trip = :id_trip');
+               departure_location = :departure_location, arrival_location = :arrival_location,
+               departure_date_time = :departure_date_time, arrival_date_time = :arrival_date_time,
+               trip_price = :trip_price, seats_available = :seats_available, pet_allowed = :pet_allowed,
+               smoking_allowed = :smoking_allowed, id_car = :id_car, id_user = :id_user, status = :status WHERE id_trip = :id_trip');
 
                 $stmt->execute(['id_trip' => $this->id_trip] + $data);
             }
