@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Vehicle;
 use App\Services\Validator;
 use App\Services\TokenValidator;
+use App\Services\Mailler;
 use DateTime;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -146,7 +147,7 @@ class TripController
                 new DateTime($trip_date . ' ' . $departure_time),
                 new DateTime($trip_date . ' ' . $arrival_time),
                 (int)$data['trip_price'],
-                (int)$data['available_seats'],
+                (int)$data['SeatsAvailable'],
                 (bool)$data['pet_allowed'],
                 (bool)$data['smoking_allowed'],
                 (int)$data['vehicle_id'],
@@ -270,7 +271,6 @@ class TripController
 
             // Enregistrement des modifications
             if ($trip->save()) {
-                ;
                 http_response_code(200);
                 echo json_encode(["message" => "Trajet modifié avec succès."]);
                 $this->logger->info("Trajet ID: " . $tripId . " modifié par l'utilisateur ID: " . $userId);
@@ -445,6 +445,121 @@ class TripController
             http_response_code(500);
             echo json_encode(['error' => "Une erreur est survenue. Veuillez vérifier vos critères et réessayer."]);
             return;
+        }
+    }
+    // Methode pour finaliser un trajet (lorsque le conducteur clique sur "Terminer le trajet" dans son espace utilisateur)
+
+    public function endTrip():void
+    {
+        header('Content-Type: application/json');
+
+        try {
+            // Vérification et validation du token
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->sub;
+            $user = User::find($userId);
+            if (!$user) {
+                throw new Exception("Utilisateur non trouvé.", 404);
+            }
+            // recuperation et validation des données envoyées en JSON
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data) {
+                throw new Exception("Données invalides.", 400);
+            }
+
+            // Recuperation de l'ID du trajet
+            $tripId = $data['trip_id'] ?? null;
+            if (!$tripId || !is_numeric($tripId)) {
+                throw new Exception("ID de trajet invalide.", 400);
+            }
+            // Récupération du trajet
+            $trip = Trip::findById((int)$tripId);
+            if (!$trip) {
+                throw new Exception("Trajet non trouvé.", 404);
+            }
+            // Vérification que l'utilisateur est le conducteur du trajet
+            if ($trip->getIdUser() !== $userId) {
+                throw new Exception("Vous n'êtes pas autorisé à terminer ce trajet.", 403);
+            }
+            // Vérification que le trajet n'est pas déjà terminé
+            if ($trip->getStatus()==='completed') {
+                throw new Exception("Le trajet est déjà terminé.", 400);
+            }
+            // Marquer le trajet comme terminé
+            $trip->setStatus('completed');
+
+            // On envoie un email de notification aux passagers
+            $mailler = new Mailler();
+            // Récupération des passagers
+            $passengers = $trip->getPassengers();
+            foreach ($passengers as $passenger) {
+                $passengerUser = User::find($passenger->getIdUser());
+                if($passengerUser){
+                    $mailler->sendEndRideMail(
+                        $passengerUser->getEmail(),
+                        $passengerUser->getFirstName(),
+                    );
+                }
+            }
+            if ($trip->save()) {
+                http_response_code(200);
+                echo json_encode(["message" => "Trajet terminé avec succès."]);
+                $this->logger->info("Trajet ID: " . $tripId . " terminé par l'utilisateur ID: " . $userId);
+                exit;
+            } else {
+                throw new Exception("Erreur lors de la finalisation du trajet.", 500);
+            }
+        }catch (Exception $e) {
+            $this->logger->error("Erreur lors de la finalisation du trajet: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+            exit;
+        }
+    }
+    // Methode pour afficher les détails d'un trajet (pour le conducteur et les passagers)
+    public function getTripDetails($tripId): void
+    {
+        header('Content-Type: application/json');
+
+        try {
+            // Vérification et validation du token
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->sub;
+            $user = User::find($userId);
+            if (!$user) {
+                throw new Exception("Utilisateur non trouvé.", 404);
+            }
+            // Récupération du trajet
+            $trip = Trip::findById((int)$tripId);
+            if (!$trip) {
+                throw new Exception("Trajet non trouvé.", 404);
+            }
+            // Vérification que l'utilisateur est celui qui propose le trajet ou celui qui y participe
+            $isDriver = $trip->getIdUser() === $userId;
+            $isPassenger = false;
+            $passengers = $trip->getPassengers();
+            foreach ($passengers as $passenger) {
+                if ($passenger->getIdUser() === $userId) {
+                    $isPassenger = true;
+                    break;
+                }
+            }
+            if (!$isDriver && !$isPassenger) {
+                throw new Exception("Vous n'êtes pas autorisé à voir les détails de ce trajet.", 403);
+            }
+            // Retourner les détails du trajet
+            http_response_code(200);
+            echo json_encode($trip->toArray());
+            exit;
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des détails du trajet: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+            exit;
         }
     }
 }
