@@ -61,6 +61,21 @@ CREATE TABLE IF NOT EXISTS TRIPS (
     FOREIGN KEY (vehicle_id) REFERENCES VEHICLES(vehicle_id)
     );
 
+-- Table: RATINGS
+CREATE TABLE IF NOT EXISTS RATINGS
+(
+    id            INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    rated_user_id INT(11) NOT NULL ,
+    rater_user_id INT(11) NOT NULL ,
+    trip_id       INT(11) NOT NULL ,
+    rating_value  INT(11) NOT NULL ,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (rated_user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (rater_user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (trip_id) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
+);
+
 -- Table: RESERVATIONS
 CREATE TABLE IF NOT EXISTS RESERVATIONS (
     reservation_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -136,7 +151,7 @@ VALUES ('Admin', 'Ecoride', '2025-01-01', 'admin_ecoride',
 -- insertion ultérieurement via une requête UPDATE
 -- UPDATE USERS SET password = 'hashed_password' WHERE username = 'admin_ecoride';
 
---Insertion d'un utilisateur modérateur par défaut
+-- Insertion d'un utilisateur modérateur par défaut
 INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
 VALUES ('Modérateur', 'Ecoride', '2025-01-01', 'moderator1_ecoride',
         NULL, 'moderator1@ecoride.com', '', (SELECT role_id FROM ROLES WHERE role_name = 'moderator'));
