@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Database\Database;
 use DateTime;
+use Exception;
 use PDO;
 use PDOException;
 use Monolog\Logger;
@@ -684,5 +685,51 @@ class Trip extends BaseModel
                 ['trace' => $e->getTraceAsString()]);
             return null;
         }
+    }
+    // Méthode pour récupérer les passagers d'un trajet
+    public function getPassengers(): array
+    {
+        $db = Database::getInstance();
+        $passengers = [];
+        try {
+            $stmt = $db->prepare('SELECT id_user FROM reservations WHERE id_trip = :id_trip');
+            $tripId = $this->getIdTrip();
+            $stmt->bindParam(':id_trip', $tripId, PDO::PARAM_INT);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($results as $row) {
+                $passengerUser = User::find($row['id_user']);
+                if ($passengerUser) {
+                    $passengers[] = $passengerUser;
+                }
+            }
+        } catch (Exception $e) {
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error("Erreur lors de la récupération des passagers pour le trajet ID " . $this->getIdTrip() . ": " . $e->getMessage());
+        }
+
+        return $passengers;
+    }
+    // methode pour acceder aux details dans un tableau
+    public function toArray(): array
+    {
+        return [
+            'id_trip' => $this->id_trip,
+            'trip_name' => $this->trip_name,
+            'trip_description' => $this->trip_description,
+            'departure_location' => $this->departure_location,
+            'arrival_location' => $this->arrival_location,
+            'departure_date_time' => $this->departure_date_time?->format('Y-m-d H:i:s'),
+            'arrival_date_time' => $this->arrival_date_time?->format('Y-m-d H:i:s'),
+            'trip_price' => $this->trip_price,
+            'seats_available' => $this->seats_available,
+            'pet_allowed' => $this->pet_allowed,
+            'smoking_allowed' => $this->smoking_allowed,
+            'id_car' => $this->id_car,
+            'id_user' => $this->id_user,
+            'status' => $this->status,
+        ];
     }
 }
