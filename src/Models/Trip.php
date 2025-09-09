@@ -659,7 +659,30 @@ class Trip extends BaseModel
             return null;
         }
     }
+    // Méthode pour touver un trajet par note du conducteur
+    public static function searchByDriverRating(int $min_rating): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT t.* FROM trips t
+                JOIN users u ON t.id_user = u.id_user
+                WHERE u.driver_rating >= :driver_rating
+                ORDER BY t.departure_date_time ASC');
+        $stmt->bindParam(':driver_rating', $min_rating, PDO::PARAM_INT);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par note du conducteur: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
 }
-
-
-
