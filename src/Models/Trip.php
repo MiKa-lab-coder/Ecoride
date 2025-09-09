@@ -158,6 +158,7 @@ class Trip extends BaseModel
     {
         $this->id_car = $id_car;
     }
+
     public function setIdUser(int $id_user): void
     {
         $this->id_user = $id_user;
@@ -318,6 +319,7 @@ class Trip extends BaseModel
             return null;
         }
     }
+
     // Méthode pour récupérer les trajets par avec un statut 'pending'
     public static function findByStatus(): ?array
     {
@@ -339,6 +341,7 @@ class Trip extends BaseModel
             return null;
         }
     }
+
     // Méthode pour récupérer tous les trajets d'un utilisateur
     public static function findByUser(int $id_user): ?array
     {
@@ -432,6 +435,228 @@ class Trip extends BaseModel
             $logger->error('Erreur lors de la suppression du trajet: ' . $e->getMessage(),
                 ['trace' => $e->getTraceAsString()]);
             return false;
+        }
+    }
+
+    // Méthode pour calculer le nombre de places restantes
+    public function calculateRemainingSeats(): int
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('trip_logger');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        try {
+            $stmt = $db->prepare("SELECT COUNT(*) FROM reservations WHERE trip_id = :trip_id");
+            $stmt->bindParam(':trip_id', $this->id_trip, PDO::PARAM_INT);
+            $stmt->execute();
+            $reservedSeats = $stmt->fetchColumn();
+            // Calculer les places restantes
+            $remainingSeats = $this->seats_available - (int)$reservedSeats;
+            // S'assurer que le nombre de places restantes n'est pas négatif
+            return max(0, $remainingSeats);
+        } catch (PDOException $e) {
+            // Gérer les erreurs de connexion ou d'exécution
+            $logger->error('Erreur PDO', ['exception' => $e]);
+            return 0;// En cas d'erreur, on retourne 0 comme places restantes
+        }
+    }
+
+    // rechercher des trajets par nombre de places disponibles
+    public static function searchByRemainingSeats(int $min_seats): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT t.*, t.seats_available - COUNT(r.trip_id) AS remaining_seats FROM trips t
+                LEFT JOIN reservations r ON t.id_trip = r.trip_id GROUP BY t.id_trip HAVING remaining_seats >= :min_seats
+                ORDER BY t.departure_date_time ASC');
+        $stmt->bindParam(':min_seats', $min_seats, PDO::PARAM_INT);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log the error message
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par nombre de places: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    // Rechercher des trajets par lieu de départ
+    public static function searchByDepartureLocation(string $location): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM trips WHERE departure_location LIKE :departure');
+        $likeLocation = '%' . $location . '%';
+        $stmt->bindParam(':departure', $likeLocation, PDO::PARAM_STR);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log the error message
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par lieu de départ: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    // Rechercher des trajets par lieu d'arrivée
+    public static function searchByArrivalLocation(string $location): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM trips WHERE arrival_location LIKE :arrival');
+        $likeLocation = '%' . $location . '%';
+        $stmt->bindParam(':arrival', $likeLocation, PDO::PARAM_STR);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log the error message
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par lieu d\'arrivée: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    // Rechercher des trajets par Jour de départ
+    public static function searchByDepartureDate(DateTime $date): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM trips WHERE DATE(departure_date_time) = :date ORDER BY departure_date_time ASC');
+        $stmt->bindValue(':date', $date->format('Y-m-d'), PDO::PARAM_STR);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par jour de départ: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    // Rechercher des trajets par heure de départ
+    public static function searchByDepartureTime(DateTime $dateTime): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM trips WHERE departure_date_time >= :dateTime ORDER BY departure_date_time ASC');
+        $stmt->bindValue(':dateTime', $dateTime->format('Y-m-d H:i:s'), PDO::PARAM_STR);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par heure de départ: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    // Rechercher des trajets par Type (Écologique ou non)
+    public static function searchByType(string $energy): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT t.* FROM trips t
+                JOIN vehicles v ON t.id_car = v.id_vehicle
+                WHERE v.energy IN (\'electric\', \'hybrid\')
+                ORDER BY t.departure_date_time ASC');
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par type: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    // Rechercher des trajets par preferences (animaux, fumeur)
+    public static function searchByPreferences(bool $pet_allowed, bool $smoking_allowed): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM trips WHERE pet_allowed = :pet_allowed AND 
+                          smoking_allowed = :smoking_allowed ORDER BY departure_date_time ASC');
+        $stmt->bindParam(':pet_allowed', $pet_allowed, PDO::PARAM_INT);
+        $stmt->bindParam(':smoking_allowed', $smoking_allowed, PDO::PARAM_INT);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log the error message
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par préférences: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    // Rechercher des trajets par prix maximum
+    public static function searchByMaxPrice(int $trip_price): ?array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM trips WHERE trip_price <= :trip_price ORDER BY departure_date_time ASC');
+        $stmt->bindParam(':trip_price', $trip_price, PDO::PARAM_INT);
+        try {
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $data) {
+                // Hydrater chaque trajet
+                $trips[] = self::hydrate($data);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            // Log the error message
+            $logger = new Logger('trip_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Erreur lors de la recherche des trajets par prix maximum: ' . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return null;
         }
     }
 }
