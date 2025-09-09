@@ -224,6 +224,28 @@ class Vehicle extends BaseModel
             return null;
         }
     }
+    // Methode pour trouver un véhicule par son énergie pour possibilité de filtre (thermique, électrique, hybride)
+    public static function findByEnergy(string $energy): array
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('vehicle_logger');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/vehicle.log', 100));
+        $vehicles = [];
+        try {
+            $stmt = $db->prepare("SELECT * FROM vehicles WHERE energy = :energy");
+            $stmt->bindValue(':energy', $energy);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($results as $data) {
+                $vehicles[] = self::hydrate($data);
+            }
+        } catch (PDOException $e) {
+            // Gérer les erreurs de connexion ou d'exécution
+            $logger->error('Erreur PDO', ['exception' => $e]);
+            return [];
+        }
+        return $vehicles;
+    }
 
 }
 
