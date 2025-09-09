@@ -194,4 +194,10 @@ class Validator
         return ($petAllowed === 0 || $petAllowed === 1) && ($smokingAllowed === 0 || $smokingAllowed === 1);
     }
 
+    public function validateTime(mixed $arrival_time): bool
+    {
+        $time = \DateTime::createFromFormat('H:i', $arrival_time);
+        return $time && $time->format('H:i') === $arrival_time;
+    }
+
 }
