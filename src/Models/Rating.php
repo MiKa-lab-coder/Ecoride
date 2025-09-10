@@ -1,31 +1,37 @@
 <?php
 namespace App\Models;
 
+
 use PDO;
 use Exception;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use App\Models\Database\Database;
-use App\Models\User;
-use PDOException;
 
 
 /**
  * Class Rating
  * Gère les notes des conducteurs.
  */
-class Rating
+class Rating extends BaseModel
 {
-    protected string $table = 'ratings';
+    protected string $table = 'RATINGS';
+    private int $id;
+    private int $rated_user_id; // ID de l'utilisateur noté (conducteur)
+    private int $rater_user_id; // ID de l'utilisateur qui donne la note (passager)
+    private int $trip_id; // ID du trajet associé à la note
+    private int $rating_value; // Valeur de la note (1 à 5)
 
-    public function __construct(
-        protected ?int $rated_user_id = null,
-        protected ?int $rater_user_id = null,
-        protected ?int $trip_id = null,
-        protected ?int $rating_value = null,
-        protected ?int $id = null,
-    )
+
+    public function __construct(?int $rated_user_id = null, ?int $rater_user_id = null, ?int $trip_id = null,
+         ?int $rating_value = null, ?int $id = null)
     {
+        parent::__construct();
+        $this->rated_user_id = $rated_user_id ?? 0;
+        $this->rater_user_id = $rater_user_id ?? 0;
+        $this->trip_id = $trip_id ?? 0;
+        $this->rating_value = $rating_value ?? 0;
+        $this->id = $id ?? 0;
     }
     /**
      * Enregistre une nouvelle note dans la base de données.
@@ -34,7 +40,7 @@ class Rating
     {
         $db = Database::getInstance();
         $logger = new Logger('rating_logger');
-        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/rating.log', Logger::INFO));
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/rating.log', 100));
         try {
             $stmt = $db->prepare("INSERT INTO ratings (rated_user_id, rater_user_id, trip_id, rating_value)
             VALUES (:rated_user_id, :rater_user_id, :trip_id, :rating_value)");
@@ -44,15 +50,15 @@ class Rating
             $stmt->bindParam(':rating_value', $this->rating_value, PDO::PARAM_INT);
             if ($stmt->execute()) {
                 $this->id = (int)$db->lastInsertId();
-                $logger->info("Rating saved successfully with ID: " . $this->id);
+                $logger->info("Note donnée avec success ID: " . $this->id);
                 return true;
             } else {
-                $logger->error("Failed to save rating.");
+                $logger->error("Échec d'enregistrement de la note.");
                 return false;
             }
         } catch (Exception $e) {
-            $logger->error("Error saving rating: " . $e->getMessage());
-            throw new Exception("Error saving rating: " . $e->getMessage());
+            $logger->error("Erreur de note: " . $e->getMessage());
+            throw new Exception("Erreur de : " . $e->getMessage());
         }
     }
 // Recuperer la note moyenne d'un conducteur
