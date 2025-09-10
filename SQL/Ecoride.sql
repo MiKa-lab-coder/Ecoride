@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS USERS (
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     credit INT DEFAULT 20,
-    driver_rating INT DEFAULT 0,
+    total_trips INT DEFAULT 0,
     account_status ENUM('active', 'suspended') DEFAULT 'active',
     role_id INT,
     FOREIGN KEY (role_id) REFERENCES ROLES(role_id)
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS VEHICLES (
 -- Table: TRIPS
 CREATE TABLE IF NOT EXISTS TRIPS (
     trip_id INT AUTO_INCREMENT PRIMARY KEY,
-    departure_day VARCHAR(255) NOT NULL,
-    arrival_day VARCHAR(255) NOT NULL,
+    departure_day DATE NOT NULL,
+    arrival_day DATE NOT NULL,
     departure_location VARCHAR(255) NOT NULL,
     arrival_location VARCHAR(255) NOT NULL,
     departure_time TIME NOT NULL,
