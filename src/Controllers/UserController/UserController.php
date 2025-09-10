@@ -67,7 +67,7 @@ class UserController
                 'success' => true,
                 'message' => 'Profil récupéré avec succès.',
                 'data' => [
-                    'id' => $user->getIdUser(),
+                    'id' => $user->getUserId(),
                     'username' => $user->getUsername(),
                     'email' => $user->getEmail(),
                     'name' => $user->getName(),
@@ -76,6 +76,7 @@ class UserController
                     'role_id' => $user->getRoleId(),
                     'photo' => $user->getPhoto(),
                     'credit' => $user->getCredit(),
+                    'total_trips' => $user->getTotalTrips(),
                     'driver_rating' => $user->getDriverRating(),
                 ]
             ]);
