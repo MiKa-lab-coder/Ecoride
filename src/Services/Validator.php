@@ -188,10 +188,14 @@ class Validator
         return $seats >= 1 && $seats <= 9;
     }
 
-    public function validatePetOrSmokingAllowed(int $petAllowed , int $smokingAllowed): bool
+    public function validateSmokingAllowed(int $smokingAllowed): bool
     {
         // Doit être 0 (non autorisé) ou 1 (autorisé) pour contraindre le format boolean en bdd
-        return ($petAllowed === 0 || $petAllowed === 1) && ($smokingAllowed === 0 || $smokingAllowed === 1);
+        return $smokingAllowed === 0 || $smokingAllowed === 1;
+    }
+    public function validatePetAllowed(int $petAllowed): bool
+    {
+        return $petAllowed === 0 || $petAllowed === 1;
     }
 
     public function validateTime(mixed $arrival_time): bool
