@@ -15,26 +15,26 @@ class User extends BaseModel
     /**
      * @var string Le nom de la table associée au modèle
      */
-    protected string $table = 'users';
+    protected string $table = 'USERS';
 
     // Attributes
-    private ?int $id_user = null;
+    private ?int $user_id = null;
     private string $name;
     private string $firstname;
-    private DateTime $birthdate;
+    private DateTime $birth_date;
     private string $username;
     private string $photo;
     private string $email;
     private string $password;
     private int $credit;
-    private int $driver_rating;
+    private int $total_trips;
     private string $account_status;
     private int $role_id;
 
     // Getters
-    public function getIdUser(): ?int
+    public function getUserId(): ?int
     {
-        return $this->id_user;
+        return $this->user_id;
     }
 
     public function getName(): string
@@ -47,9 +47,9 @@ class User extends BaseModel
         return $this->firstname;
     }
 
-    public function getBirthdate(): DateTime
+    public function getBirthDate(): DateTime
     {
-        return $this->birthdate;
+        return $this->birth_date;
     }
 
     public function getUsername(): string
@@ -77,15 +77,16 @@ class User extends BaseModel
         return $this->credit;
     }
 
-    public function getDriverRating(): int
+    public function getTotalTrips(): int
     {
-        return $this->driver_rating;
+        return $this->total_trips;
     }
 
     public function getAccountStatus(): string
     {
         return $this->account_status;
     }
+
     public function getRoleId(): int
     {
         return $this->role_id;
@@ -102,9 +103,9 @@ class User extends BaseModel
         $this->firstname = $firstname;
     }
 
-    public function setBirthdate(DateTime $birthdate): void
+    public function setBirthDate(DateTime $birth_date): void
     {
-        $this->birthdate = $birthdate;
+        $this->birth_date = $birth_date;
     }
 
     public function setUsername(string $username): void
@@ -127,45 +128,112 @@ class User extends BaseModel
         $this->credit = $credit;
     }
 
-    public function setDriverRating(int $driver_rating): void
+    public function setTotalTrips(int $total_trips): void
     {
-        $this->driver_rating = $driver_rating;
+        $this->total_trips = $total_trips;
     }
 
     public function setAccountStatus(string $account_status): void
     {
         $this->account_status = $account_status;
     }
+
     public function setRoleId(int $role_id): void
     {
         $this->role_id = $role_id;
     }
 
     // Constructeur
-    public function __construct(string $name, string $firstname, DateTime $birthdate, string $username, string $photo,
-                                string $email, string $password, int $credit, int $driver_rating,
+    public function __construct(string $name, string $firstname, DateTime $birth_date, string $username, string $photo,
+                                string $email, string $password, int $credit, int $total_trips ,
                                 string $account_status = 'active', int $role_id = 3)
     {
         parent::__construct();
         $this->setName($name);
         $this->setFirstname($firstname);
-        $this->setBirthdate($birthdate);
+        $this->setBirthDate($birth_date);
         $this->setUsername($username);
         $this->setPhoto($photo);
         $this->setEmail($email);
         $this->setPassword($password);
         $this->setCredit($credit);
-        $this->setDriverRating($driver_rating);
+        $this->setTotalTrips($total_trips);
         $this->setAccountStatus($account_status);
         $this->setRoleId($role_id);
     }
 
+    // Méthodes d'instance
 
-    //toutes les verifications de champs, de format, d'email, de mot de passe etc
-    //seront faites dans le controller avant d'instancier un objet User
-    //car le model ne doit pas se soucier de la logique metier
-    //il doit juste representer la table en bdd et fournir les methodes CRUD
-    //et eventuellement des methodes specifiques au model
+    /**
+     * Calcule la note moyenne du conducteur à la volée.
+     * @return int La note moyenne arrondie à l'entier le plus proche, ou 0 si aucune note n'est disponible.
+     */
+    public function getDriverRating(): int
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('rating_calculation');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+        try {
+            $stmt = $db->prepare('SELECT AVG(rating_value) AS average_rating FROM ratings WHERE rated_user_id = :user_id');
+            $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Retourne 0 si aucune note n'est trouvée
+            return $result['average_rating'] ? (int)round($result['average_rating']) : 0;
+        } catch (PDOException $e) {
+            $logger->error("Erreur lors du calcul de la note moyenne : " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    public function save(): bool
+    {
+        $db = Database::getInstance();
+
+        try {
+            if ($this->user_id !== null) {
+                // Logique pour l'UPDATE
+                $stmt = $db->prepare("UPDATE users SET name = :name, firstname = :firstname, birth_date = :birth_date,
+                    username = :username, photo = :photo, email = :email, password = :password, credit = :credit,
+                    total_trips = :total_trips, account_status = :account_status, role_id = :role_id WHERE user_id = :user_id");
+                $stmt->bindParam(':user_id', $this->user_id, \PDO::PARAM_INT);
+            } else {
+                // Logique pour l'INSERT
+                $stmt = $db->prepare("INSERT INTO users (name, firstname, birth_date, username, photo, email, password,
+                    credit, total_trips, account_status, role_id) VALUES (:name, :firstname, :birth_date, :username, :photo, :email,
+                    :password, :credit, :total_trips, :account_status, :role_id)");
+            }
+
+            $birthdateStr = $this->birth_date->format('Y-m-d');
+            $stmt->bindParam(':name', $this->name, \PDO::PARAM_STR);
+            $stmt->bindParam(':firstname', $this->firstname, \PDO::PARAM_STR);
+            $stmt->bindParam(':birth_date', $birthdateStr, \PDO::PARAM_STR);
+            $stmt->bindParam(':username', $this->username, \PDO::PARAM_STR);
+            $stmt->bindParam(':photo', $this->photo, \PDO::PARAM_STR);
+            $stmt->bindParam(':email', $this->email, \PDO::PARAM_STR);
+            $stmt->bindParam(':password', $this->password, \PDO::PARAM_STR);
+            $stmt->bindParam(':credit', $this->credit, \PDO::PARAM_INT);
+            $stmt->bindParam(':total_trips', $this->total_trips, \PDO::PARAM_INT);
+            $stmt->bindParam(':account_status', $this->account_status, \PDO::PARAM_STR);
+            $stmt->bindParam(':role_id', $this->role_id, \PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            if ($this->user_id === null) {
+                $this->user_id = (int)$db->lastInsertId();
+            }
+
+            return true;
+
+        } catch (\PDOException $e) {
+            $log = new Logger('save_user_errors');
+            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $log->error("Erreur lors de la sauvegarde de l'utilisateur : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return false;
+        }
+    }
 
     // Méthodes statiques
 
@@ -174,39 +242,33 @@ class User extends BaseModel
         $user = new self(
             $data['name'],
             $data['firstname'],
-            new DateTime($data['birthdate']),
+            new DateTime($data['birth_date']),
             $data['username'],
             $data['photo'],
             $data['email'],
             $data['password'],
             (int)$data['credit'],
-            (int)$data['driver_rating'],
+            (int)$data['total_trips'],
             $data['account_status'],
-            $data['role_id'] ?? 3 // Valeur par défaut '3/utilisateur' si non fournie
+            $data['role_id'] ?? 3
         );
-        $user->id_user = (int)$data['id_user'];
+        $user->user_id = (int)$data['user_id'];
         return $user;
     }
-
-    public static function find(int $id_user): ?self
+    // Trouver un utilisateur par son ID
+    public static function find(int $user_id): ?self
     {
         $db = Database::getInstance();
-        //preparation
-        $stmt = $db->prepare("SELECT * FROM users WHERE id_user = :id_user");
-        $stmt->bindParam(':id_user', $id_user, \PDO::PARAM_INT);
-        //execution
+        $stmt = $db->prepare("SELECT * FROM users WHERE user_id = :user_id");
+        $stmt->bindParam(':user_id', $user_id, \PDO::PARAM_INT);
         try {
             $stmt->execute();
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            //si l'utilisateur existe
             if ($data) {
                 return self::hydrate($data);
             }
         } catch (PDOException $e) {
-            //ajout d'un log
             $log = new Logger('find_user_errors');
-            //ecriture dans le fichier
             $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
             $log->error("erreur lors de récupération de l'utilisateur" . $e->getMessage(),
                 ['trace' => $e->getTraceAsString()]);
@@ -214,6 +276,7 @@ class User extends BaseModel
 
         return null;
     }
+
     public static function findByUsername(string $username): ?self
     {
         $db = Database::getInstance();
@@ -226,7 +289,6 @@ class User extends BaseModel
                 return self::hydrate($data);
             }
         } catch (PDOException $e) {
-            // Log d'erreur
             $log = new Logger('find_username_errors');
             $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
             $log->error("Erreur lors de la récupération du nom d'utilisateur: " . $e->getMessage(),
@@ -238,18 +300,14 @@ class User extends BaseModel
     public static function findByEmail(string $email): ?self
     {
         $db = Database::getInstance();
-        //preparation
         $stmt = $db->prepare("SELECT * FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email, \PDO::PARAM_STR);
-        //execution
         try {
             $stmt->execute();
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
-            //si l'email existe
             if ($data) {
                 return self::hydrate($data);
             }
-            //si l'email n'existe pas
         } catch (PDOException $e) {
             $log = new Logger('find_mail_errors');
             $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
@@ -295,65 +353,9 @@ class User extends BaseModel
         }
     }
 
-    // Méthodes d'instance
-    public function save(): bool
-    {
-        // Connexion
-        $db = Database::getInstance();
-
-        try {
-            // Logique pour l'UPDATE
-            if ($this->id_user !== null) {
-                $sql = "UPDATE users SET name = :name, firstname = :firstname, birthdate = :birthdate,
-                    username = :username, photo = :photo, email = :email, password = :password, credit = :credit,
-                    driver_rating = :driver_rating, account_status = :account_status WHERE id_user = :id_user, role_id = :role_id";
-                $stmt = $db->prepare($sql);
-                $stmt->bindParam(':id_user', $this->id_user, \PDO::PARAM_INT);
-            } else {
-                // Logique pour l'INSERT
-                $sql = "INSERT INTO users (name, firstname, birthdate, username, photo, email, password,
-                    credit, driver_rating, account_status) VALUES (:name, :firstname, :birthdate, :username, :photo, :email,
-                    :password, :credit, :driver_rating, :account_status, :role_id)";
-                $stmt = $db->prepare($sql);
-            }
-
-            // Liaison des paramètres
-            $birthdateStr = $this->birthdate->format('Y-m-d');
-            $stmt->bindParam(':name', $this->name, \PDO::PARAM_STR);
-            $stmt->bindParam(':firstname', $this->firstname, \PDO::PARAM_STR);
-            $stmt->bindParam(':birthdate', $birthdateStr, \PDO::PARAM_STR);
-            $stmt->bindParam(':username', $this->username, \PDO::PARAM_STR);
-            $stmt->bindParam(':photo', $this->photo, \PDO::PARAM_STR);
-            $stmt->bindParam(':email', $this->email, \PDO::PARAM_STR);
-            $stmt->bindParam(':password', $this->password, \PDO::PARAM_STR);
-            $stmt->bindParam(':credit', $this->credit, \PDO::PARAM_INT);
-            $stmt->bindParam(':driver_rating', $this->driver_rating, \PDO::PARAM_INT);
-            $stmt->bindParam(':account_status', $this->account_status, \PDO::PARAM_STR);
-            $stmt->bindParam(':role_id', $this->role_id, \PDO::PARAM_INT); // si on ajoute le role_id
-
-            // Exécution de la requête
-            $stmt->execute();
-
-            // Récupération du dernier ID si c'était une insertion
-            if ($this->id_user === null) {
-                $this->id_user = (int)$db->lastInsertId();
-            }
-
-            return true;
-
-        } catch (\PDOException $e) {
-            $log = new Logger('save_user_errors');
-            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
-            $log->error("Erreur lors de la sauvegarde de l'utilisateur : " . $e->getMessage(),
-                ['trace' => $e->getTraceAsString()]);
-            return false;
-        }
-    }
-
     // Méthodes de sécurité
     public function setPassword(string $password): void
     {
-        // PASSWORD_DEFAULT utilise l'algorithme le plus fort disponible
         $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 
@@ -365,4 +367,3 @@ class User extends BaseModel
         return false;
     }
 }
-
