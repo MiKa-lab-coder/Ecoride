@@ -95,10 +95,14 @@ class TripController
             if (!$dateValidator->validateSeatsAvailable((int)$data['seating'])) {
                 throw new Exception("Le nombre de sièges disponibles doit être un entier positif entre 1 et 9.", 400);
             }
-            if (!$dateValidator->validatePetOrSmokingAllowed((int)$data['animal_pref'], (int)$data['smoking_pref'])) {
-                throw new Exception("Les préférences pour les animaux et le tabac doivent être 0 ou 1.", 400);
+            $data = new Validator();
+            if(!$data->validatePetAllowed((int)$data['animal_pref'])) {
+                throw new Exception("La préférence pour les animaux doit être 0 ou 1.", 400);
             }
-            if (!$dateValidator->validateTripName($data['trip_name'])) {
+            if(!$data->validateSmokingAllowed((int)$data['smoking_pref'])) {
+                throw new Exception("La préférence pour le tabac doit être 0 ou 1.", 400);
+            }
+            if(!$data->validateTripName($data['trip_nature'])) {
                 throw new Exception("Le format de la nature du trajet est invalide.", 400);
             }
 
@@ -134,7 +138,7 @@ class TripController
                 (bool)$data['animal_pref'],
                 (bool)$data['smoking_pref'],
                 (int)$data['seating'],
-                'planned', // Le statut par défaut est 'planned'
+                'pending', // Le statut par défaut est 'pending'
                 $userId,
                 $vehicleId
             );
