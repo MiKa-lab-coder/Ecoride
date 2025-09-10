@@ -254,12 +254,12 @@ class Trip extends BaseModel
 
         try {
             $sql = "SELECT * FROM TRIPS WHERE departure_location LIKE :departure AND arrival_location LIKE :arrival AND
-                          departure_day = :departure_day AND status != :status";
+                          departure_day = :departure_day AND status = :status";
             $params = [
                 ':departure' => '%' . $departure . '%',
                 ':arrival' => '%' . $arrival . '%',
                 ':departure_day' => $departureDay,
-                ':status' => 'completed' // Ne pas afficher les trajets terminés
+                ':status' => 'approved' // Seuls les trajets approuvés sont affichés
             ];
 
             // Ajout des filtres dynamiquement
@@ -493,6 +493,27 @@ class Trip extends BaseModel
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             $logger->error("Erreur lors de la récupération des passagers : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return [];
+        }
+    }
+    // Méthode pour trouver un trajet par son status
+    public static function findByStatus(string $status): array
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('trip_findByStatus');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        try {
+            $stmt = $db->prepare("SELECT * FROM TRIPS WHERE status = :status");
+            $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $trip) {
+                $trips[] = self::hydrate($trip);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            $logger->error("Erreur lors de la recherche des trajets par status : " . $e->getMessage(),
                 ['trace' => $e->getTraceAsString()]);
             return [];
         }
