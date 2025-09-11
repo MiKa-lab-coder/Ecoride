@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS TRANSACTIONS (
     user_id INT NOT NULL,
     amount INT NOT NULL,
     transaction_type ENUM('payment', 'cancellation','service_fee') NOT NULL DEFAULT 'payment',
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reference INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
     FOREIGN KEY (reference) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
@@ -146,9 +147,9 @@ CREATE TABLE IF NOT EXISTS ARCHIVED_ISSUES (
 
 -- Insertion des rôles par défaut
 INSERT INTO ROLES (role_name) VALUES
-('user'),
+('admin'),
 ('moderator'),
-('admin');
+('user');
 
 -- Insertion d'un utilisateur admin par défaut
 INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
