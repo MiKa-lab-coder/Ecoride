@@ -6,6 +6,7 @@ use App\Models\Database\Database;
 use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use DateTime;
 use PDO;
 
 /**
@@ -21,12 +22,14 @@ class Transaction extends BaseModel
     private int $amount; // Montant de la transaction en chiffres entiers
     private string $transaction_type; // Pour savoir si c'est un paiement ou frais de plateforme
     private int $reference; // Point de référence de la transaction (trajet)
+    private DateTime $transaction_date;
 
     //getter et setters
     public function getTransactionId(): int
     {
         return $this->transaction_id;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -42,7 +45,7 @@ class Transaction extends BaseModel
         return $this->transaction_type;
     }
 
-    public function getReference(): string
+    public function getReference(): int
     {
         return $this->reference;
     }
@@ -67,7 +70,7 @@ class Transaction extends BaseModel
         $this->transaction_type = $transaction_type;
     }
 
-    public function setReference(string $reference): void
+    public function setReference(int $reference): void
     {
         $this->reference = $reference;
     }
@@ -101,8 +104,9 @@ class Transaction extends BaseModel
             return false;
         }
     }
-    // Méthode pour recupérer le solde d'un utilisateur
-    public static function getUserBalance(int $user_id): float
+
+    // Méthode pour recupérer le solde d'un utilisateur pour affichage dans son profil
+    public static function getUserBalance(int $user_id): int
     {
         try {
             $db = Database::getInstance();
@@ -110,12 +114,52 @@ class Transaction extends BaseModel
             $stmt->bindParam(':user_id', $user_id);
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return (float)$result['balance'] ?? 0;
+            return (int)$result['balance'] ?? 0;
         } catch (Exception $e) {
             $logger = new Logger('transaction_logger');
             $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
             $logger->error('Error fetching user balance: ' . $e->getMessage());
             return 0;
+        }
+    }
+    // Recupérer l'ensemble des crédits de la plateforme
+    public static function getTotalCredits(): int
+    {
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT SUM(amount) as total_credits FROM TRANSACTIONS");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)$result['total_credits'] ?? 0;
+        } catch (Exception $e) {
+            $logger = new Logger('transaction_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Error fetching total credits: ' . $e->getMessage());
+            return 0;
+        }
+    }
+    public function getPlatformEarningsByDate($startDate, $endDate)
+    {
+
+        $db = Database::getInstance();
+        try{
+            $stmt = $db->prepare("SELECT DATE(created_at) as transaction_date, SUM(amount) as daily_earnings
+                  FROM TRANSACTIONS
+                  WHERE user_id = 1 
+                  AND transaction_type = 'service_fee'
+                  AND created_at BETWEEN :start_date AND :end_date
+                  GROUP BY transaction_date
+                  ORDER BY transaction_date ASC");
+            $stmt->bindParam(':start_date', $startDate);
+            $stmt->bindParam(':end_date', $endDate);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            return (float)$result['total_earnings'] ?? 0;
+        } catch (Exception $e) {
+            $logger = new Logger('transaction_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $logger->error('Error fetching platform earnings: ' . $e->getMessage());
+            return [];
         }
     }
 }
