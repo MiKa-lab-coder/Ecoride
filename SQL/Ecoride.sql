@@ -74,6 +74,17 @@ CREATE TABLE IF NOT EXISTS RATINGS
     FOREIGN KEY (trip_id) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
 );
 
+-- Table: TRANSACTIONS
+CREATE TABLE IF NOT EXISTS TRANSACTIONS (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    amount INT NOT NULL,
+    transaction_type ENUM('payment', 'cancellation','service_fee') NOT NULL DEFAULT 'payment',
+    reference INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reference) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
+    );
+
 -- Table: RESERVATIONS
 CREATE TABLE IF NOT EXISTS RESERVATIONS (
     reservation_id INT AUTO_INCREMENT PRIMARY KEY,
