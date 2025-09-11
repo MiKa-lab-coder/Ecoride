@@ -138,7 +138,7 @@ class Transaction extends BaseModel
             return 0;
         }
     }
-    public function getPlatformEarningsByDate($startDate, $endDate)
+    public static function getPlatformEarningsByDate($startDate, $endDate)
     {
 
         $db = Database::getInstance();
