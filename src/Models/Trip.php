@@ -35,7 +35,7 @@ class Trip extends BaseModel
     private bool $smoking_pref;
     private int $seating;
     private string $status;
-    private int $user_id;
+    private int $driver_id;
     private int $vehicle_id;
 
     // Getters
@@ -110,9 +110,9 @@ class Trip extends BaseModel
         return $this->status;
     }
 
-    public function getUserId(): int
+    public function getDriverId(): int
     {
-        return $this->user_id;
+        return $this->driver_id;
     }
 
     public function getVehicleId(): int
@@ -186,9 +186,9 @@ class Trip extends BaseModel
         $this->status = $status;
     }
 
-    public function setUserId(int $user_id): void
+    public function setDriverId(int $driver_id): void
     {
-        $this->user_id = $user_id;
+        $this->driver_id = $driver_id;
     }
 
     public function setVehicleId(int $vehicle_id): void
@@ -199,7 +199,7 @@ class Trip extends BaseModel
     // Constructeur
     public function __construct(DateTime $departure_day, DateTime $arrival_day, string $departure_location, string $arrival_location,
                                 DateTime $departure_time, DateTime $arrival_time, int $trip_time, int $trip_price, string $trip_nature,
-                                bool     $animal_pref, bool $smoking_pref, int $seating, string $status, int $user_id,
+                                bool     $animal_pref, bool $smoking_pref, int $seating, string $status, int $driver_id,
                                 int      $vehicle_id)
     {
         parent::__construct();
@@ -216,7 +216,7 @@ class Trip extends BaseModel
         $this->setSmokingPref($smoking_pref);
         $this->setSeating($seating);
         $this->setStatus($status);
-        $this->setUserId($user_id);
+        $this->setDriverId($driver_id);
         $this->setVehicleId($vehicle_id);
     }
 
@@ -237,7 +237,7 @@ class Trip extends BaseModel
             (bool)$data['smoking_pref'],
             (int)$data['seating'],
             $data['status'],
-            (int)$data['user_id'],
+            (int)$data['driver_id'],
             (int)$data['vehicle_id']
         );
         // Assigner l'ID du trajet s'il est présent dans les données
@@ -323,16 +323,16 @@ class Trip extends BaseModel
                         trip_time = :trip_time,
                         trip_price = :trip_price, trip_nature = :trip_nature, animal_pref = :animal_pref,
                         smoking_pref = :smoking_pref,
-                        seating = :seating, status = :status, user_id = :user_id, vehicle_id = :vehicle_id WHERE trip_id = :trip_id");
+                        seating = :seating, status = :status, driver_id = :driver_id, vehicle_id = :vehicle_id WHERE trip_id = :trip_id");
                 $stmt->bindParam(':trip_id', $this->trip_id, PDO::PARAM_INT);
             } else {
                 // INSERT
                 $stmt = $db->prepare("INSERT INTO TRIPS (departure_day, arrival_day, departure_location, arrival_location,
                         departure_time,
-                        arrival_time, trip_time, trip_price, trip_nature, animal_pref, smoking_pref, seating, status, user_id,
+                        arrival_time, trip_time, trip_price, trip_nature, animal_pref, smoking_pref, seating, status, driver_id,
                         vehicle_id)
                         VALUES (:departure_day, :arrival_day, :departure_location, :arrival_location, :departure_time, :arrival_time,
-                        :trip_time, :trip_price, :trip_nature, :animal_pref, :smoking_pref, :seating, :status, :user_id, :vehicle_id)");
+                        :trip_time, :trip_price, :trip_nature, :animal_pref, :smoking_pref, :seating, :status, :driver_id, :vehicle_id)");
             }
 
             $departureDay = $this->departure_day->format('Y-m-d');
@@ -353,7 +353,7 @@ class Trip extends BaseModel
             $stmt->bindParam(':smoking_pref', $this->smoking_pref, PDO::PARAM_INT);
             $stmt->bindParam(':seating', $this->seating, PDO::PARAM_INT);
             $stmt->bindParam(':status', $this->status, PDO::PARAM_STR);
-            $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $stmt->bindParam(':driver_id', $this->driver_id, PDO::PARAM_INT);
             $stmt->bindParam(':vehicle_id', $this->vehicle_id, PDO::PARAM_INT);
 
             $stmt->execute();
@@ -414,13 +414,14 @@ class Trip extends BaseModel
         }
     }
 // Méthode pour récupérer/afficher tous les trajets d'un utilisateur (conducteur ou passager)
-    public static function findByUserId(int $user_id): array
+    public static function findByDriverOrUserId(int $user_id): array
     {
         $db = Database::getInstance();
         $logger = new Logger('trip_findByUserId');
         $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
         try {
-            $stmt = $db->prepare("SELECT * FROM TRIPS WHERE user_id = :user_id");
+            $stmt = $db->prepare("SELECT * FROM TRIPS WHERE driver_id = :user_id
+                                  OR trip_id IN (SELECT trip_id FROM BOOKINGS WHERE user_id = :user_id)");
             $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
             $stmt->execute();
             $trips = [];
@@ -473,7 +474,7 @@ class Trip extends BaseModel
             'smoking_pref' => $this->smoking_pref,
             'seating' => $this->seating,
             'status' => $this->status,
-            'user_id' => $this->user_id,
+            'driver_id' => $this->driver_id,
             'vehicle_id' => $this->vehicle_id
         ];
     }
