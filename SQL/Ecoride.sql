@@ -65,14 +65,12 @@ CREATE TABLE IF NOT EXISTS TRIPS (
 CREATE TABLE IF NOT EXISTS RATINGS
 (
     id            INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    rated_user_id INT(11) NOT NULL ,
-    rater_user_id INT(11) NOT NULL ,
-    trip_id       INT(11) NOT NULL ,
-    rating_value  INT(11) NOT NULL ,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    rated_user_id INT(11) NOT NULL, -- ID du conducteur noté
+    passenger_id  INT(11) NOT NULL, -- ID du passager qui a noté
+    trip_id       INT(11) NOT NULL, -- ID du trajet associé à la note
+    rating_value  INT(11) NOT NULL, -- La note
     FOREIGN KEY (rated_user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (rater_user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (passenger_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
     FOREIGN KEY (trip_id) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
 );
 
