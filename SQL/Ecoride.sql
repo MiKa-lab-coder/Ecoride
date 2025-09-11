@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS USERS (
     photo VARCHAR(255),
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    credit INT DEFAULT 20,
     total_trips INT DEFAULT 0,
     account_status ENUM('active', 'suspended') DEFAULT 'active',
     role_id INT,
