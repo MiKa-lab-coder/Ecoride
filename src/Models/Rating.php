@@ -16,41 +16,79 @@ use App\Models\Database\Database;
 class Rating extends BaseModel
 {
     protected string $table = 'RATINGS';
-    private int $id;
+    private int $rating_id; // ID de la note
     private int $rated_user_id; // ID de l'utilisateur noté (conducteur)
-    private int $rater_user_id; // ID de l'utilisateur qui donne la note (passager)
+    private int $passenger_id; // ID de l'utilisateur qui donne la note (passager)
     private int $trip_id; // ID du trajet associé à la note
-    private int $rating_value; // Valeur de la note (1 à 5)
+    private int $rating_value; // Valeur de la note
 
+    //getter et setters
+    public function getRatingId(): int
+    {
+        return $this->rating_id;
+    }
+    public function getRatedUserId(): int
+    {
+        return $this->rated_user_id;
+    }
+    public function getPassengerId(): int
+    {
+        return $this->passenger_id;
+    }
+    public function getTripId(): int
+    {
+        return $this->trip_id;
+    }
+    public function getRatingValue(): int
+    {
+        return $this->rating_value;
+    }
+    public function setRatingValue(int $rating_value): void
+    {
+        $this->rating_value = $rating_value;
+    }
 
-    public function __construct(?int $rated_user_id = null, ?int $rater_user_id = null, ?int $trip_id = null,
-         ?int $rating_value = null, ?int $id = null)
+    public function __construct(int $rated_user_id, int $passenger_id, int $trip_id,
+         int $rating_value , int $rating_id )
     {
         parent::__construct();
-        $this->rated_user_id = $rated_user_id ?? 0;
-        $this->rater_user_id = $rater_user_id ?? 0;
-        $this->trip_id = $trip_id ?? 0;
-        $this->rating_value = $rating_value ?? 0;
-        $this->id = $id ?? 0;
+        $this->rated_user_id = $rated_user_id ;
+        $this->passenger_id = $passenger_id ;
+        $this->trip_id = $trip_id ;
+        $this->rating_value = $rating_value ;
+        $this->rating_id = $rating_id ;
     }
-    /**
-     * Enregistre une nouvelle note dans la base de données.
-     */
+
+    public static function hydrate(array $data): self
+    {
+       $rating = new self(
+            $data['rated_user_id'],
+            $data['passenger_id'],
+            $data['trip_id'],
+            $data['rating_value'],
+            $data['rating_id']
+        );
+       $rating->rating_id = $data['rating_id'];
+       return $rating;
+    }
+
+
+
     public function save(): bool
     {
         $db = Database::getInstance();
         $logger = new Logger('rating_logger');
         $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/rating.log', 100));
         try {
-            $stmt = $db->prepare("INSERT INTO ratings (rated_user_id, rater_user_id, trip_id, rating_value)
-            VALUES (:rated_user_id, :rater_user_id, :trip_id, :rating_value)");
+            $stmt = $db->prepare("INSERT INTO RATINGS (rated_user_id, passenger_id, trip_id, rating_value)
+            VALUES (:rated_user_id, :passenger_id, :trip_id, :rating_value)");
             $stmt->bindParam(':rated_user_id', $this->rated_user_id, PDO::PARAM_INT);
-            $stmt->bindParam(':rater_user_id', $this->rater_user_id, PDO::PARAM_INT);
+            $stmt->bindParam(':passenger_id', $this->passenger_id, PDO::PARAM_INT);
             $stmt->bindParam(':trip_id', $this->trip_id, PDO::PARAM_INT);
             $stmt->bindParam(':rating_value', $this->rating_value, PDO::PARAM_INT);
             if ($stmt->execute()) {
-                $this->id = (int)$db->lastInsertId();
-                $logger->info("Note donnée avec success ID: " . $this->id);
+                $this->rating_id = (int)$db->lastInsertId();
+                $logger->info("Note donnée avec success ID: " . $this->rating_id);
                 return true;
             } else {
                 $logger->error("Échec d'enregistrement de la note.");
@@ -66,16 +104,35 @@ class Rating extends BaseModel
     {
         $db = Database::getInstance();
         try {
-            $stmt = $db->prepare('SELECT AVG(rating_value) AS average_rating FROM ratings WHERE rated_user_id = :userId');
+            $stmt = $db->prepare('SELECT AVG(rating_value) AS average_rating FROM RATINGS WHERE rated_user_id = :userId');
             $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return (float)($result['average_rating'] ?? 0);
+            $average = (float)($result['average_rating'] ?? 0);
+            return round($average, 2);
         } catch (Exception $e) {
             $logger = new Logger('rating_logger');
-            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', Logger::ERROR));
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
             $logger->error('Erreur lors du calcul de la note moyenne: ' . $e->getMessage());
-            return 0;
+            return 0.0;
+        }
+    }
+    // Verifier si un passager a déjà noté un conducteur pour un trajet précis
+    public static function hasPassengerRatedTrip(int $passengerId, int $tripId): bool
+    {
+        $db = Database::getInstance();
+        try {
+            $stmt = $db->prepare('SELECT COUNT(*) FROM RATINGS WHERE passenger_id = :passengerId AND trip_id = :tripId');
+            $stmt->bindParam(':passengerId', $passengerId, PDO::PARAM_INT);
+            $stmt->bindParam(':tripId', $tripId, PDO::PARAM_INT);
+            $stmt->execute();
+            $count = (int)$stmt->fetchColumn();
+            return $count > 0;
+        } catch (Exception $e) {
+            $logger = new Logger('rating_logger');
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+            $logger->error('Erreur lors de la vérification de la note: ' . $e->getMessage());
+            return false;
         }
     }
 }
