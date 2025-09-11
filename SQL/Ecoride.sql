@@ -55,9 +55,9 @@ CREATE TABLE IF NOT EXISTS TRIPS (
     smoking_pref BOOLEAN DEFAULT FALSE,
     seating INT NOT NULL,
     status ENUM ('pending', 'completed', 'approved') NOT NULL DEFAULT 'pending',
-    user_id INT,
+    driver_id INT,
     vehicle_id INT,
-    FOREIGN KEY (user_id) REFERENCES USERS(user_id),
+    FOREIGN KEY (driver_id) REFERENCES USERS(user_id),
     FOREIGN KEY (vehicle_id) REFERENCES VEHICLES(vehicle_id)
     );
 
