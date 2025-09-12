@@ -114,7 +114,7 @@ class Issues extends BaseModel
         } catch (Exception $e) {
             // Log the error
             $log = new Logger('Issues');
-            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', Logger::ERROR));
+            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log',400));
             $log->error('Error creating issue: ' . $e->getMessage());
             return false;
         }
