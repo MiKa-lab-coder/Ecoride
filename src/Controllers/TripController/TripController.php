@@ -555,4 +555,34 @@ class TripController
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+    // Méthode pour récupérer tous les trajets d'un utilisateur (conducteur)
+    public function getUserTrips(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->sub;
+            // On vérifie que l'utilisateur existe
+            $user = User::find($userId);
+            if (!$user) {
+                throw new Exception("Utilisateur non trouvé.", 404);
+            }
+            // On récupère les trajets de l'utilisateur
+            $trips = Trip::getTripsByDriverId($userId);
+            if (empty($trips)) {
+                http_response_code(200);
+                echo json_encode(['message' => "Vous n'avez proposé aucun trajet."]);
+                return;
+            }
+            http_response_code(200);
+            $tripsArray = array_map(fn($trip) => $trip->toArray(), $trips);
+            echo json_encode($tripsArray);
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des trajets de l'utilisateur: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
 }
