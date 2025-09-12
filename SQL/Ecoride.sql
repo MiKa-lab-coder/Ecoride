@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS VEHICLES (
     color VARCHAR(30),
     seating_capacity INT NOT NULL,
     user_id INT,
-    FOREIGN KEY (user_id) REFERENCES USERS(user_id)
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE
     );
 
 -- Table: TRIPS
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS TRIPS (
     status ENUM ('pending', 'completed', 'approved') NOT NULL DEFAULT 'pending',
     driver_id INT,
     vehicle_id INT,
-    FOREIGN KEY (driver_id) REFERENCES USERS(user_id),
+    FOREIGN KEY (driver_id) REFERENCES USERS(user_id) ON DELETE CASCADE,
     FOREIGN KEY (vehicle_id) REFERENCES VEHICLES(vehicle_id)
     );
 
@@ -85,16 +85,15 @@ CREATE TABLE IF NOT EXISTS TRANSACTIONS (
     FOREIGN KEY (reference) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
     );
 
--- Table: RESERVATIONS
-CREATE TABLE IF NOT EXISTS RESERVATIONS (
-    reservation_id INT AUTO_INCREMENT PRIMARY KEY,
-    reservation_date DATE NOT NULL,
-    seat_reserved INT NOT NULL,
-    status VARCHAR(50) NOT NULL,
+-- Table: BOOKINGS
+CREATE TABLE IF NOT EXISTS BOOKINGS (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INT,
     trip_id INT,
     FOREIGN KEY (user_id) REFERENCES USERS(user_id),
-    FOREIGN KEY (trip_id) REFERENCES TRIPS(trip_id)
+    FOREIGN KEY (trip_id) REFERENCES TRIPS(trip_id),
+    CONSTRAINT `unique_booking_user_trip` UNIQUE (`trip_id`, `user_id`)
     );
 
 -- Table: ISSUES
