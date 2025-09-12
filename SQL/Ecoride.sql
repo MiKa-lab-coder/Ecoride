@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS TRANSACTIONS (
     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     amount INT NOT NULL,
-    transaction_type ENUM('payment', 'cancellation','service_fee') NOT NULL DEFAULT 'payment',
+    transaction_type ENUM('payment', 'cancellation','service_fee','welcome_bonus') NOT NULL DEFAULT 'payment',
     transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reference INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
