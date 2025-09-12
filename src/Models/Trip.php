@@ -555,4 +555,24 @@ class Trip extends BaseModel
             return false;
         }
     }
+    // Méthode pour recupérer tous les trajets proposés par un conducteur
+    public static function getTripsByDriverId(int $driver_id): array
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('trip_getTripsByDriverId');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        try {
+            $stmt = $db->prepare("SELECT * FROM trips WHERE driver_id = ? ORDER BY departure_day DESC, departure_time DESC");
+            $stmt->execute([$driver_id]);
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $trip) {
+                $trips[] = self::hydrate($trip);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            $logger->error("Erreur lors de la récupération des trajets par ID conducteur : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return [];
+        }
+    }
 }
