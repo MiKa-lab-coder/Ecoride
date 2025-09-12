@@ -131,6 +131,29 @@ class Booking extends BaseModel
             return [];
         }
     }
+    // Méthode pour récupérer une réservation par son ID
+    public static function findById(int $booking_id): ?Booking
+    {
+        $logger = new Logger('booking_logger');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/booking.log', 100));
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT * FROM BOOKINGS WHERE booking_id = :booking_id");
+            $stmt->bindParam(':booking_id', $booking_id);
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $booking = new Booking(new DateTime($row['booking_date']), (int)$row['user_id'], (int)$row['trip_id']);
+                $booking->setBookingId((int)$row['booking_id']);
+                return $booking;
+            } else {
+                return null;
+            }
+        } catch (Exception $e) {
+            $logger->error("Erreur lors de la récupération de la réservation ID: $booking_id - " . $e->getMessage());
+            return null;
+        }
+    }
 }
 
 
