@@ -26,7 +26,6 @@ class User extends BaseModel
     private string $photo;
     private string $email;
     private string $password;
-    private int $credit;
     private int $total_trips;
     private string $account_status;
     private int $role_id;
@@ -70,11 +69,6 @@ class User extends BaseModel
     public function getPassword(): string
     {
         return $this->password;
-    }
-
-    public function getCredit(): int
-    {
-        return $this->credit;
     }
 
     public function getTotalTrips(): int
@@ -123,11 +117,6 @@ class User extends BaseModel
         $this->email = $email;
     }
 
-    public function setCredit(int $credit): void
-    {
-        $this->credit = $credit;
-    }
-
     public function setTotalTrips(int $total_trips): void
     {
         $this->total_trips = $total_trips;
@@ -145,7 +134,7 @@ class User extends BaseModel
 
     // Constructeur
     public function __construct(string $name, string $firstname, DateTime $birth_date, string $username, string $photo,
-                                string $email, string $password, int $credit, int $total_trips ,
+                                string $email, string $password, int $total_trips ,
                                 string $account_status = 'active', int $role_id = 3)
     {
         parent::__construct();
@@ -156,18 +145,12 @@ class User extends BaseModel
         $this->setPhoto($photo);
         $this->setEmail($email);
         $this->setPassword($password);
-        $this->setCredit($credit);
         $this->setTotalTrips($total_trips);
         $this->setAccountStatus($account_status);
         $this->setRoleId($role_id);
     }
 
-    // Méthodes d'instance
-
-    /**
-     * Calcule la note moyenne du conducteur à la volée.
-     * @return int La note moyenne arrondie à l'entier le plus proche, ou 0 si aucune note n'est disponible.
-     */
+    // Méthodes pour récupérer les notes d'un utilisateur
     public function getDriverRating(): int
     {
         $db = Database::getInstance();
@@ -195,14 +178,14 @@ class User extends BaseModel
             if ($this->user_id !== null) {
                 // Logique pour l'UPDATE
                 $stmt = $db->prepare("UPDATE users SET name = :name, firstname = :firstname, birth_date = :birth_date,
-                    username = :username, photo = :photo, email = :email, password = :password, credit = :credit,
+                    username = :username, photo = :photo, email = :email, password = :password,
                     total_trips = :total_trips, account_status = :account_status, role_id = :role_id WHERE user_id = :user_id");
                 $stmt->bindParam(':user_id', $this->user_id, \PDO::PARAM_INT);
             } else {
                 // Logique pour l'INSERT
                 $stmt = $db->prepare("INSERT INTO users (name, firstname, birth_date, username, photo, email, password,
-                    credit, total_trips, account_status, role_id) VALUES (:name, :firstname, :birth_date, :username, :photo, :email,
-                    :password, :credit, :total_trips, :account_status, :role_id)");
+                     total_trips, account_status, role_id) VALUES (:name, :firstname, :birth_date, :username, :photo, :email,
+                    :password, :total_trips, :account_status, :role_id)");
             }
 
             $birthdateStr = $this->birth_date->format('Y-m-d');
@@ -213,7 +196,6 @@ class User extends BaseModel
             $stmt->bindParam(':photo', $this->photo, \PDO::PARAM_STR);
             $stmt->bindParam(':email', $this->email, \PDO::PARAM_STR);
             $stmt->bindParam(':password', $this->password, \PDO::PARAM_STR);
-            $stmt->bindParam(':credit', $this->credit, \PDO::PARAM_INT);
             $stmt->bindParam(':total_trips', $this->total_trips, \PDO::PARAM_INT);
             $stmt->bindParam(':account_status', $this->account_status, \PDO::PARAM_STR);
             $stmt->bindParam(':role_id', $this->role_id, \PDO::PARAM_INT);
@@ -247,7 +229,6 @@ class User extends BaseModel
             $data['photo'],
             $data['email'],
             $data['password'],
-            (int)$data['credit'],
             (int)$data['total_trips'],
             $data['account_status'],
             $data['role_id'] ?? 3
