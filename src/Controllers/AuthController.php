@@ -200,7 +200,7 @@ class AuthController
                 // on protège la route avec JWT
                 $tokenManager = new TokenManager();
                 $sequence = [
-                    'id' => $user->getIdUser(),
+                    'id' => $user->getUserId(),
                     'username' => $user->getUsername(),
                     // on recupère le role de l'utilisateur pour contrôler l'accès aux ressources
                     'role' => $user->getRoleId()
