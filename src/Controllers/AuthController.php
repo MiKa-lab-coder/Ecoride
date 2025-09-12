@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\User;
 use App\Services\Validator;
+use App\Models\Transaction;
 use App\Services\TokenManager;
 use DateTime;
 use PDOException;
@@ -111,19 +112,28 @@ class AuthController
                 $firstname,
                 $birthdateFormatted,
                 $username,
+                $photo_path,
                 $email,
                 $password,
-                $photo_path,
-                // codé en dur pour l'instant pour correspondre au schéma de la BDD
-                20,
-                0,
-                'active',
-                3
+                0
             );
 
             if ($user->save()) {
                 $logger->info("Nouvel utilisateur inscrit: $username");
 
+                // on crée une transaction initiale de 20 crédits pour le nouvel utilisateur
+                $welcomeCredit = new Transaction(
+                    $user->getUserId(),
+                    20,
+                    'welcome_bonus',
+                    0 // pas de référence pour les crédits de bienvenue
+                );
+                // on enregistre la transaction
+                if ($welcomeCredit->save()) {
+                    $logger->info("Crédits de bienvenue ajoutés pour l'utilisateur: $username");
+                } else {
+                    $logger->error("Échec de l'ajout des crédits de bienvenue pour l'utilisateur: $username");
+                }
                 // On envoie l'e-mail de confirmation
                 $mailler = new Mailler();
                 try {
