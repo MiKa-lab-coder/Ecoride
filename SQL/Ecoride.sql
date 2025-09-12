@@ -99,17 +99,16 @@ CREATE TABLE IF NOT EXISTS BOOKINGS (
 -- Table: ISSUES
 CREATE TABLE IF NOT EXISTS ISSUES (
     issue_id INT AUTO_INCREMENT PRIMARY KEY,
-    status VARCHAR(50) NOT NULL,
+    status ENUM('open', 'resolved') DEFAULT 'open',
     date_open DATE NOT NULL,
-    description TEXT NOT NULL,
-    response TEXT, -- Ce champ peut être NULL avant qu'un modérateur ne réponde
-    user_id INT,
+    description TEXT NOT NULL, -- on récupèrera le commentaire de l'utilisateur sur la collection noSQL
+    user_id INT, -- Disponible pour l'utilisateur qui signale le problème
     trip_id INT,
     FOREIGN KEY (user_id) REFERENCES USERS(user_id),
     FOREIGN KEY (trip_id) REFERENCES TRIPS(trip_id)
     );
 
--- Table pour archiver les trajets terminés avec cron
+-- Table pour archiver les trajets terminés avec cron -- à exécuter chaque nuit -- à implementer si possible
 CREATE TABLE IF NOT EXISTS ARCHIVED_TRIPS (
     trip_id INT AUTO_INCREMENT PRIMARY KEY,
     departure_day VARCHAR(255) NOT NULL,
@@ -134,7 +133,6 @@ CREATE TABLE IF NOT EXISTS ARCHIVED_TRIPS (
 -- Table pour archiver les litiges résolus avec cron
 CREATE TABLE IF NOT EXISTS ARCHIVED_ISSUES (
     issue_id INT AUTO_INCREMENT PRIMARY KEY,
-    status VARCHAR(50) NOT NULL,
     date_open DATE NOT NULL,
     description TEXT NOT NULL,
     response TEXT,
