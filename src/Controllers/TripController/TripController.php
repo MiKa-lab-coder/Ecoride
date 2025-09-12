@@ -188,7 +188,7 @@ class TripController
                 throw new Exception("Trajet non trouvé.", 404);
             }
             // On vérifie que l'utilisateur est bien le propriétaire du trajet
-            if ($trip->getUserId() !== $userId) {
+            if ($trip->getDriverId() !== $userId) {
                 throw new Exception("Vous n'êtes pas autorisé à modifier ce trajet.", 403);
             }
 
@@ -323,7 +323,7 @@ class TripController
                 throw new Exception("Trajet non trouvé.", 404);
             }
             // On vérifie que l'utilisateur est bien le propriétaire du trajet
-            if ($trip->getUserId() !== $userId) {
+            if ($trip->getDriverId() !== $userId) {
                 throw new Exception("Vous n'êtes pas autorisé à supprimer ce trajet.", 403);
             }
 
@@ -477,7 +477,7 @@ class TripController
                 throw new Exception("Trajet non trouvé.", 404);
             }
             // On vérifie que l'utilisateur est bien le propriétaire du trajet
-            if ($trip->getUserId() !== $userId) {
+            if ($trip->getDriverId() !== $userId) {
                 throw new Exception("Vous n'êtes pas autorisé à terminer ce trajet.", 403);
             }
             // On vérifie que le trajet n'est pas déjà terminé
@@ -534,7 +534,7 @@ class TripController
                 throw new Exception("Trajet non trouvé.", 404);
             }
             // On vérifie que l'utilisateur est bien le conducteur
-            $isDriver = $trip->getUserId() === $userId;
+            $isDriver = $trip->getDriverId() === $userId;
             $isPassenger = false;
             $passengers = $trip->getPassengers();
             foreach ($passengers as $passenger) {
