@@ -519,4 +519,40 @@ class Trip extends BaseModel
             return [];
         }
     }
+    // Méthode pour décompter le nombre de places disponibles après une réservation
+    public function decrementAvailableSeats(): bool
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('trip_decrementAvailableSeats');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        try {
+            // S'assurer que le nombre de places ne devient pas négatif
+            $stmt = $db->prepare("UPDATE TRIPS SET seating = seating - 1 WHERE trip_id = :trip_id AND seating > 0");
+            $stmt->bindParam(':trip_id', $this->trip_id, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            $logger->error("Erreur lors du décompte des places disponibles : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return false;
+        }
+    }
+    // Méthode pour incrementer le nombre de places disponibles après une annulation de réservation
+    public function incrementAvailableSeats(): bool
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('trip_incrementAvailableSeats');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        try {
+            // S'assurer que le nombre de places ne dépasse pas la capacité de places indiquée par le conducteur pour ce trajet
+            $stmt = $db->prepare("UPDATE TRIPS SET seating = seating + 1 WHERE trip_id = :trip_id AND seating < total_seats");
+            $stmt->bindParam(':trip_id', $this->trip_id, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            $logger->error("Erreur lors de l'incrémentation des places disponibles : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return false;
+        }
+    }
 }
