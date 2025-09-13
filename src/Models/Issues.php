@@ -103,7 +103,7 @@ class Issues extends BaseModel
             $db = Database::getInstance();
             $openDate = $this->date_open->format('Y-m-d H:i:s');
 
-            $stmt = $db->prepare("INSERT INTO {$this->table} (status, date_open, description, user_id, trip_id)
+            $stmt = $db->prepare("INSERT INTO ISSUES (status, date_open, description, user_id, trip_id)
             VALUES (:status, :date_open, :description, :user_id, :trip_id)");
             $stmt->bindParam(':status', $this->status);
             $stmt->bindParam(':date_open', $this->date_open);
