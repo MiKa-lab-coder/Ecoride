@@ -4,6 +4,7 @@ namespace App\Services;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use Dotenv\Dotenv;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -21,6 +22,8 @@ class Mailler
 
     public function __construct()
     {
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
         // Initialisation du logger
         $this->logger = new Logger('mailler');
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/mailler.log', 400));
@@ -29,13 +32,19 @@ class Mailler
         // Initialisation de PHPMailer à completer apres obtention des identifiants SMTP
         $this->mailer = new PHPMailer(true);
         $this->mailer->isSMTP();
-        $this->mailer->Host = 'smtp.example.com'; // Remplacez par votre serveur SMTP
+        $this->mailer->Host = $_ENV['MAIL_HOST'];
         $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = ''; // Remplacez par votre utilisateur SMTP
-        $this->mailer->Password = ''; // Remplacez par votre mot de passe SMTP
-        $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mailer->Port = 587; // Port SMTP
-        $this->mailer->setFrom('mail@mail.fr', 'Ecoride');// méthode native de PHPMailer
+        $this->mailer->Username = $_ENV['MAIL_USERNAME']; // Votre adresse email app //a mettre a jour
+        $this->mailer->Password = $_ENV['MAIL_PASSWORD']; // Votre mot de passe email app //a mettre a jour
+        // Définir le type de chiffrement en fonction de la configuration
+        if ($_ENV['MAIL_ENCRYPTION'] === 'null' || $_ENV['MAIL_ENCRYPTION'] === '') {
+            $this->mailer->SMTPSecure = ''; // Pas de chiffrement
+        } else {
+            $this->mailer->SMTPSecure = $_ENV['MAIL_ENCRYPTION'];
+        }
+
+        $this->mailer->Port = $_ENV['MAIL_PORT'];
+        $this->mailer->setFrom($_ENV['MAIL_USERNAME'], $_ENV['MAIL_FROM_NAME']);
 
     }
 
@@ -89,8 +98,9 @@ class Mailler
      */
 
     // Méthode pour envoyer un email auto pour signalement de litige
-    public function sendAutoReportMail(string $to, string $username, string $userId): bool
+    public function sendAutoReportMail(string $username, string $userId): bool
     {
+        $to = $_ENV['MODERATOR_EMAIL'];
         $subject = "Signalement de litige par un utilisateur";
         $body = "<h1>Bonjour modérateur !</h1><br>
     <p>Un litige a été signalé par l'utilisateur $username (ID: $userId) après un trajet.</p>
@@ -110,19 +120,10 @@ class Mailler
         return $this->configEmail($to, $subject, $body);
     }
 
-    //Méthode pour envoyer un email de réponse suite litige ou a contact
-    public function sendResponseMail(string $to, string $username, string $response): bool
-    {
-        $subject = "Réponse à votre litige";
-        $body = "<h1>Bonjour, $username!</h1><br>
-        <p>Voici la réponse à votre litige :</p><br>
-        <p>$response</p>";
-        return $this->configEmail($to, $subject, $body);
-    }
-
     // Méthode pour envoyer un email a l'admin
-    public function sendAdminSuspendMail(string $to, string $username): bool
+    public function sendAdminSuspendMail(string $username): bool
     {
+        $to = $_ENV['ADMIN_EMAIL'];
         $subject = "Nouvelle inscription sur le site";
         $body = "<h1>Bonjour, Admin !</h1><br>
         <p>Le compte de $username a enfreint les règles de la plateforme.</p><br>
@@ -139,5 +140,4 @@ class Mailler
         <p>N'hésitez pas à laisser un avis sur votre expérience.</p>";
         return $this->configEmail($to, $subject, $body);
     }
-
 }
