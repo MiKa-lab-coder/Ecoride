@@ -97,7 +97,7 @@ class Issues extends BaseModel
     }
 
     // Méthode pour enregistrer un litige
-    public function createIssues(): bool
+    public function save(): bool
     {
         try {
             $db = Database::getInstance();
@@ -117,6 +117,36 @@ class Issues extends BaseModel
             $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log',400));
             $log->error('Error creating issue: ' . $e->getMessage());
             return false;
+        }
+    }
+
+    // Méthode pour récupérer un litige par son ID
+    public static function findById(int $issue_id): ?Issues
+    {
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT * FROM ISSUES WHERE issue_id = :issue_id");
+            $stmt->bindParam(':issue_id', $issue_id);
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $issue = new Issues(
+                    $row['status'],
+                    new DateTime($row['date_open']),
+                    $row['description'],
+                    (int)$row['user_id'],
+                    (int)$row['trip_id']
+                );
+                $issue->setIssueId((int)$row['issue_id']);
+                return $issue;
+            }
+            return null;
+        } catch (Exception $e) {
+            // Log the error
+            $log = new Logger('Issues');
+            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $log->error("Erreur de recuperation de l'issue : " . $e->getMessage());
+            return null;
         }
     }
 }
