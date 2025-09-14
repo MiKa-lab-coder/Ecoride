@@ -1,0 +1,29 @@
+{
+  "collectionName": "reviews",
+  "description": "aperçus de la structure de la collection reviews",
+  "schema": {
+    "properties": {
+      "_id": {
+        "bsonType": "objectId",
+        "description": "L'identifiant unique du commentaire, généré automatiquement par MongoDB."
+      },
+      "user_id": {
+        "bsonType": "string",
+        "description": "L'ID de l'utilisateur qui a laissé le commentaire."
+      },
+      "trip_id": {
+        "bsonType": "string",
+        "description": "L'ID du trajet concerné par le commentaire."
+      },
+      "comment": {
+        "bsonType": "string",
+        "description": "Le texte du commentaire."
+      },
+      "required": [
+        "user_id",
+        "trip_id",
+        "comment"
+      ]
+    }
+  }
+}
