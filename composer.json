@@ -6,6 +6,7 @@
     "php":">= 8.2",
     "nikic/fast-route": "^v1.3.0",
     "vlucas/phpdotenv": "^5.5",
+    "mongodb/mongodb": "^2.1",
     "ext-pdo": "*",
     "monolog/monolog": "^3.9",
     "ext-mbstring": "*",
