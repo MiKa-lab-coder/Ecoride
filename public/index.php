@@ -74,7 +74,7 @@ $routes = [
         '/api/user/profile' => [$userController, 'showMyProfile'],
 
         // Vehicle
-        '/api/vehicles/user' => [$vehicleController, 'getUserCars'],//a faire
+        '/api/vehicles/user' => [$vehicleController, 'getUserCars'],
 
     ],
     'POST' => [
