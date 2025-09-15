@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS TRIPS (
     arrival_time TIME NOT NULL,
     trip_time INT NOT NULL,
     trip_price INT NOT NULL,
-    trip_nature VARCHAR(255) NOT NULL,
+    trip_nature ENUM('ecologic', 'standard'),
     animal_pref BOOLEAN DEFAULT FALSE,
     smoking_pref BOOLEAN DEFAULT FALSE,
     seating INT NOT NULL,
