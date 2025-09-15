@@ -149,4 +149,32 @@ class Issues extends BaseModel
             return null;
         }
     }
+    // Méthode pour récupérer tous les litiges
+    public static function getAllIssues(): array
+    {
+        try {
+            $db = Database::getInstance();
+            $stmt = $db->prepare("SELECT * FROM ISSUES ORDER BY date_open DESC ");
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $issues = [];
+            foreach ($results as $result) {
+                $issue = new Issues(
+                    $result['status'],
+                    new DateTime($result['date_open']),
+                    $result['description'],
+                    (int)$result['user_id'],
+                    (int)$result['trip_id']
+                );
+                $issue->setIssueId((int)$result['issue_id']);
+                $issues[] = $issue;
+            }
+            return $issues;
+        } catch (Exception $e) {
+            $log = new Logger('Issues');
+            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $log->error("Erreur de recuperation des issues : " . $e->getMessage());
+            return [];
+        }
+    }
 }
