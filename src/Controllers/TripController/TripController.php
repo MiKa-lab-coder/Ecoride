@@ -60,55 +60,21 @@ class TripController
             $requiredFields = [
                 'departure_day', 'arrival_day', 'departure_location', 'arrival_location',
                 'departure_time', 'arrival_time', 'trip_time', 'trip_price',
-                'trip_nature', 'animal_pref', 'smoking_pref', 'seating', 'vehicle_id'
+                'animal_pref', 'smoking_pref', 'seating', 'vehicle_id'
             ];
             foreach ($requiredFields as $field) {
                 if (!isset($data[$field])) {
                     throw new Exception("Le champ '{$field}' est obligatoire.", 400);
                 }
             }
-            // Validation des formats de date et heure
-            $dateValidator = new Validator();
-            if (!$dateValidator->validateTripDate($data['departure_day'], 'Y-m-d')) {
-                throw new Exception("Le format de la date de départ est invalide. Utilisez 'Y-m-d'.", 400);
-            }
-            if (!$dateValidator->validateTripDate($data['arrival_day'], 'Y-m-d')) {
-                throw new Exception("Le format de la date d'arrivée est invalide. Utilisez 'Y-m-d'.", 400);
-            }
-            if (!$dateValidator->validateTime($data['departure_time'], 'H:i')) {
-                throw new Exception("Le format de l'heure de départ est invalide. Utilisez 'H:i'.", 400);
-            }
-            if (!$dateValidator->validateTime($data['arrival_time'], 'H:i')) {
-                throw new Exception("Le format de l'heure d'arrivée est invalide. Utilisez 'H:i'.", 400);
-            }
 
-            // Validation des autres champs
-            if (!$dateValidator->validateDepartureOrArrival($data['departure_location'])) {
-                throw new Exception("Le format du lieu de départ est invalide.", 400);
-            }
-            if (!$dateValidator->validateDepartureOrArrival($data['arrival_location'])) {
-                throw new Exception("Le format du lieu d'arrivée est invalide.", 400);
-            }
-            if (!$dateValidator->validateTripPrice((int)$data['trip_price'])) {
-                throw new Exception("Le prix du trajet doit être un entier positif.", 400);
-            }
-            if (!$dateValidator->validateSeatsAvailable((int)$data['seating'])) {
-                throw new Exception("Le nombre de sièges disponibles doit être un entier positif entre 1 et 9.", 400);
-            }
-            $data = new Validator();
-            if(!$data->validatePetAllowed((int)$data['animal_pref'])) {
-                throw new Exception("La préférence pour les animaux doit être 0 ou 1.", 400);
-            }
-            if(!$data->validateSmokingAllowed((int)$data['smoking_pref'])) {
-                throw new Exception("La préférence pour le tabac doit être 0 ou 1.", 400);
-            }
-            if(!$data->validateTripName($data['trip_nature'])) {
-                throw new Exception("Le format de la nature du trajet est invalide.", 400);
-            }
-
-            // On vérifie que le véhicule appartient bien à l'utilisateur
-            $vehicleId = (int)$data['vehicle_id'];
+            // On vérifie que le véhicule appartient bien à l'utilisateur et qu'il en a au moins un
             $userVehicles = Vehicle::getVehiclesByUserId($userId);
+            if (empty($userVehicles)) {
+                throw new Exception("Vous devez enregistrer un véhicule avant de proposer un trajet.", 400);
+            }
+
+            $vehicleId = (int)$data['vehicle_id'];
             $isVehicleOwned = false;
             foreach ($userVehicles as $vehicle) {
                 if ($vehicle->getVehicleId() === $vehicleId) {
@@ -118,6 +84,53 @@ class TripController
             }
             if (!$isVehicleOwned) {
                 throw new Exception("Véhicule non trouvé ou n'appartient pas à l'utilisateur.", 403);
+            }
+
+            // On obtient le type d'énergie du véhicule pour déterminer le type de trajet
+            $fuelType = Vehicle::getFuelTypeById($vehicleId);
+            if (!$fuelType) {
+                throw new Exception("Véhicule non trouvé.", 404);
+            }
+
+            // Définition de la nature du trajet de manière automatique
+            // La nature est définie par le code, pas par l'entrée utilisateur
+            $tripNature = in_array(strtolower($fuelType), ['electric', 'hybrid']) ? 'ecologic' : 'standard';
+
+            // Instanciation unique du validateur
+            $validator = new Validator();
+
+            // Validation des formats de date et heure
+            if (!$validator->validateTripDate($data['departure_day'], 'Y-m-d')) {
+                throw new Exception("Le format de la date de départ est invalide. Utilisez 'Y-m-d'.", 400);
+            }
+            if (!$validator->validateTripDate($data['arrival_day'], 'Y-m-d')) {
+                throw new Exception("Le format de la date d'arrivée est invalide. Utilisez 'Y-m-d'.", 400);
+            }
+            if (!$validator->validateTime($data['departure_time'], 'H:i')) {
+                throw new Exception("Le format de l'heure de départ est invalide. Utilisez 'H:i'.", 400);
+            }
+            if (!$validator->validateTime($data['arrival_time'], 'H:i')) {
+                throw new Exception("Le format de l'heure d'arrivée est invalide. Utilisez 'H:i'.", 400);
+            }
+
+            // Validation des autres champs
+            if (!$validator->validateDepartureOrArrival($data['departure_location'])) {
+                throw new Exception("Le format du lieu de départ est invalide.", 400);
+            }
+            if (!$validator->validateDepartureOrArrival($data['arrival_location'])) {
+                throw new Exception("Le format du lieu d'arrivée est invalide.", 400);
+            }
+            if (!$validator->validateTripPrice((int)$data['trip_price'])) {
+                throw new Exception("Le prix du trajet doit être un entier positif.", 400);
+            }
+            if (!$validator->validateSeatsAvailable((int)$data['seating'])) {
+                throw new Exception("Le nombre de sièges disponibles doit être un entier positif entre 1 et 9.", 400);
+            }
+            if(!$validator->validatePetAllowed((int)$data['animal_pref'])) {
+                throw new Exception("La préférence pour les animaux doit être 0 ou 1.", 400);
+            }
+            if(!$validator->validateSmokingAllowed((int)$data['smoking_pref'])) {
+                throw new Exception("La préférence pour le tabac doit être 0 ou 1.", 400);
             }
 
             // Création du trajet
@@ -134,11 +147,11 @@ class TripController
                 $arrivalTime,
                 (int)$data['trip_time'],
                 (int)$data['trip_price'],
-                htmlspecialchars($data['trip_nature'], ENT_QUOTES, 'UTF-8'),
+                $tripNature, // Utilisation de la variable calculée
                 (bool)$data['animal_pref'],
                 (bool)$data['smoking_pref'],
                 (int)$data['seating'],
-                'pending', // Le statut par défaut est 'pending'
+                'pending',// Statut initial 'pending' en attendant validation modérateur
                 $userId,
                 $vehicleId
             );
@@ -158,9 +171,7 @@ class TripController
         }
     }
 
-    /**
-     * Modifie un trajet existant.
-     */
+    // Méthode pour modifier un trajet existant
     public function updateTrip(int $tripId)
     {
         header('Content-Type: application/json');
@@ -242,12 +253,6 @@ class TripController
                 }
                 $trip->setTripPrice((int)$data['trip_price']);
             }
-            if (isset($data['trip_nature'])) {
-                if (!$validator->validateTripName($data['trip_nature'])) {
-                    throw new Exception("Le format de la nature du trajet est invalide.", 400);
-                }
-                $trip->setTripNature(htmlspecialchars($data['trip_nature'], ENT_QUOTES, 'UTF-8'));
-            }
             if (isset($data['animal_pref'])) {
                 if (!$validator->validatePetAllowed((int)$data['animal_pref'])) {
                     throw new Exception("La préférence pour les animaux doit être 0 ou 1.", 400);
@@ -282,7 +287,12 @@ class TripController
                 }
                 $trip->setVehicleId((int)$data['vehicle_id']);
             }
-
+            // On met a jour la nature du trajet si le véhicule a changé
+            $fuelType = Vehicle::getFuelTypeById($vehicleId);
+            if ($fuelType) {
+                $tripNature = in_array(strtolower($fuelType), ['electric', 'hybrid']) ? 'ecologic' : 'standard';
+                $trip->setTripNature($tripNature);
+            }
             if ($trip->save()) {
                 http_response_code(200);
                 echo json_encode(["message" => "Trajet modifié avec succès."]);
@@ -297,9 +307,7 @@ class TripController
         }
     }
 
-    /**
-     * Supprime un trajet.
-     */
+    // Méthode pour supprimer un trajet existant
     public function deleteTrip(int $tripId)
     {
         header('Content-Type: application/json');
