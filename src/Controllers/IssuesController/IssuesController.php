@@ -77,21 +77,20 @@ class IssuesController
                 ID:{$trip->getTripId()}.");
                 throw new Exception("User did not participate in the trip", 400);
             }
-            // on récupère le commentaire de l'utilisateur
-            $review = new Review();
-            $comment = $review->getCommentById($data['comment_id']);
+            // On récupère le commentaire de l'utilisateur
+            // On instancie un objet vide de Review pour utiliser la méthode getReviewById et récupérer le commentaire.
+            $comment = (new Review('', '', ''))->getReviewById($data['review_id']);
             if (!$comment) {
                 $this->logger->error("Commentaire non trouvé pour l'utilisateur ID:{$user->getUserId()} 
                 et le trajet ID:{$trip->getTripId()}.");
                 throw new Exception("Comment not found", 404);
             }
 
-
             // Si tout est bon, on crée le litige
             $issue = new Issues(
                 'open',
                 new \DateTime(),
-                $comment,
+                $comment->getContent(),
                 $user->getUserId(),
                 $trip->getTripId()
             );
@@ -127,7 +126,7 @@ class IssuesController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
             // Vérification que l'utilisateur est admin ou modérateur
-            if ($decodedToken->data->role !== 'admin' && $decodedToken->data->role !== 'moderator') {
+            if(!($decodedToken->data->role_id === 1 || $decodedToken->data->role_id === 2)) {
                 $this->logger->error("Accès refusé pour l'utilisateur ID:{$decodedToken->data->id} avec le rôle:
                 {$decodedToken->data->role}");
                 throw new Exception("Access denied", 403);
@@ -157,6 +156,44 @@ class IssuesController
             }
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la résolution du problème: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            return ['error' => $e->getMessage() ?: 'Internal Server Error'];
+        }
+    }
+    // Méthode pour récupérer les litiges (pour les admins/modérateurs)
+    public function viewIssues(): array
+    {
+        header('Content-Type: application/json');
+        try {
+            // Récupération du token depuis l'en-tête Authorization
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            // On valide le token JWT et on récupère les données décodées
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            // Vérification que l'utilisateur est admin ou modérateur
+            if(!($decodedToken->data->role_id === 1 || $decodedToken->data->role_id === 2)) {
+                $this->logger->error("Accès refusé pour l'utilisateur ID:{$decodedToken->data->id} avec le rôle:
+                {$decodedToken->data->role_id}");
+                throw new Exception("Access denied", 403);
+            }
+            // Récupération de tous les litiges
+            $issues = Issues::getAllIssues();
+            $issuesArray = [];
+            // On prépare les données qui seront retournées sous forme de tableau
+            foreach ($issues as $issue) {
+                $issuesArray[] = [
+                    'issue_id' => (string)$issue->getIssueId(),
+                    'status' => $issue->getStatus(),
+                    'created_at' => $issue->getDateOpen()->format('Y-m-d H:i:s'),
+                    'comment' => $issue->getDescription(),
+                    'user_id' => (string)$issue->getUserId(),
+                    'trip_id' => (string)$issue->getTripId()
+                ];
+            }
+            http_response_code(200);
+            return ['issues' => $issuesArray];
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des problèmes: " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
             return ['error' => $e->getMessage() ?: 'Internal Server Error'];
         }
