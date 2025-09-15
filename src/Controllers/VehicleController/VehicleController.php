@@ -200,4 +200,50 @@ class VehicleController
             exit;
         }
     }
+    // Méthode pour afficher les véhicules d'un utilisateur dans son espace personnel
+    public function getUserCars(): void
+    {
+        header("Content-Type: application/json");
+        try {
+            // Récupération du token depuis l'en-tête Authorization
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+            // On valide le token JWT et on récupère les données décodées
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+
+            // Récupération des données l'utilisateur pour récupérer l'user_id nécessaire pour relier le véhicule à son propriétaire
+            $user_id = $decodedToken->sub;
+            $user = User::find($user_id);
+            if (!$user) {
+                throw new Exception("Utilisateur non trouvé.", 404);
+            }
+
+            // Récupération des véhicules de l'utilisateur
+            $vehicles = Vehicle::getVehiclesByUserId($user->getUserId());
+            $vehicleList = [];
+            foreach ($vehicles as $vehicle) {
+                $vehicleList[] = [
+                    'vehicle_id' => $vehicle->getVehicleId(),
+                    'brand' => $vehicle->getBrand(),
+                    'model' => $vehicle->getModel(),
+                    'registration_number' => $vehicle->getRegistrationNumber(),
+                    'seating_capacity' => $vehicle->getSeatingCapacity(),
+                    'color' => $vehicle->getColor(),
+                    'energy_type' => $vehicle->getEnergyType(),
+                    'first_service' => $vehicle->getFirstService()->format('d-m-Y'),
+                ];
+            }
+
+            http_response_code(200);
+            echo json_encode(["vehicles" => $vehicleList]);
+            exit;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des véhicules de l'utilisateur: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+            exit;
+        }
+    }
 }
