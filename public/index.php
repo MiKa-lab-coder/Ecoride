@@ -55,7 +55,7 @@ $routes = [
 
         // Admin
         '/api/admin/pending-trips' => [$adminController, 'getPendingTrips'],
-        '/api/admin/issues' => [$issuesController, 'viewIssues'], //a faire
+        '/api/admin/issues' => [$issuesController, 'viewIssues'],
         '/api/admin/statistics' => [$transactionController, 'getPlatformStats'],
 
         // Booking
