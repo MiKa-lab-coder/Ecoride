@@ -293,25 +293,21 @@ class Vehicle extends BaseModel
         }
     }
 
-    // Methode pour trouver un véhicule par son énergie pour possibilité de filtre (combustion, électrique, hybride)
-    public static function findByEnergy(string $energy_type): array
+    // Methode pour obtenir le type de carburant d'un véhicule par son ID, afin de vérifier si un trajet sera écologique
+    public static function getFuelTypeById(int $vehicleId): ?string
     {
         $db = Database::getInstance();
-        $logger = new Logger('vehicle_logger');
-        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/vehicle.log', 100));
-        $vehicles = [];
         try {
-            $stmt = $db->prepare("SELECT * FROM VEHICLES WHERE energy_type = :energy_type");
-            $stmt->bindValue(':energy_type', $energy_type);
+            $stmt = $db->prepare("SELECT energy_type FROM VEHICLES WHERE vehicle_id = :id");
+            $stmt->bindValue(':id', $vehicleId, \PDO::PARAM_INT);
             $stmt->execute();
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($results as $data) {
-                $vehicles[] = self::hydrate($data);
-            }
-        } catch (PDOException $e) {
-            $logger->error('Erreur PDO', ['exception' => $e]);
-            return [];
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return $result ? $result['energy_type'] : null;
+        } catch (\PDOException $e) {
+            $loger = new Logger('vehicle_logger');
+            $loger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/vehicle.log', 100));
+            $loger->error('Erreur PDO', ['exception' => $e]);
+            return null;
         }
-        return $vehicles;
     }
 }
