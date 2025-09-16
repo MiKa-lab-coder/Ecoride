@@ -113,35 +113,44 @@
                                     <p>Nombre de places : ${car_seats}</p>
                                     <p>Énergie : ${car_energie}</p>
                                     <p>Préférence : ${car_preference}</p>
+                                    <!-- doit se trouver dans la carte pour récupérer l'id-->
+                                    <input type="submit" class="delete-car-btn" value="Supprimer">
+                                    <br>
                                     <button class="add-car-btn" id="add-car-btn">ajouter</button>
                                     <div class="add-car-form js-hidden">
-                                        <form method="post" action="">
-                                            <label for="car-plate">Plaque d'immatriculation</label>
-                                            <input type="text" id="car-plate" name="car-plate" required>
-                                            <label for="car-year">Année</label>
-                                            <input type="number" id="car-year" name="car-year" required min="1886">
-                                            <label for="car-make">Marque</label>
-                                            <input type="text" id="car-make" name="car-make" required>
-                                            <label for="car-model">Modèle</label>
-                                            <input type="text" id="car-model" name="car-model" required>
-                                            <label for="car-color">Couleur</label>
-                                            <input type="text" id="car-color" name="car-color" required>
-                                            <label for="car-seats">Nombre de places</label>
-                                            <input type="number" id="car-seats" name="car-seats" required min="1">
-                                            <label for="car-energie">Énergie</label>
-                                            <select id="car-energie" name="car-energie" required>
-                                                <option value="essence">Essence</option>
-                                                <option value="diesel">Diesel</option>
-                                                <option value="electrique">Électrique</option>
-                                                <option value="hybride">Hybride</option>
+                                        <form id="add-car-form-js" method="post" action="">
+                                            <label for="registration_number">Plaque d'immatriculation</label>
+                                            <input type="text" id="registration_number" name="registration_number" required>
+
+                                            <label for="first_service">Date de première mise en circulation</label>
+                                            <input type="text" id="first_service" name="first_service" required>
+
+                                            <label for="brand">Marque</label>
+                                            <input type="text" id="brand" name="brand" required>
+
+                                            <label for="model">Modèle</label>
+                                            <input type="text" id="model" name="model" required>
+
+                                            <label for="color">Couleur</label>
+                                            <input type="text" id="color" name="color" required>
+
+                                            <label for="seating_capacity">Nombre de places</label>
+                                            <input type="number" id="seating_capacity" name="seating_capacity" required min="1" max="9">
+
+                                            <label for="energy_type">Énergie</label>
+                                            <select id="energy_type" name="energy_type" required>
+                                                <option value="combustion">Diesel</option>
+                                                <option value="electric">Électrique</option>
+                                                <option value="hybrid">Hybride</option>
                                             </select>
+
                                             <br>
                                             <br>
-                                            <button class="cancel-car-btn" id="cancel-add-car-btn">Annuler</button>
+                                            <button class="create-car-btn" id="create-car-btn">Créer</button>
+                                            <button class="cancel-car-btn" id="cancel-add-car-btn" type="button">Annuler</button>
                                         </form>
                                         <br>
                                     </div>
-                                    <input type="submit" class="delete-car-btn" value="Supprimer">
                                 </li>
                             </ul>
                         </div>
