@@ -87,9 +87,8 @@
     }
 
     .advanced-search-form {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        align-items: end;
+        display: flex;
+        align-items: center;
         gap: 20px;
     }
 
