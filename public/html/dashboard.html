@@ -198,44 +198,51 @@
                     <button class="add-trips-btn" id="add-trips-btn">proposer</button>
                     <br>
                     <form action="" method="post" class="add-trip-form js-hidden">
-                        <label for="title-new-trips">Nom du trajet :</label>
-                        <input type="text" id="title-new-trips" name="titre" required>
-                        <label for ="description-new-trips">Description :</label>
-                        <textarea id="description-new-trips" name="description" rows="2"  required></textarea>
-                        <label for="depart-new-trips">Départ :</label>
-                        <input type="text" id="depart-new-trips" name="depart" required>
-                        <label for="arrival-new-trips">Arrivée :</label>
-                        <input type="text" id="arrival-new-trips" name="arrivee" required>
-                        <label for="date-new-trips">Date :</label>
-                        <input type="date" id="date-new-trips" name="date" required>
-                        <label for="time-depart-new-trips">Heure de départ :</label>
-                        <input type="time" id="time-depart-new-trips" name="heure_depart" required>
-                        <label for="time-arrival-new-trips">Heure d'arrivée :</label>
-                        <input type="time" id="time-arrival-new-trips" name="heure_arrivee" required>
-                        <label for="price-new-trips">Prix en crédit :</label>
-                        <input type="number" id="price-new-trips" name="prix" required min="0">
-                        <label for="seat-new-trips">Nombre de places disponibles :</label>
-                        <input type="number" id="seat-new-trips" name="places_disponibles" required min="1">
+
+                        <label for="departure_day">Date de départ :</label>
+                        <input type="date" id="departure_day" name="departure_day" required>
+
+                        <label for="arrival_day">Date d'arrivée :</label>
+                        <input type="date" id="arrival_day" name="arrival_day" required>
+
+                        <label for="departure_location">Départ :</label>
+                        <input type="text" id="departure_location" name="departure_location" required>
+
+                        <label for="arrival_location">Arrivée :</label>
+                        <input type="text" id="arrival_location" name="arrival_location" required>
+
+                        <label for="departure_time">Heure de départ :</label>
+                        <input type="time" id="departure_time" name="departure_time" required>
+
+                        <label for="arrival_time">Heure d'arrivée :</label>
+                        <input type="time" id="arrival_time" name="arrival_time" required>
+
+                        <label for="trip_time">Temps de trajet (en minutes) :</label>
+                        <input type="number" id="trip_time" name="trip_time" required min="1">
+
+                        <label for="trip_price">Prix en crédits :</label>
+                        <input type="number" id="trip_price" name="trip_price" required min="0">
+
+                        <label for="seating">Nombre de places disponibles :</label>
+                        <input type="number" id="seating" name="seating" required min="1">
+
                         <div class="checkbox-group">
-                            <input type="checkbox" id="car-pref1" name="car-preference">
-                            <label for="car-pref1">Fumeurs</label>
+                            <input type="checkbox" id="smoking_pref" name="smoking_pref" value="1">
+                            <label for="smoking_pref">Fumeurs</label>
                         </div>
 
                         <div class="checkbox-group">
-                            <input type="checkbox" id="car-pref2" name="car-preference">
-                            <label for="car-pref2">Animaux</label>
+                            <input type="checkbox" id="animal_pref" name="animal_pref" value="1">
+                            <label for="animal_pref">Animaux</label>
                         </div>
-                        <br>
-                        <label for="car-select-new-trips">Véhicule :</label>
-                        <select id="car-select-new-trips" name="car-select" required>
-                            <option value="car1">Véhicule 1</option>
-                            <option value="car2">Véhicule 2</option>
-                            <option value="car3">Véhicule 3</option>
+
+                        <label for="vehicle_id">Véhicule :</label>
+                        <select id="vehicle_id" name="vehicle_id" required>
+                            <!-- Les options seront générées dynamiquement en JavaScript -->
+                            <option value="">Sélectionnez un véhicule</option>
                         </select>
-                        <br>
-                        <br>
-                        <button class="cancel-trip-btn" id="cancel-trip-btn">Annuler</button>
-                        <br>
+
+                        <button type="button" class="cancel-trip-btn" id="cancel-trip-btn">Annuler</button>
                         <input type="submit" class="create-new-trips-btn" value="Créer">
                     </form>
                     <br>
@@ -251,6 +258,7 @@
                             <p>Nombre de places disponibles : ${places_disponibles}</p>
                             <p>Véhicule : ${vehicule}</p>
                             <br>
+                            <!-- Boutons pour gérer le trajet devront etre dans la carte pour récupérer l'id-->
                             <input type="submit" class="start-trip-btn" value="Lancer">
                             <input type="submit" class="finish-trip-btn" value="Terminer">
                             <input type="submit" class="edit-trip-btn" value="Modifier">
@@ -287,8 +295,6 @@
                 <h2>Gestion des annonces</h2>
                 <ul>
                     <li>
-                        <!-- Exemple d'annonce à modérer -->
-                        <!-- css sous fornme de carte?? -->
                         <!-- Mettre en place une boucle pour afficher toutes les annonces en attente de modération,
                          max 9 pour eviter poid trop important-->
                         <p>ID Annonce : ${id_annonce}</p>
@@ -310,9 +316,7 @@
                         <p>ID Trajet : ${id_trajet}</p>
                         <p>Titre trajet : ${titre_trajet}</p>
                         <p>ID chauffeur : ${id_chaufeur}</p>
-                        <input type="submit" class="contact-users-btn" value="Mail chauffeur">
                         <p>ID passager : ${id_passager}</p>
-                        <input type="submit" class="contact-users-btn" value="Mail passager">
                         <p>Heure de départ : ${heure_depart}</p>
                         <p>Heure d'arrivée : ${heure_arrivee}</p>
                         <p>Commentaires : ${commentaire} </p>
@@ -323,18 +327,23 @@
             <div id="manage-users-content" class="dashboard-section js js-hidden">
                 <h2>Gestion des Utilisateurs</h2>
                 <form method="post" action="">
-                    <label for="new-username"  >Nom d'utilisateur</label>
-                    <input type="text" id="new-username" name="new-username" required>
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username">
                     <br>
                     <br>
-                    <label for="password" >Mot de passe</label>
-                    <input type="password" id="password" name="password"  required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email">
                     <br>
                     <br>
-                    <label for="user-role" >Rôle</label>
-                    <select id="user-role" name="user-role"  required>
-                        <option value="moderator">Modérateur</option>
-                        <option value="user">Utilisateur</option>
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password">
+                    <br>
+                    <br>
+
+                    <label for="role_id">Rôle</label>
+                    <select id="role_id" name="role_id">
+                        <option value="3">Utilisateur</option>
+                        <option value="2">Modérateur</option>
                     </select>
                     <br>
                     <br>
