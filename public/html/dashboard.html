@@ -58,9 +58,9 @@
                     <div class="user-pics">
                         <img src="../img/default-profile.png" alt="Photo de profil">
                         <button class="edit-pic-btn" id="edit-pic-btn">Modifier</button>
-                        <form class="change-pic-form js-hidden" method="post" action="">
+                        <form class="change-pic-form js-hidden" method="post" action="" enctype="multipart/form-data">
                             <label for="profile-pic">Choisir une nouvelle photo :</label>
-                            <input type="file" id="profile-pic" name="profile-pic" accept="image/*" required>
+                            <input type="file" id="profile-pic" name="photo" accept="image/*" required>
                             <input type="submit" class="save-pic-btn" value="Enregistrer">
                             <input type="submit" class="cancel-pic-btn" id="cancel-pic-btn" value="Annuler">
                         </form>
@@ -77,13 +77,13 @@
                             <h3>Modifier vos informations</h3>
                             <form method="post" action="">
                                 <label for="edit-username">Nom d'utilisateur</label>
-                                <input type="text" id="edit-username" name="edit-username" required>
+                                <input type="text" id="edit-username" name="username" required>
                                 <label for="edit-name">Nom</label>
-                                <input type="text" id="edit-name" name="edit-name" required>
-                                <label for="edit-surname">Prénom</label>
-                                <input type="text" id="edit-surname" name="edit-surname" required>
+                                <input type="text" id="edit-name" name="name" required>
+                                <label for="edit-firstname">Prénom</label>
+                                <input type="text" id="edit-firstname" name="firstname" required>
                                 <label for="edit-email">Email</label>
-                                <input type="email" id="edit-email" name="edit-email" required>
+                                <input type="email" id="edit-email" name="email" required>
                                 <input type="submit" class="save-profile-btn" value="Enregistrer">
                                 <input type="submit" class="cancel-edit-btn" id="cancel-edit-btn" value="Annuler">
                             </form>
