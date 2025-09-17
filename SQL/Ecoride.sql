@@ -150,26 +150,20 @@ INSERT INTO ROLES (role_name) VALUES
 
 -- Insertion d'un utilisateur admin par défaut
 INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
-VALUES ('Admin', 'Ecoride', '2025-01-01', 'admin_ecoride',
-        NULL, 'admin@ecoride.com', '', (SELECT role_id FROM ROLES WHERE role_name = 'admin'));
+VALUES ('Admin', 'Ecoride', '2025-01-01', 'adminEcoride-project',
+        NULL, 'admin@ecoride-project.ovh', '$2y$12$3f.x2opwZ5qYgzIU3IlNK.oy2Kr4iWqH2.4PQucSkQjMfP64yDfD2',
+        (SELECT role_id FROM ROLES WHERE role_name = 'admin'));
 
--- note : le mot de passe doit être mis à jour après le hashage via l'application
--- insertion ultérieurement via une requête UPDATE
--- UPDATE USERS SET password = 'hashed_password' WHERE username = 'admin_ecoride';
 
 -- Insertion d'un utilisateur modérateur par défaut
 INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
-VALUES ('Modérateur', 'Ecoride', '2025-01-01', 'moderator1_ecoride',
-        NULL, 'moderator1@ecoride.com', '', (SELECT role_id FROM ROLES WHERE role_name = 'moderator'));
+VALUES ('Modérateur', 'Ecoride', '2025-01-01', 'moderatorEcoride-project',
+        NULL, 'moderator@ecoride-project.ovh', '$2y$12$8PZBJOxEscKkOxIP4ocvVuJfA569KDp4TFz8Tt5z2RbSrhGjdefT6',
+        (SELECT role_id FROM ROLES WHERE role_name = 'moderator'));
 
--- note : le mot de passe doit être mis à jour après le hashage via l'application
--- insertion ultérieurement via une requête UPDATE
--- UPDATE USERS SET password = 'hashed_password' WHERE username = 'moderator1_ecoride';
 
 -- Insertion d'un utilisateur standard par défaut pour les tests
 INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
-VALUES ('User', 'Ecoride', '2025-01-01', 'user1_ecoride',
-        NULL, 'user1@gmail.com', '', (SELECT role_id FROM ROLES WHERE role_name = 'user'));
--- note : le mot de passe doit être mis à jour après le hashage via l'application
--- insertion ultérieurement via une requête UPDATE
--- UPDATE USERS SET password = 'hashed_password' WHERE username = 'user1_ecoride';
+VALUES ('User', 'Ecoride', '2025-01-01', 'userEcoride-project',
+        NULL, 'userecoride-project@gmail.com', '$2y$12$0NXX.lA7N8GFXxO.74bvxO0UXpakOQ2QpJiDAhNHWGXBzCJJR6Grm',
+        (SELECT role_id FROM ROLES WHERE role_name = 'user'));
