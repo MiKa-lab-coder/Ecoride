@@ -1,0 +1,18 @@
+# Ignorer les dossiers de dépendances et les fichiers de configuration locaux
+/vendor/
+/node_modules/
+/.env
+
+# Ignorer les fichiers et dossiers de gestion de versions
+/.git
+/.gitignore
+
+# Ignorer les fichiers de configuration de l'IDE
+/.idea/
+
+# Ignorer les fichiers Docker et de documentation
+/docker-compose.yml
+/Dockerfile
+
+# Ignorer les dossiers de test
+/tests/
