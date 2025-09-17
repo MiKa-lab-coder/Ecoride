@@ -29,6 +29,8 @@ coverage/
 *.phpunit.xml.dist
 .phpunit.result.cache
 
+# Fichiers dockers
+.Dockerignore
 # Fichiers de session PHP
 /sessions/
 
