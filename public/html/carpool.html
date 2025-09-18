@@ -49,8 +49,8 @@
                     <option value="Besançon"></option>
                 </datalist>
 
-                <label class="labels-hidden" for="date">Date de départ</label>
-                <input type="date" id="date" name="date" required>
+                <label class="labels-hidden" for="departure_day">Date de départ</label>
+                <input type="date" id="departure_day" name="date" required>
 
                 <input class="valid-search-form" type="submit" value="Rechercher">
 
@@ -77,6 +77,16 @@
                     <label for="eco-rating">Note Ecorider :</label>
                     <input type="number" id="eco-rating" name="eco-rating" min="1" max="5" step="1"
                            placeholder="Note de 1 à 5">
+
+                    <label for ="pet-allowed">Animaux acceptés :</label>
+                    <select id="pet-allowed" name="pet-allowed">
+                        <option value="yes">Oui</option>
+                        <option value="no">Non</option></select>
+
+                    <label for ="smoking-allowed">Fumeur accepté :</label>
+                    <select id="smoking-allowed" name="smoking-allowed">
+                        <option value="yes">Oui</option>
+                        <option value="no">Non</option></select>
 
                     <button class="reset-btn" id="reset-filter" type="button">Effacer les filtres</button>
                 </div>
@@ -155,9 +165,7 @@
                 </div>
             </div>
         </div>
-        <div class="no-results">
-            <p>Essayez de modifier vos critères de recherche.</p>
-        </div>
+        <div class="no-results"></div>
     </section>
 </main>
 <footer id="footer-placeholder"></footer>
