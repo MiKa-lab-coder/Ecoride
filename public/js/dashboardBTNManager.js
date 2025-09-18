@@ -31,7 +31,8 @@ const setupToggleListener = (showBtn, cancelBtn, container) => {
             showBtn.classList.remove('js-hidden');
         });
     } else {
-        console.error('Un ou plusieurs éléments sont introuvables. Vérifiez les sélecteurs.');
+        // Si un ou plusieurs éléments sont manquants, affiche un avertissement dans la console.
+        console.warn('Un ou plusieurs éléments sont introuvables. Vérifiez les sélecteurs.');
     }
 };
 
