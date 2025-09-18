@@ -8,7 +8,8 @@ export function displaySidebarByRoles(userRole) {
         console.error('Les éléments de navigation administrateur ou modérateur sont introuvables. Vérifiez la structure HTML.');
         return;
     }
-
+    // Masquer les éléments de navigation en fonction du rôle de l'utilisateur
+    // Remplacer par une vérification dynamique des rôles
     if (userRole !== 'admin') {
         adminNav.classList.add('js-hidden');
     }
