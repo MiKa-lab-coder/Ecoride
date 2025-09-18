@@ -45,8 +45,9 @@ services:
 
   # nginx
   nginx:
-    image: nginx:alpine
-    container_name: nginx
+    build:
+      context: .
+      dockerfile: Nginx.dockerfile
     restart: always
     volumes:
       - .:/var/www/html/
@@ -55,6 +56,7 @@ services:
       - "8000:80"
     depends_on:
       - php
+    command: sh -c "chown -R nginx:nginx /var/www/html && nginx -g 'daemon off;'"
 
 volumes:
   db_data:
