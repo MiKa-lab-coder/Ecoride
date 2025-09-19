@@ -1,5 +1,4 @@
-import {viewDetails} from "./moreDetails";
-
+// Gestion de la recherche rapide sur la page d'accueil
 export function setupSearchFetch() {
     // On commence par récupérer les éléments du formulaire de recherche sur la page d'accueil
     const searchForm = document.getElementById('search-form');
@@ -26,7 +25,9 @@ export function setupSearchFetch() {
         });
     }
 }
-export function populateAdvancedSearchFetch(){
+// Remplir le formulaire de recherche avancée avec les critères de recherche rapide
+// et pour gérer la soumission du formulaire de recherche avancée
+export async function populateAdvancedSearchFetch() {
     // On commence par récupérer les éléments du formulaire de recherche avancée sur la page de covoiturage
     const advancedSearchForm = document.getElementById('advanced-search-form');
     const advancedDeparture = document.getElementById('departure');
@@ -38,7 +39,7 @@ export function populateAdvancedSearchFetch(){
         // On vérifie si des critères de recherche rapide ont été stockés dans le sessionStorage
         const quickSearch = sessionStorage.getItem('quickSearch');
         if (quickSearch) {
-            const { departure, arrival, date } = JSON.parse(quickSearch);
+            const {departure, arrival, date} = JSON.parse(quickSearch);
             // On remplit les champs du formulaire de recherche avancée avec les valeurs stockées
             advancedDeparture.value = departure;
             advancedArrival.value = arrival;
@@ -49,11 +50,15 @@ export function populateAdvancedSearchFetch(){
         }
 
     }
-        // On ne vérifie pas que les champs sont remplis, car ils sont requis dans le HTML et
-        // sanitize par le backend.
-        // On ne vérifie pas que les filtres sont remplis, parce qu'ils sont optionnels
+    // On ne vérifie pas que les champs sont remplis, car ils sont requis dans le HTML et
+    // sanitize par le backend.
+    // On ne vérifie pas que les filtres sont remplis, parce qu'ils sont optionnels
 
-        // On ajoute un écouteur d'événement pour intercepter la soumission du formulaire de recherche avancée
+    if (!advancedSearchForm) {
+        return; // Le formulaire n'est pas sur cette page, on arrête.
+    }
+    // On ajoute un écouteur d'événement pour intercepter la soumission du formulaire de recherche avancée
+    if (advancedSearchForm) {
         advancedSearchForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
@@ -118,8 +123,7 @@ export function populateAdvancedSearchFetch(){
                     // On vide le conteneur de résultats avant d'afficher le message
                     resultsContainer.innerHTML = '';
                     resultsContainer.appendChild(resultsMessage);
-                }
-                else {
+                } else {
                     // On affiche les résultats dans le conteneur prévu à cet effet
                     displaySearchResults(carpoolData);
                 }
@@ -129,11 +133,12 @@ export function populateAdvancedSearchFetch(){
             }
         });
     }
-
+}
+// Affichage des résultats de la recherche de covoiturages
 export function displaySearchResults(carpoolData) {
     const resultsContainer = document.getElementById('results-container');
     if (!resultsContainer) {
-        console.error("Conteneur des résultats non trouvé.");
+        console.warn("Conteneur des résultats non trouvé.");
         return;
     }
 
@@ -147,7 +152,7 @@ export function displaySearchResults(carpoolData) {
         card.classList.add('results-card', 'card');
         card.dataset.tripId = carpool.id; // Ajout d'un attribut de données pour identifier le trajet
 
-        // Header
+        // Header card
         const header = document.createElement('div');
         header.classList.add('results-card-header');
 
@@ -190,7 +195,7 @@ export function displaySearchResults(carpoolData) {
             <p>Note Ecorider : <span class="results-details">${carpool.ecoNote} <span class="star">⭐</span></span></p>
         `;
 
-        // Footer
+        // Footer card
         const footer = document.createElement('div');
         footer.classList.add('ride-footer');
         const detailsBtn = document.createElement('button');
@@ -204,7 +209,149 @@ export function displaySearchResults(carpoolData) {
         // On ajoute la carte au conteneur des résultats
         resultsContainer.appendChild(card);
     });
+}
+// Ajout des écouteurs d'événements aux boutons "Voir les détails" après le rendu des résultats
+export function viewDetails() {
+    const detailButtons = document.querySelectorAll('.details-btn');
+    // On vérifie que des boutons existent avant d'ajouter les écouteurs.
+    if (detailButtons.length > 0) {
+        detailButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                window.open("../html/details.html", "_self");
+            });
+        });
+    }
+}
+// Affichage des details d'un covoiturage dans une page dédiée
+export async function displayCarpoolDetails() {
+    // On récupère l'ID du trajet depuis l'URL de la page
+    const Params = new URLSearchParams(window.location.search);
+    const tripId = Params.get('tripId');
+    const detailsContainer = document.getElementById('details-container');
 
-    // On initialise les écouteurs d'événements pour les boutons "Voir les détails".
-    viewDetails();
+    // Si l'ID ou le conteneur n'existe pas, on arrête
+    if (!tripId || !detailsContainer) {
+        console.error("ID du trajet manquant ou conteneur non trouvé.");
+        return;
+    }
+
+    try {
+        // On envoie une requête GET pour récupérer les détails du covoiturage
+        const response = await fetch(`/api/trips/${tripId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // On vérifie si la réponse est correcte
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        // On parse la réponse JSON
+        const carpoolDetails = await response.json();
+        console.log('Détails du covoiturage reçus:', carpoolDetails);
+
+        // On remplit le conteneur avec les détails du covoiturage
+        // On crée le conteneur des détails (la carte)
+        const detailsCard = document.createElement('div');
+        detailsCard.classList.add('details-content', 'card');
+
+        // Section Chauffeur
+        const driverTitle = document.createElement('h2');
+        driverTitle.textContent = 'Chauffeur';
+        detailsCard.appendChild(driverTitle);
+
+        const driverNameP = document.createElement('p');
+        driverNameP.innerHTML = `<strong>Nom:</strong> ${carpoolDetails.driverName}`;
+        detailsCard.appendChild(driverNameP);
+
+        const carTypeP = document.createElement('p');
+        carTypeP.innerHTML = `<strong>Type de voiture : </strong>${carpoolDetails.carType} (${carpoolDetails.carEnergy})`;
+        detailsCard.appendChild(carTypeP);
+
+        const preferencesP = document.createElement('p');
+        preferencesP.innerHTML = `<strong>Préférences : </strong>${carpoolDetails.preferences}`;
+        detailsCard.appendChild(preferencesP);
+
+        // Section Trajet
+        const tripTitle = document.createElement('h2');
+        tripTitle.classList.add('middle');
+        tripTitle.textContent = 'Trajet';
+        detailsCard.appendChild(tripTitle);
+
+        const departureP = document.createElement('p');
+        departureP.innerHTML = `<strong>Départ:</strong> ${carpoolDetails.departureCity}, ${carpoolDetails.departureLocation}`;
+        detailsCard.appendChild(departureP);
+
+        const arrivalP = document.createElement('p');
+        arrivalP.innerHTML = `<strong>Arrivée:</strong> ${carpoolDetails.arrivalCity}, ${carpoolDetails.arrivalLocation}`;
+        detailsCard.appendChild(arrivalP);
+
+        const dateTimeP = document.createElement('p');
+        dateTimeP.innerHTML = `<strong>Date et Heure : </strong>${carpoolDetails.date}, ${carpoolDetails.time}`;
+        detailsCard.appendChild(dateTimeP);
+
+        // Section Tarif
+        const priceTitle = document.createElement('h2');
+        priceTitle.textContent = 'Tarif';
+        detailsCard.appendChild(priceTitle);
+
+        const priceP = document.createElement('p');
+        priceP.innerHTML = `<strong>Prix par passager : </strong>${carpoolDetails.price} credits`;
+        detailsCard.appendChild(priceP);
+
+        // Bouton de réservation
+        const reserveBtn = document.createElement('button');
+        reserveBtn.classList.add('reserve-btn');
+        reserveBtn.textContent = 'Réserver ce trajet';
+
+        // Ajout de l'écouteur d'événement pour le bouton de réservation
+        reserveBtn.addEventListener('click', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                // On prévient l'utilisateur qu'il doit se connecter
+                alert('Vous devez être connecté pour réserver un trajet. Vous allez être redirigé vers la page de connexion.');
+                // On stocke l'URL de la page de détails dans le sessionStorage pour y revenir après login.
+                sessionStorage.setItem('redirectAfterLogin', window.location.href);
+                window.location.href = '/html/connexion.html';
+            } else {
+                // Si l'utilisateur est connecté on fetch la methode de réservation
+                const userId = parseJwt(token).userId;
+                // On envoie la requete de réservation
+                fetch(`/api/trips/${tripId}/reserve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({userId})
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erreur HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        alert('Réservation réussie !');
+                        // On redirige vers le dashboard
+                        window.location.href = '/html/dashboard.html';
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de la réservation :', error);
+                        alert('Erreur lors de la réservation. Veuillez réessayer plus tard.');
+                    });
+            }
+        });
+        detailsCard.appendChild(reserveBtn);
+
+        // On vide le conteneur principal et on y ajoute la nouvelle carte
+        detailsContainer.innerHTML = '';
+        detailsContainer.appendChild(detailsCard);
+
+    } catch (error) {
+        console.error('Erreur lors de la récupération des détails du covoiturage:', error);
+        detailsContainer.innerHTML = "Une erreur est survenue lors du chargement des détails.";
+    }
 }
