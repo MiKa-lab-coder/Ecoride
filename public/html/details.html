@@ -10,9 +10,9 @@
 <body>
 <main>
     <!-- page qui présente une vue detaillée du trajet proposée avec
-     avec infos sur le chauffeur : type voiture (marque, modele,eneregie), preference chauffeur (fumeur, animaux ...,  -->
+      infos sur le chauffeur : type voiture (marque, modele,eneregie), preference chauffeur (fumeur, animaux ...,  -->
     <section class="rider-details">
-        <div class="details-container container">
+        <div class="details-container container" id="details-container">
 
             <h1>Plus d'infos</h1>
             <div class="details-content card">
@@ -31,7 +31,7 @@
 
                 <input type="submit" value="Réserver" class="btn" id="btn-reserve">
                 <!-- bouton pour reserver le trajet, double confirmation -->
-                <!-- pour participer au trajet, l'utilisateur doit etre connecté et avoir assez de credit et places libres > 0 -->
+                <!-- pour participer au trajet, l'utilisateur doit être connecté sinon redirection vers connexion-->
 
             </div>
         </div>
