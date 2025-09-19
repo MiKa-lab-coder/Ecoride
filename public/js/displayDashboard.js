@@ -17,9 +17,10 @@ export function displaySidebarByRoles(userRole) {
     const adminNav = document.querySelector('.admin-nav');
     const moderatorNav = document.querySelector('.moderator-nav');
     const userNav = document.querySelector('.user-nav');
+    const mainContent = document.querySelector('main');
 
     // Assure que les éléments de navigation existent avant de tenter de les masquer
-    if (!adminNav || !moderatorNav) {
+    if (!adminNav || !moderatorNav || !userNav) {
         return;
     }
     // Recupérer le rôle de l'utilisateur à partir du token JWT
@@ -34,6 +35,15 @@ export function displaySidebarByRoles(userRole) {
         adminNav.classList.add('js-hidden');
         moderatorNav.classList.add('js-hidden');
         userNav.classList.add('js-hidden');
+        if (mainContent) {
+            mainContent.innerHTML = `
+                <div style="text-align: center; padding: 50px;">
+                    <h2>Accès non autorisé</h2>
+                    <p>Veuillez vous connecter pour accéder à cette page.</p>
+                    <a href="/html/connexion.html">Aller à la page de connexion</a>
+                </div>
+            `;
+        }
         return;
     }
     // Masquer les éléments de navigation en fonction du rôle de l'utilisateur
