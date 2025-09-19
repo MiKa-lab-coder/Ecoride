@@ -1,62 +1,56 @@
 // Gestion de la recherche rapide sur la page d'accueil
 export function setupSearchFetch() {
-    // On commence par récupérer les éléments du formulaire de recherche sur la page d'accueil
-    const searchForm = document.getElementById('search-form');
-    const searchDeparture = document.getElementById('departure');
-    const searchArrival = document.getElementById('arrival');
-    const searchDate = document.getElementById('departure_day');
-
-    // On ajoute un écouteur d'événement pour intercepter la soumission du formulaire
-    if (searchForm) {
-        searchForm.addEventListener('submit', async (event) => {
+    // On attache l'écouteur au document, qui est toujours présent.
+    document.addEventListener('submit', (event) => {
+        // On vérifie si l'élément qui a déclenché l'événement est bien le formulaire de recherche.
+        if (event.target && event.target.id === 'search-form') {
             event.preventDefault();
 
-            // On ne vérifie pas que les champs de recherche sont remplis, car ils sont requis dans le HTML et
-            // nettoyer par le backend.
+            // Une fois que l'on sait que c'est le bon formulaire, on récupère les champs.
+            const searchDeparture = document.getElementById('departure');
+            const searchArrival = document.getElementById('arrival');
+            const searchDate = document.getElementById('departure_day');
 
-            // On récupère les valeurs des champs de recherche
-            const departure = searchDeparture.value;
-            const arrival = searchArrival.value;
-            const date = searchDate.value;
+            if (searchDeparture && searchArrival && searchDate) {
+                const departure = searchDeparture.value;
+                const arrival = searchArrival.value;
+                const date = searchDate.value;
 
-            // On stocke les critères de recherche dans le sessionStorage et on redirige vers la page de covoiturage
-            sessionStorage.setItem('quickSearch', JSON.stringify({departure, arrival, date}));
-            window.location.href = '/html/carpool.html';
-        });
-    }
+                sessionStorage.setItem('quickSearch', JSON.stringify({departure, arrival, date}));
+                window.location.href = '/html/carpool.html';
+            }
+        }
+    });
 }
 // Remplir le formulaire de recherche avancée avec les critères de recherche rapide
 // et pour gérer la soumission du formulaire de recherche avancée
 export async function populateAdvancedSearchFetch() {
-    // On commence par récupérer les éléments du formulaire de recherche avancée sur la page de covoiturage
+    // Remplir les champs dès que la page est chargée
     const advancedSearchForm = document.getElementById('advanced-search-form');
-    const advancedDeparture = document.getElementById('departure');
-    const advancedArrival = document.getElementById('arrival');
-    const advancedDate = document.getElementById('departure_day');
-
-    // On vérifie que le formulaire de recherche avancée existe sur la page
     if (advancedSearchForm) {
-        // On vérifie si des critères de recherche rapide ont été stockés dans le sessionStorage
+        const advancedDeparture = document.getElementById('departure');
+        const advancedArrival = document.getElementById('arrival');
+        const advancedDate = document.getElementById('departure_day');
+
         const quickSearch = sessionStorage.getItem('quickSearch');
         if (quickSearch) {
             const {departure, arrival, date} = JSON.parse(quickSearch);
-            // On remplit les champs du formulaire de recherche avancée avec les valeurs stockées
-            advancedDeparture.value = departure;
-            advancedArrival.value = arrival;
-            advancedDate.value = date;
 
-            // On supprime les critères de recherche rapide du sessionStorage pour éviter de les réutiliser
+            // On s'assure que les éléments existent avant de les manipuler
+            if (advancedDeparture && advancedArrival && advancedDate) {
+                advancedDeparture.value = departure;
+                advancedArrival.value = arrival;
+                advancedDate.value = date;
+            } else {
+                console.warn("Champs de recherche avancée non trouvés.");
+            }
             sessionStorage.removeItem('quickSearch');
         }
-
     }
     // On ne vérifie pas que les champs sont remplis, car ils sont requis dans le HTML et
     // sanitize par le backend.
     // On ne vérifie pas que les filtres sont remplis, parce qu'ils sont optionnels
 
-    if (!advancedSearchForm) {
-        return; // Le formulaire n'est pas sur cette page, on arrête.
-    }
     // On ajoute un écouteur d'événement pour intercepter la soumission du formulaire de recherche avancée
     if (advancedSearchForm) {
         advancedSearchForm.addEventListener('submit', async (event) => {
