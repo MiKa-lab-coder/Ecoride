@@ -1,4 +1,4 @@
-export function setupRegistrationFetch() {
+export async function setupRegistrationFetch() {
 
 // Récupérer le formulaire d'inscription
     const registrationData = document.getElementById('registration-form');
