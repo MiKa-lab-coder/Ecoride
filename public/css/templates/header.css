@@ -120,7 +120,6 @@
     .nav-links {
         flex-direction: row;
         padding: 5px 10px;
-        gap: 30px;
     }
 
     .nav-links a {
