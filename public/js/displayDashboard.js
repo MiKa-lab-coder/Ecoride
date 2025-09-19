@@ -13,45 +13,64 @@ export async function createDashboardLink() {
     }
 }
 //fonction pour afficher/masquer les éléments de la sidebar en fonction des rôles
-export function displaySidebarByRoles(userRole) {
+// Fonction pour afficher/masquer les éléments de la sidebar et du contenu
+export function displayDashboardContentByRoles() {
+    // 1. Définir les éléments de la page
     const adminNav = document.querySelector('.admin-nav');
     const moderatorNav = document.querySelector('.moderator-nav');
     const userNav = document.querySelector('.user-nav');
-    const mainContent = document.querySelector('main');
+    const allSections = document.querySelectorAll('.dashboard-section');
 
-    // Assure que les éléments de navigation existent avant de tenter de les masquer
-    if (!adminNav || !moderatorNav || !userNav) {
-        return;
-    }
-    // Recupérer le rôle de l'utilisateur à partir du token JWT
     const token = localStorage.getItem('token');
+    let userRole = "admin"; // Valeur par défaut pour les tests
+
+    // 2. Vérifier l'existence et la validité du token
     if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        userRole = payload.role; // Supposant que le rôle est stocké dans le champ 'role'
-    }
-    // normalement un visiteur n'a pas accès au dashboard, mais on gère le cas où il y aurait un bug
-        // pas de token, pas de rôle, pas de dashboard
-    else {
-        adminNav.classList.add('js-hidden');
-        moderatorNav.classList.add('js-hidden');
-        userNav.classList.add('js-hidden');
-        if (mainContent) {
-            mainContent.innerHTML = `
-                <div style="text-align: center; padding: 50px;">
-                    <h2>Accès non autorisé</h2>
-                    <p>Veuillez vous connecter pour accéder à cette page.</p>
-                    <a href="/html/connexion.html">Aller à la page de connexion</a>
-                </div>
-            `;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            userRole = payload.role;
+        } catch (e) {
+            console.error('Token invalide ou malformé', e);
         }
-        return;
     }
-    // Masquer les éléments de navigation en fonction du rôle de l'utilisateur
-    // Remplacer par une vérification dynamique des rôles
-    if (userRole !== 'admin') {
-        adminNav.classList.add('js-hidden');
-    }
-    if (userRole !== 'admin' && userRole !== 'moderator') {
-        moderatorNav.classList.add('js-hidden');
+
+    // 3. Masquer tout par défaut pour des raisons de sécurité
+    if (adminNav) adminNav.classList.add('js-hidden');
+    if (moderatorNav) moderatorNav.classList.add('js-hidden');
+    if (userNav) userNav.classList.add('js-hidden');
+
+    // Masquer toutes les sections du tableau de bord
+    allSections.forEach(section => section.classList.add('js-hidden'));
+
+    // 4. Afficher le contenu en fonction du rôle de l'utilisateur
+    if (userRole === 'admin') {
+        // L'administrateur voit tout
+        if (adminNav) adminNav.classList.remove('js-hidden');
+        if (moderatorNav) moderatorNav.classList.remove('js-hidden');
+        if (userNav) userNav.classList.remove('js-hidden');
+        allSections.forEach(section => section.classList.remove('js-hidden'));
+    } else if (userRole === 'moderator') {
+        // Le modérateur voit ses sections et celles de l'utilisateur
+        if (moderatorNav) moderatorNav.classList.remove('js-hidden');
+        if (userNav) userNav.classList.remove('js-hidden');
+        document.getElementById('review-content-content').classList.remove('js-hidden');
+        document.getElementById('user-reports-content').classList.remove('js-hidden');
+        document.getElementById('view-profile-content').classList.remove('js-hidden');
+        document.getElementById('manage-trips-content').classList.remove('js-hidden');
+        document.getElementById('review-content').classList.remove('js-hidden');
+        document.getElementById('past-trips-content').classList.remove('js-hidden');
+    } else if (userRole === 'user') {
+        // L'utilisateur simple ne voit que ses sections
+        if (userNav) userNav.classList.remove('js-hidden');
+        document.getElementById('view-profile-content').classList.remove('js-hidden');
+        document.getElementById('manage-trips-content').classList.remove('js-hidden');
+        document.getElementById('review-content').classList.remove('js-hidden');
+        document.getElementById('past-trips-content').classList.remove('js-hidden');
+    } else {
+        // Si pas de rôle valide, tout reste masqué et on affiche un message
+        const mainContent = document.querySelector('main');
+        if (mainContent) {
+            mainContent.innerHTML = '<p>Accès refusé. Veuillez vous connecter.</p>';
+        }
     }
 }
