@@ -231,7 +231,7 @@ export async function displayCarpoolDetails() {
 
     // Si l'ID ou le conteneur n'existe pas, on arrête
     if (!tripId || !detailsContainer) {
-        console.error("ID du trajet manquant ou conteneur non trouvé.");
+        console.warn("ID du trajet manquant ou conteneur non trouvé.");
         return;
     }
 
