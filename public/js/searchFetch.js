@@ -1,5 +1,5 @@
 // Gestion de la recherche rapide sur la page d'accueil
-import {parseJwt} from "./JwtTool";
+//import {parseJwt} from "./JwtTool";
 
 export function setupSearchFetch() {
     // On attache l'écouteur au document, qui est toujours présent.
