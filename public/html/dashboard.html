@@ -92,17 +92,9 @@
 
                         <h3>Mes véhicules</h3>
                         <br>
-                        <div class="my-cars">
-
+                        <div class="my-cars" id ="cars-container">
+                            <!--  données mockées -->
                             <ul class="my-car-list">
-                                <label for="car-choose">Ma voiture</label>
-                                <select id="car-choose" name="car-select">
-                                    <option value="car1">Véhicule 1</option>
-                                    <option value="car2">Véhicule 2</option>
-                                    <option value="car3">Véhicule 3</option>
-                                </select>
-                                <br>
-                                <br>
                                 <li>
                                     <p>Véhicule sélectionné :</p>
                                     <p>Plaque : ${car_plate}</p>
@@ -139,7 +131,7 @@
 
                                             <label for="energy_type">Énergie</label>
                                             <select id="energy_type" name="energy_type" required>
-                                                <option value="combustion">Diesel</option>
+                                                <option value="combustion">Combustion</option>
                                                 <option value="electric">Électrique</option>
                                                 <option value="hybrid">Hybride</option>
                                             </select>
