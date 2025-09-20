@@ -10,7 +10,8 @@ import { setupLoginFetch } from "./loginFetch.js";
 import { displaySearchResults, populateAdvancedSearchFetch, setupSearchFetch, viewDetails, displayCarpoolDetails } from "./searchFetch.js";
 import { parseJwt } from "./JwtTool.js";
 import { logout } from "./logoutFetch.js";
-import { fetchPastTrips, fetchBooking, fetchOfferedTrip} from "./dashboard1Fecth";
+import { fetchPastTrips, fetchBooking, fetchOfferedTrip} from "./dashboard1Fecth.js";
+import { displayUserProfil} from "./dashboard2Fetch.js";
 
 
 // LocalStorage en dur pour les tests
@@ -69,6 +70,7 @@ async function initApp() {
             initSectionMenu();
             initDashboardButtons();
             displayDashboardContentByRoles();
+            await displayUserProfil();
             await fetchPastTrips();
             await fetchBooking();
             await fetchOfferedTrip();
