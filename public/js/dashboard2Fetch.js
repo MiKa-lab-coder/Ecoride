@@ -1,5 +1,5 @@
 // Affichage du profil utilisateur
-async function displayUserProfil() {
+export async function displayUserProfil() {
     const profileContainer = document.getElementById('profile-container');
     const token = localStorage.getItem('token');
 
