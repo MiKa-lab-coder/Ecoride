@@ -12,10 +12,11 @@ import { parseJwt } from "./JwtTool.js";
 import { logout } from "./logoutFetch.js";
 import { fetchPastTrips, fetchBooking, fetchOfferedTrip} from "./dashboard1Fecth.js";
 import { displayUserProfil} from "./dashboard2Fetch.js";
+import { setupProfilePicture } from "./dashboard3Fetch.js";
 
 
 // LocalStorage en dur pour les tests
-localStorage.setItem('token','testToken');
+//localStorage.setItem('token','testToken');
 
 // Fonction principale pour initialiser l'application
 async function initApp() {
@@ -74,6 +75,7 @@ async function initApp() {
             await fetchPastTrips();
             await fetchBooking();
             await fetchOfferedTrip();
+            await setupProfilePicture();
             // Ajouter un écouteur d'événement pour le bouton de déconnexion
             const logoutBtn = document.getElementById('logout-button');
             if (logoutBtn) {
