@@ -38,7 +38,6 @@
                     <h2>Actions disponibles</h2>
                     <ul>
                         <li><a href="#" data-action="view-profile-content">Voir mon profil</a></li>
-                        <li><a href="#" data-action="review-content">Mes évaluations</a></li>
                         <li><a href="#" data-action="manage-trips-content">Gérer mes trajets</a></li>
                         <li><a href="#" data-action="past-trips-content">Mes précédents trajets</a></li>
                     </ul>
@@ -159,38 +158,9 @@
             </div>
             <div class="manage-trips dashboard-section js-hidden " id="manage-trips-content">
                 <h2>Gérer mes trajets</h2>
-                <div class="trips-list-passenger">
                     <h3>Vos trajets réservés :</h3>
-                    <ul>
-                        <li>
-                            <p>Titre trajet : ${titre}</p>
-                            <p>Départ : ${depart}</p>
-                            <p>Arrivée : ${arrivee}</p>
-                            <p>Date : ${date}</p>
-                            <p>Heure de départ : ${heure_depart}</p>
-                            <p>Heure d'arrivée : ${heure_arrivee}</p>
-                            <p>Conducteur : ${conducteur}</p>
-                            <p>Coût en crédit : ${prix} </p>
-                            <br>
-                            <form action="" method="post">
-                                <label for="rating">Notez le trajet :</label>
-                                <select id="rating" name="rating">
-                                    <option value="1">1 étoile</option>
-                                    <option value="2">2 étoiles</option>
-                                    <option value="3">3 étoiles</option>
-                                    <option value="4">4 étoiles</option>
-                                    <option value="5">5 étoiles</option>
-                                </select>
-                                <br>
-                                <br>
-                                <label for="comment">Laissez un commentaire :</label>
-                                <textarea id="comment" name="comment" rows="4" cols="30"></textarea>
-                            </form>
-                            <br>
-                            <input type="submit" class="end-trip-btn" value="Terminer">
-                            <input type="submit" class="send issues" value="signaler">
-                        </li>
-                    </ul>
+                <div class="trips-list-passenger" id="bookings-container">
+                    ok
                 </div>
 
                 <div class="trips-list-driver" id="drivers-content">
@@ -245,51 +215,14 @@
                         <button type="button" class="cancel-trip-btn" id="cancel-trip-btn">Annuler</button>
                         <input type="submit" class="create-new-trips-btn" value="Créer">
                     </form>
-                    <br>
-                    <ul>
-                        <li>
-                            <p>Titre trajet : ${titre}</p>
-                            <p>Départ : ${depart}</p>
-                            <p>Arrivée : ${arrivee}</p>
-                            <p>Date : ${date}</p>
-                            <p>Heure de départ : ${heure_depart}</p>
-                            <p>Heure d'arrivée : ${heure_arrivee}</p>
-                            <p>Prix en crédit : ${prix} </p>
-                            <p>Nombre de places disponibles : ${places_disponibles}</p>
-                            <p>Véhicule : ${vehicule}</p>
-                            <br>
-                            <!-- Boutons pour gérer le trajet devront etre dans la carte pour récupérer l'id-->
-                            <input type="submit" class="start-trip-btn" value="Lancer">
-                            <input type="submit" class="finish-trip-btn" value="Terminer">
-                            <input type="submit" class="edit-trip-btn" value="Modifier">
-                            <input type="submit" class="delete-trip-btn" value="Annuler">
-                        </li>
-                    </ul>
+                    <div id="offered-trips-container"></div>
+                    front ok? back install launchTips
                 </div>
             </div>
-            <div class="review-content dashboard-section js-hidden" id="review-content">
-                <h2>Mes évaluations</h2>
-                <ul>
-                    <li>
-                        <p>Titre trajet : ${titre}</p>
-                        <p>Note : ${note} étoiles</p>
-                        <p>Commentaire : ${commentaire}</p>
-                    </li>
-                </ul>
-            </div> <div class="past-trips dashboard-section js-hidden" id="past-trips-content">
+            <div class="past-trips dashboard-section js-hidden" id="past-trips-content">
             <h3>Mes précédents trajets :</h3>
-            <ul>
-                <li>
-                    <p>Titre trajet : ${titre}</p>
-                    <p>Départ : ${depart}</p>
-                    <p>Arrivée : ${arrivee}</p>
-                    <p>Date : ${date}</p>
-                    <p>Heure de départ : ${heure_depart}</p>
-                    <p>Heure d'arrivée : ${heure_arrivee}</p>
-                    <p>Conducteur : ${conducteur}</p>
-                    <p>Prix en crédit : ${prix} </p>
-                </li>
-            </ul>
+            <div id="past-trips-container"></div>
+            front ok revoir back manque getTripsByStatus-Completed
         </div>
             <div id="review-content-content" class="dashboard-section js-hidden">
                 <h2>Gestion des annonces</h2>
