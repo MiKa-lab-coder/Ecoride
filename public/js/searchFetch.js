@@ -1,4 +1,6 @@
 // Gestion de la recherche rapide sur la page d'accueil
+import {parseJwt} from "./JwtTool";
+
 export function setupSearchFetch() {
     // On attache l'écouteur au document, qui est toujours présent.
     document.addEventListener('submit', (event) => {
@@ -314,7 +316,7 @@ export async function displayCarpoolDetails() {
                 // Si l'utilisateur est connecté on fetch la methode de réservation
                 const userId = parseJwt(token).userId;
                 // On envoie la requete de réservation
-                fetch(`/api/trips/${tripId}/reserve`, {
+                fetch(`/api/bookings/${tripId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
