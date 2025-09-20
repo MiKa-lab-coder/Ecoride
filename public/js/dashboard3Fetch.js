@@ -1,5 +1,5 @@
 // Afficher et modifier photos de profil
-export async function setupProfilePicHandler() {
+export async function setupProfilePicture() {
     // Récupération des éléments du DOM
     const profilePicContainer = document.getElementById('profile-pic-container');
     const profilePicImg = profilePicContainer?.querySelector('img');
