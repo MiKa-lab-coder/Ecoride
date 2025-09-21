@@ -1,4 +1,15 @@
 export async function manageAdminActions() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error('Token non trouvé dans le localStorage.');
+        return;
+    }
+    // Recuperer le rôle de l'utilisateur
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'admin') {
+        console.error('Accès refusé. Rôle administrateur requis.');
+        return;
+    }
     const form = document.getElementById('manage-account-form');
     if (!form) {
         console.error('Formulaire non trouvé.');
