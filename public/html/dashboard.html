@@ -252,7 +252,7 @@
             </div>
             <div id="manage-users-content" class="dashboard-section js js-hidden">
                 <h2>Gestion des Utilisateurs</h2>
-                <form method="post" action="">
+                <form id="manage-account-form" method="post" action="">
                     <label for="username">Nom d'utilisateur</label>
                     <input type="text" id="username" name="username">
                     <br>
@@ -274,18 +274,19 @@
                     <br>
                     <br>
                     <input type="submit" class="create-user-btn" value="Créer">
-                    <input type="submit" class="delete-user-btn" value="Suspendre">
+                    <input type="submit" class="suspend-user-btn" value="Suspendre">
                     <input type="submit" class="update-user-btn" value="Modifier">
+                    <input type="submit" class="restore-user-btn" value="reactiver">
                 </form>
             </div>
             <div id="manage-stats-content" class="dashboard-section js-hidden">
                 <h2>Statistiques</h2>
 
                 <h3>Trajet de la semaine</h3>
-                <div class="stat-trips-board">
+                <div class="stat-trips-board" id="stat-trips-board">
                 </div>
                 <h3>Crédits gagnés par plateforme</h3>
-                <div class="stat-credits-board">
+                <div class="stat-credits-board" id="stat-credits-board">
                 </div>
             </div>
         </section>
@@ -293,6 +294,7 @@
 </main>
 
 <footer id="footer-placeholder"></footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../js/main.js" type="module"></script>
 </body>
 </html>
