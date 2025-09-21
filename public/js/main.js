@@ -13,10 +13,14 @@ import { logout } from "./logoutFetch.js";
 import { fetchPastTrips, fetchBooking, fetchOfferedTrip} from "./dashboard1Fecth.js";
 import { displayUserProfil} from "./dashboard2Fetch.js";
 import { setupProfilePicture } from "./dashboard3Fetch.js";
+import { displayUserCar, addNewCar } from "./dashboard4Fetch.js";
+import { reviewOffer, reviewReports} from "./dashboardModeratorFetch.js";
+import { manageAdminActions } from "./dashboardAdmin1Fetch.js";
+import { statTrips, statCredit } from "./dashboardAdmin2Fetch.js";
 
 
 // LocalStorage en dur pour les tests
-//localStorage.setItem('token','testToken');
+localStorage.setItem('token','testToken');
 
 // Fonction principale pour initialiser l'application
 async function initApp() {
@@ -71,11 +75,18 @@ async function initApp() {
             initSectionMenu();
             initDashboardButtons();
             displayDashboardContentByRoles();
+            await statTrips();
+            await statCredit();
+            await reviewOffer()
+            await reviewReports()
+            await displayUserCar()
+            await addNewCar()
             await displayUserProfil();
             await fetchPastTrips();
             await fetchBooking();
             await fetchOfferedTrip();
             await setupProfilePicture();
+            await manageAdminActions();
             // Ajouter un écouteur d'événement pour le bouton de déconnexion
             const logoutBtn = document.getElementById('logout-button');
             if (logoutBtn) {
