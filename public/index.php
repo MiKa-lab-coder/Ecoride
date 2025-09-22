@@ -9,7 +9,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // On charge les variables d'environnement
-\App\Config\Config::load(__DIR__ . '/../');
+\App\Config\Config::load(dirname(__DIR__));
 
 // On precise quelle controller seront utilisés
 use App\Controllers\AuthController;
