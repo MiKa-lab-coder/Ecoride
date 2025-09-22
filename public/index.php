@@ -65,6 +65,9 @@ $routes = [
         // Rating
         '/api/ratings/user' => [$ratingController, 'getUserRating'],
 
+        // Transaction
+        '/api/transactions/credits' => [$transactionController, 'getUserBalance'],
+
         // Trip
         '/api/trips' => [$tripController, 'getAvailableSeats'],
         '/api/trips/search' => [$tripController, 'searchWithFiltersOrNot'],
