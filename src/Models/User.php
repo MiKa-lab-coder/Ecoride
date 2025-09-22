@@ -23,7 +23,7 @@ class User extends BaseModel
     private string $firstname;
     private DateTime $birth_date;
     private string $username;
-    private string $photo;
+    private ?string $photo;
     private string $email;
     private string $password;
     private int $total_trips;
@@ -107,7 +107,7 @@ class User extends BaseModel
         $this->username = $username;
     }
 
-    public function setPhoto(string $photo): void
+    public function setPhoto(?string $photo): void
     {
         $this->photo = $photo;
     }
@@ -133,7 +133,7 @@ class User extends BaseModel
     }
 
     // Constructeur
-    public function __construct(string $name, string $firstname, DateTime $birth_date, string $username, string $photo,
+    public function __construct(string $name, string $firstname, DateTime $birth_date, string $username, ?string $photo,
                                 string $email, string $password, int $total_trips,
                                 string $account_status = 'active', int $role_id = 3)
     {
