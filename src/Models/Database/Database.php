@@ -26,7 +26,7 @@ class Database
         if (self::$instance === null) {
 
             //on construit le dsn (data source name) avec les infos du fichier .env
-            $dsn = sprintf("mysql:host=%s;port=%s;charset=utf8mb4", Config::get("DB_HOST"), Config::get("DB_PORT", "3306"), Config::get("DB_NAME"));
+            $dsn = sprintf("mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4", Config::get("DB_HOST"), Config::get("DB_PORT", "3306"), Config::get("DB_NAME"));
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,//lance les exceptions en cas d'erreur sql
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,//recup les resultats sous forme de tableau
