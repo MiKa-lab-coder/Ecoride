@@ -79,6 +79,7 @@ $routes = [
 
         // User
         '/api/user/profile' => [$userController, 'showMyProfile'],
+        '/api/user/photo' => [$userController, 'showMyPhoto'],
 
         // Vehicle
         '/api/vehicles/user' => [$vehicleController, 'getUserCars'],
