@@ -138,11 +138,11 @@ class Transaction extends BaseModel
             return 0;
         }
     }
-    public static function getPlatformEarningsByDate($startDate, $endDate)
+    public static function getPlatformEarningsByDate($startDate, $endDate): float|int|array
     {
 
         $db = Database::getInstance();
-        try{
+        try {
             $stmt = $db->prepare("SELECT DATE(created_at) as transaction_date, SUM(amount) as daily_earnings
                   FROM TRANSACTIONS
                   WHERE user_id = 1 
