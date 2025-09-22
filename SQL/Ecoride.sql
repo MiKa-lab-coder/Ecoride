@@ -1,169 +1,177 @@
 -- Ecoride Database Creation
 CREATE DATABASE IF NOT EXISTS Ecoride;
-USE Ecoride;
 
 -- Table: ROLES
-CREATE TABLE IF NOT EXISTS ROLES (
-    role_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS Ecoride.ROLES
+(
+    role_id   INT AUTO_INCREMENT PRIMARY KEY,
     role_name VARCHAR(50) NOT NULL UNIQUE
-    );
+);
 
 -- Table: USERS
-CREATE TABLE IF NOT EXISTS USERS (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    firstname VARCHAR(100) NOT NULL,
-    birth_date DATE NOT NULL,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    photo VARCHAR(255),
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    total_trips INT DEFAULT 0,
-    account_status ENUM('active', 'suspended') DEFAULT 'active',
-    role_id INT,
-    FOREIGN KEY (role_id) REFERENCES ROLES(role_id)
-    );
+CREATE TABLE IF NOT EXISTS Ecoride.USERS
+(
+    user_id        INT AUTO_INCREMENT PRIMARY KEY,
+    name           VARCHAR(100) NOT NULL,
+    firstname      VARCHAR(100) NOT NULL,
+    birth_date     DATE         NOT NULL,
+    username       VARCHAR(50)  NOT NULL UNIQUE,
+    photo          VARCHAR(255),
+    email          VARCHAR(100) NOT NULL UNIQUE,
+    password       VARCHAR(255) NOT NULL,
+    total_trips    INT                          DEFAULT 0,
+    account_status ENUM ('active', 'suspended') DEFAULT 'active',
+    role_id        INT,
+    FOREIGN KEY (role_id) REFERENCES Ecoride.ROLES (role_id)
+);
 
 -- Table: VEHICLES
-CREATE TABLE IF NOT EXISTS VEHICLES (
-    vehicle_id INT AUTO_INCREMENT PRIMARY KEY,
-    first_service DATE NOT NULL,
-    registration_number VARCHAR(20) NOT NULL UNIQUE,
-    energy_type ENUM('electric', 'hybrid', 'combustion') NOT NULL,
-    brand VARCHAR(50) NOT NULL,
-    model VARCHAR(50) NOT NULL,
-    color VARCHAR(30),
-    seating_capacity INT NOT NULL,
-    user_id INT,
-    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE
-    );
+CREATE TABLE IF NOT EXISTS Ecoride.VEHICLES
+(
+    vehicle_id          INT AUTO_INCREMENT PRIMARY KEY,
+    first_service       DATE                                      NOT NULL,
+    registration_number VARCHAR(20)                               NOT NULL UNIQUE,
+    energy_type         ENUM ('electric', 'hybrid', 'combustion') NOT NULL,
+    brand               VARCHAR(50)                               NOT NULL,
+    model               VARCHAR(50)                               NOT NULL,
+    color               VARCHAR(30),
+    seating_capacity    INT                                       NOT NULL,
+    user_id             INT,
+    FOREIGN KEY (user_id) REFERENCES Ecoride.USERS (user_id) ON DELETE CASCADE
+);
 
 -- Table: TRIPS
-CREATE TABLE IF NOT EXISTS TRIPS (
-    trip_id INT AUTO_INCREMENT PRIMARY KEY,
-    departure_day DATE NOT NULL,
-    arrival_day DATE NOT NULL,
-    departure_location VARCHAR(255) NOT NULL,
-    arrival_location VARCHAR(255) NOT NULL,
-    departure_time TIME NOT NULL,
-    arrival_time TIME NOT NULL,
-    trip_time INT NOT NULL,
-    trip_price INT NOT NULL,
-    trip_nature ENUM('ecologic', 'standard'),
-    animal_pref BOOLEAN DEFAULT FALSE,
-    smoking_pref BOOLEAN DEFAULT FALSE,
-    seating INT NOT NULL,
-    status ENUM ('pending', 'ongoing', 'completed', 'approved') NOT NULL DEFAULT 'pending',
-    driver_id INT,
-    vehicle_id INT,
-    FOREIGN KEY (driver_id) REFERENCES USERS(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (vehicle_id) REFERENCES VEHICLES(vehicle_id)
-    );
+CREATE TABLE IF NOT EXISTS Ecoride.TRIPS
+(
+    trip_id            INT AUTO_INCREMENT PRIMARY KEY,
+    departure_day      DATE                                                 NOT NULL,
+    arrival_day        DATE                                                 NOT NULL,
+    departure_location VARCHAR(255)                                         NOT NULL,
+    arrival_location   VARCHAR(255)                                         NOT NULL,
+    departure_time     TIME                                                 NOT NULL,
+    arrival_time       TIME                                                 NOT NULL,
+    trip_time          INT                                                  NOT NULL,
+    trip_price         INT                                                  NOT NULL,
+    trip_nature        ENUM ('ecologic', 'standard'),
+    animal_pref        BOOLEAN                                                       DEFAULT FALSE,
+    smoking_pref       BOOLEAN                                                       DEFAULT FALSE,
+    seating            INT                                                  NOT NULL,
+    status             ENUM ('pending', 'ongoing', 'completed', 'approved') NOT NULL DEFAULT 'pending',
+    driver_id          INT,
+    vehicle_id         INT,
+    FOREIGN KEY (driver_id) REFERENCES Ecoride.USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (vehicle_id) REFERENCES Ecoride.VEHICLES (vehicle_id)
+);
 
 -- Table: RATINGS
-CREATE TABLE IF NOT EXISTS RATINGS
+CREATE TABLE IF NOT EXISTS Ecoride.RATINGS
 (
     id            INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     rated_user_id INT(11) NOT NULL, -- ID du conducteur noté
     passenger_id  INT(11) NOT NULL, -- ID du passager qui a noté
     trip_id       INT(11) NOT NULL, -- ID du trajet associé à la note
     rating_value  INT(11) NOT NULL, -- La note
-    FOREIGN KEY (rated_user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (passenger_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (trip_id) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
+    FOREIGN KEY (rated_user_id) REFERENCES Ecoride.USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (passenger_id) REFERENCES Ecoride.USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (trip_id) REFERENCES Ecoride.TRIPS (trip_id) ON DELETE CASCADE
 );
 
 -- Table: TRANSACTIONS
-CREATE TABLE IF NOT EXISTS TRANSACTIONS (
-    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    amount INT NOT NULL,
-    transaction_type ENUM('payment', 'cancellation','service_fee','welcome_bonus') NOT NULL DEFAULT 'payment',
-    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reference INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES USERS (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (reference) REFERENCES TRIPS (trip_id) ON DELETE CASCADE
-    );
+CREATE TABLE IF NOT EXISTS Ecoride.TRANSACTIONS
+(
+    transaction_id   INT AUTO_INCREMENT PRIMARY KEY,
+    user_id          INT                                                            NOT NULL,
+    amount           INT                                                            NOT NULL,
+    transaction_type ENUM ('payment', 'cancellation','service_fee','welcome_bonus') NOT NULL DEFAULT 'payment',
+    transaction_date TIMESTAMP                                                               DEFAULT CURRENT_TIMESTAMP,
+    reference        INT                                                            NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Ecoride.USERS (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reference) REFERENCES Ecoride.TRIPS (trip_id) ON DELETE CASCADE
+);
 
 -- Table: BOOKINGS
-CREATE TABLE IF NOT EXISTS BOOKINGS (
-    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS Ecoride.BOOKINGS
+(
+    booking_id   INT AUTO_INCREMENT PRIMARY KEY,
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user_id INT,
-    trip_id INT,
-    FOREIGN KEY (user_id) REFERENCES USERS(user_id),
-    FOREIGN KEY (trip_id) REFERENCES TRIPS(trip_id),
+    user_id      INT,
+    trip_id      INT,
+    FOREIGN KEY (user_id) REFERENCES Ecoride.USERS (user_id),
+    FOREIGN KEY (trip_id) REFERENCES Ecoride.TRIPS (trip_id),
     CONSTRAINT `unique_booking_user_trip` UNIQUE (`trip_id`, `user_id`)
-    );
+);
 
 -- Table: ISSUES
-CREATE TABLE IF NOT EXISTS ISSUES (
-    issue_id INT AUTO_INCREMENT PRIMARY KEY,
-    status ENUM('open', 'resolved') DEFAULT 'open',
-    date_open DATE NOT NULL,
+CREATE TABLE IF NOT EXISTS Ecoride.ISSUES
+(
+    issue_id    INT AUTO_INCREMENT PRIMARY KEY,
+    status      ENUM ('open', 'resolved') DEFAULT 'open',
+    date_open   DATE NOT NULL,
     description TEXT NOT NULL, -- on récupèrera le commentaire de l'utilisateur sur la collection noSQL
-    user_id INT, -- Disponible pour l'utilisateur qui signale le problème
-    trip_id INT,
-    FOREIGN KEY (user_id) REFERENCES USERS(user_id),
-    FOREIGN KEY (trip_id) REFERENCES TRIPS(trip_id)
-    );
+    user_id     INT,           -- Disponible pour l'utilisateur qui signale le problème
+    trip_id     INT,
+    FOREIGN KEY (user_id) REFERENCES Ecoride.USERS (user_id),
+    FOREIGN KEY (trip_id) REFERENCES Ecoride.TRIPS (trip_id)
+);
 
 -- Table pour archiver les trajets terminés avec cron -- à exécuter chaque nuit -- à implementer si possible
-CREATE TABLE IF NOT EXISTS ARCHIVED_TRIPS (
-    trip_id INT AUTO_INCREMENT PRIMARY KEY,
-    departure_day VARCHAR(255) NOT NULL,
-    arrival_day VARCHAR(255) NOT NULL,
+CREATE TABLE IF NOT EXISTS Ecoride.ARCHIVED_TRIPS
+(
+    trip_id            INT AUTO_INCREMENT PRIMARY KEY,
+    departure_day      VARCHAR(255) NOT NULL,
+    arrival_day        VARCHAR(255) NOT NULL,
     departure_location VARCHAR(255) NOT NULL,
-    arrival_location VARCHAR(255) NOT NULL,
-    departure_time TIME NOT NULL,
-    arrival_time TIME NOT NULL,
-    trip_time INT NOT NULL,
-    trip_price INT NOT NULL,
-    trip_nature VARCHAR(255) NOT NULL,
-    animal_pref BOOLEAN DEFAULT FALSE,
-    smoking_pref BOOLEAN DEFAULT FALSE,
-    seating INT NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    user_id INT,
-    vehicle_id INT,
-    FOREIGN KEY (user_id) REFERENCES USERS(user_id),
-    FOREIGN KEY (vehicle_id) REFERENCES VEHICLES(vehicle_id)
-    );
+    arrival_location   VARCHAR(255) NOT NULL,
+    departure_time     TIME         NOT NULL,
+    arrival_time       TIME         NOT NULL,
+    trip_time          INT          NOT NULL,
+    trip_price         INT          NOT NULL,
+    trip_nature        VARCHAR(255) NOT NULL,
+    animal_pref        BOOLEAN DEFAULT FALSE,
+    smoking_pref       BOOLEAN DEFAULT FALSE,
+    seating            INT          NOT NULL,
+    status             VARCHAR(50)  NOT NULL,
+    user_id            INT,
+    vehicle_id         INT,
+    FOREIGN KEY (user_id) REFERENCES Ecoride.USERS (user_id),
+    FOREIGN KEY (vehicle_id) REFERENCES Ecoride.VEHICLES (vehicle_id)
+);
 
 -- Table pour archiver les litiges résolus avec cron
-CREATE TABLE IF NOT EXISTS ARCHIVED_ISSUES (
-    issue_id INT AUTO_INCREMENT PRIMARY KEY,
-    date_open DATE NOT NULL,
+CREATE TABLE IF NOT EXISTS Ecoride.ARCHIVED_ISSUES
+(
+    issue_id    INT AUTO_INCREMENT PRIMARY KEY,
+    date_open   DATE NOT NULL,
     description TEXT NOT NULL,
-    response TEXT,
-    user_id INT,
-    trip_id INT,
-    FOREIGN KEY (user_id) REFERENCES USERS(user_id),
-    FOREIGN KEY (trip_id) REFERENCES TRIPS(trip_id)
-    );
+    response    TEXT,
+    user_id     INT,
+    trip_id     INT,
+    FOREIGN KEY (user_id) REFERENCES Ecoride.USERS (user_id),
+    FOREIGN KEY (trip_id) REFERENCES Ecoride.TRIPS (trip_id)
+);
 
 -- Insertion des rôles par défaut
-INSERT INTO ROLES (role_name) VALUES
-('admin'),
-('moderator'),
-('user');
+INSERT INTO Ecoride.ROLES (role_name)
+VALUES ('admin'),
+       ('moderator'),
+       ('user');
 
 -- Insertion d'un utilisateur admin par défaut
-INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
+INSERT INTO Ecoride.USERS (name, firstname, birth_date, username, photo, email, password, role_id)
 VALUES ('Admin', 'Ecoride', '2025-01-01', 'adminEcoride-project',
         NULL, 'admin@ecoride-project.ovh', '$2y$12$3f.x2opwZ5qYgzIU3IlNK.oy2Kr4iWqH2.4PQucSkQjMfP64yDfD2',
-        (SELECT role_id FROM ROLES WHERE role_name = 'admin'));
+        (SELECT role_id FROM Ecoride.ROLES WHERE role_name = 'admin'));
 
 
 -- Insertion d'un utilisateur modérateur par défaut
-INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
+INSERT INTO Ecoride.USERS (name, firstname, birth_date, username, photo, email, password, role_id)
 VALUES ('Modérateur', 'Ecoride', '2025-01-01', 'moderatorEcoride-project',
         NULL, 'moderator@ecoride-project.ovh', '$2y$12$8PZBJOxEscKkOxIP4ocvVuJfA569KDp4TFz8Tt5z2RbSrhGjdefT6',
-        (SELECT role_id FROM ROLES WHERE role_name = 'moderator'));
+        (SELECT role_id FROM Ecoride.ROLES WHERE role_name = 'moderator'));
 
 
 -- Insertion d'un utilisateur standard par défaut pour les tests
-INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password, role_id)
+INSERT INTO Ecoride.USERS (name, firstname, birth_date, username, photo, email, password, role_id)
 VALUES ('User', 'Ecoride', '2025-01-01', 'userEcoride-project',
         NULL, 'userecoride-project@gmail.com', '$2y$12$0NXX.lA7N8GFXxO.74bvxO0UXpakOQ2QpJiDAhNHWGXBzCJJR6Grm',
-        (SELECT role_id FROM ROLES WHERE role_name = 'user'));
+        (SELECT role_id FROM Ecoride.ROLES WHERE role_name = 'user'));
