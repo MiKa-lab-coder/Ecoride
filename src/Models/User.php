@@ -150,25 +150,8 @@ class User extends BaseModel
         $this->setRoleId($role_id);
     }
 
-    // Méthodes pour récupérer les notes d'un utilisateur
-    public function getDriverRating(): int
-    {
-        $db = Database::getInstance();
-        $logger = new Logger('rating_calculation');
-        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
-        try {
-            $stmt = $db->prepare('SELECT AVG(rating_value) AS average_rating FROM ratings WHERE rated_user_id = :user_id');
-            $stmt->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Retourne 0 si aucune note n'est trouvée
-            return $result['average_rating'] ? (int)round($result['average_rating']) : 0;
-        } catch (PDOException $e) {
-            $logger->error("Erreur lors du calcul de la note moyenne : " . $e->getMessage());
-            return 0;
-        }
-    }
+
 
     public function save(): bool
     {
