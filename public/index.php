@@ -56,7 +56,8 @@ $routes = [
         // Admin
         '/api/admin/pending-trips' => [$adminController, 'getPendingTrips'],
         '/api/admin/issues' => [$issuesController, 'viewIssues'],
-        '/api/admin/statistics' => [$transactionController, 'getPlatformStats'],
+        '/api/admin/statCredits' => [$transactionController, 'getPlatformStats'],
+        '/api/admin/statTrips' => [$tripController, 'getPlatformStats'],
 
         // Booking
         '/api/bookings/user' => [$bookingController, 'getUserBookings'],
@@ -69,6 +70,7 @@ $routes = [
         '/api/trips/search' => [$tripController, 'searchWithFiltersOrNot'],
         '/api/trips/details' => [$tripController, 'getTripDetails'],
         '/api/trips/user' => [$tripController, 'getUserTrips'],
+        '/api/trips/past' => [$tripController, 'getPastTrips'],
 
         // User
         '/api/user/profile' => [$userController, 'showMyProfile'],
