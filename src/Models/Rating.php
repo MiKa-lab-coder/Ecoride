@@ -49,31 +49,17 @@ class Rating extends BaseModel
     }
 
     public function __construct(int $rated_user_id, int $passenger_id, int $trip_id,
-         int $rating_value , int $rating_id )
+                                int $rating_value, int $rating_id)
     {
         parent::__construct();
-        $this->rated_user_id = $rated_user_id ;
-        $this->passenger_id = $passenger_id ;
-        $this->trip_id = $trip_id ;
-        $this->rating_value = $rating_value ;
-        $this->rating_id = $rating_id ;
+        $this->rated_user_id = $rated_user_id;
+        $this->passenger_id = $passenger_id;
+        $this->trip_id = $trip_id;
+        $this->rating_value = $rating_value;
+        $this->rating_id = $rating_id;
     }
 
-    public static function hydrate(array $data): self
-    {
-       $rating = new self(
-            $data['rated_user_id'],
-            $data['passenger_id'],
-            $data['trip_id'],
-            $data['rating_value'],
-            $data['rating_id']
-        );
-       $rating->rating_id = $data['rating_id'];
-       return $rating;
-    }
-
-
-
+    // Enregistrer une nouvelle note dans la base de données
     public function save(): bool
     {
         $db = Database::getInstance();
@@ -99,8 +85,9 @@ class Rating extends BaseModel
             throw new Exception("Erreur de : " . $e->getMessage());
         }
     }
-// Recuperer la note moyenne d'un conducteur
-    public static function getAverageRatingForUser(int $userId): float
+
+    // Recuperer la note moyenne arrondie d'un conducteur
+    public static function getAverageRatingForUser(int $userId): int
     {
         $db = Database::getInstance();
         try {
@@ -109,30 +96,12 @@ class Rating extends BaseModel
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             $average = (float)($result['average_rating'] ?? 0);
-            return round($average, 2);
+            return (int)ceil($average);
         } catch (Exception $e) {
             $logger = new Logger('rating_logger');
             $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
             $logger->error('Erreur lors du calcul de la note moyenne: ' . $e->getMessage());
             return 0.0;
-        }
-    }
-    // Verifier si un passager a déjà noté un conducteur pour un trajet précis
-    public static function hasPassengerRatedTrip(int $passengerId, int $tripId): bool
-    {
-        $db = Database::getInstance();
-        try {
-            $stmt = $db->prepare('SELECT COUNT(*) FROM RATINGS WHERE passenger_id = :passengerId AND trip_id = :tripId');
-            $stmt->bindParam(':passengerId', $passengerId, PDO::PARAM_INT);
-            $stmt->bindParam(':tripId', $tripId, PDO::PARAM_INT);
-            $stmt->execute();
-            $count = (int)$stmt->fetchColumn();
-            return $count > 0;
-        } catch (Exception $e) {
-            $logger = new Logger('rating_logger');
-            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
-            $logger->error('Erreur lors de la vérification de la note: ' . $e->getMessage());
-            return false;
         }
     }
 }
