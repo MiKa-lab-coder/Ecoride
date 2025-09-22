@@ -134,7 +134,7 @@ class User extends BaseModel
 
     // Constructeur
     public function __construct(string $name, string $firstname, DateTime $birth_date, string $username, string $photo,
-                                string $email, string $password, int $total_trips ,
+                                string $email, string $password, int $total_trips,
                                 string $account_status = 'active', int $role_id = 3)
     {
         parent::__construct();
@@ -150,9 +150,6 @@ class User extends BaseModel
         $this->setRoleId($role_id);
     }
 
-
-
-
     public function save(): bool
     {
         $db = Database::getInstance();
@@ -160,13 +157,13 @@ class User extends BaseModel
         try {
             if ($this->user_id !== null) {
                 // Logique pour l'UPDATE
-                $stmt = $db->prepare("UPDATE users SET name = :name, firstname = :firstname, birth_date = :birth_date,
+                $stmt = $db->prepare("UPDATE USERS SET name = :name, firstname = :firstname, birth_date = :birth_date,
                     username = :username, photo = :photo, email = :email, password = :password,
                     total_trips = :total_trips, account_status = :account_status, role_id = :role_id WHERE user_id = :user_id");
                 $stmt->bindParam(':user_id', $this->user_id, \PDO::PARAM_INT);
             } else {
                 // Logique pour l'INSERT
-                $stmt = $db->prepare("INSERT INTO users (name, firstname, birth_date, username, photo, email, password,
+                $stmt = $db->prepare("INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password,
                      total_trips, account_status, role_id) VALUES (:name, :firstname, :birth_date, :username, :photo, :email,
                     :password, :total_trips, :account_status, :role_id)");
             }
@@ -201,7 +198,6 @@ class User extends BaseModel
     }
 
     // Méthodes statiques
-
     private static function hydrate(array $data): self
     {
         $user = new self(
@@ -211,19 +207,25 @@ class User extends BaseModel
             $data['username'],
             $data['photo'],
             $data['email'],
-            $data['password'],
+            // On passe un mot de passe vide, car on ne veut pas le hacher à nouveau
+            '',
             (int)$data['total_trips'],
             $data['account_status'],
             $data['role_id'] ?? 3
         );
+        // On assigne le mot de passe haché récupéré de la BDD
+        $user->password = $data['password'];
+
+        // On assigne l'ID utilisateur récupéré de la BDD
         $user->user_id = (int)$data['user_id'];
         return $user;
     }
+
     // Trouver un utilisateur par son ID
     public static function find(int $user_id): ?self
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM users WHERE user_id = :user_id");
+        $stmt = $db->prepare("SELECT * FROM USERS WHERE user_id = :user_id");
         $stmt->bindParam(':user_id', $user_id, \PDO::PARAM_INT);
         try {
             $stmt->execute();
@@ -244,7 +246,7 @@ class User extends BaseModel
     public static function findByUsername(string $username): ?self
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt = $db->prepare("SELECT * FROM USERS WHERE username = :username");
         $stmt->bindParam(':username', $username, \PDO::PARAM_STR);
         try {
             $stmt->execute();
@@ -264,7 +266,7 @@ class User extends BaseModel
     public static function findByEmail(string $email): ?self
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt = $db->prepare("SELECT * FROM USERS WHERE email = :email");
         $stmt->bindParam(':email', $email, \PDO::PARAM_STR);
         try {
             $stmt->execute();
@@ -284,7 +286,7 @@ class User extends BaseModel
     public static function existsEmail(string $email): bool
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+        $stmt = $db->prepare("SELECT COUNT(*) FROM USERS WHERE email = :email");
         $stmt->bindParam(':email', $email, \PDO::PARAM_STR);
         try {
             $stmt->execute();
@@ -302,7 +304,7 @@ class User extends BaseModel
     public static function existUsername(string $username): bool
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE username = :username");
+        $stmt = $db->prepare("SELECT COUNT(*) FROM USERS WHERE username = :username");
         $stmt->bindParam(':username', $username, \PDO::PARAM_STR);
         try {
             $stmt->execute();
