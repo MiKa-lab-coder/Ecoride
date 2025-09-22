@@ -33,7 +33,7 @@ class TripController
      * Exige un token JWT valide dans l'en-tête Authorization.
      * On vérifie que l'utilisateur a un véhicule enregistré.
      */
-    public function proposeTrip()
+    public function proposeTrip(): void
     {
         header('Content-Type: application/json');
 
@@ -126,10 +126,10 @@ class TripController
             if (!$validator->validateSeatsAvailable((int)$data['seating'])) {
                 throw new Exception("Le nombre de sièges disponibles doit être un entier positif entre 1 et 9.", 400);
             }
-            if(!$validator->validatePetAllowed((int)$data['animal_pref'])) {
+            if (!$validator->validatePetAllowed((int)$data['animal_pref'])) {
                 throw new Exception("La préférence pour les animaux doit être 0 ou 1.", 400);
             }
-            if(!$validator->validateSmokingAllowed((int)$data['smoking_pref'])) {
+            if (!$validator->validateSmokingAllowed((int)$data['smoking_pref'])) {
                 throw new Exception("La préférence pour le tabac doit être 0 ou 1.", 400);
             }
 
@@ -172,7 +172,7 @@ class TripController
     }
 
     // Méthode pour modifier un trajet existant
-    public function updateTrip(int $tripId)
+    public function updateTrip(int $tripId): void
     {
         header('Content-Type: application/json');
         try {
@@ -308,7 +308,7 @@ class TripController
     }
 
     // Méthode pour supprimer un trajet existant
-    public function deleteTrip(int $tripId)
+    public function deleteTrip(int $tripId): void
     {
         header('Content-Type: application/json');
 
@@ -352,7 +352,7 @@ class TripController
     /**
      * Récupère le nombre de places disponibles pour un trajet.
      */
-    public function getAvailableSeats(int $tripId)
+    public function getAvailableSeats(int $tripId): void
     {
         header('Content-Type: application/json');
 
@@ -456,10 +456,11 @@ class TripController
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+
     /**
      * Finalise un trajet (lorsque le conducteur clique sur "Terminer le trajet").
      */
-    public function endTrip():void
+    public function endTrip(): void
     {
         header('Content-Type: application/json');
 
@@ -519,6 +520,7 @@ class TripController
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
     /**
      * Affiche les détails d'un trajet pour le conducteur et les passagers.
      */
@@ -563,6 +565,7 @@ class TripController
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
     // Méthode pour récupérer tous les trajets d'un utilisateur (conducteur)
     public function getUserTrips(): void
     {
@@ -589,6 +592,117 @@ class TripController
             echo json_encode($tripsArray);
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la récupération des trajets de l'utilisateur: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    // Méthode pour récupérer tous les trajets terminés pour affichage dans l'historique d'un utilisateur
+    public function getUserCompletedTrips(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->sub;
+            // On vérifie que l'utilisateur existe
+            $user = User::find($userId);
+            if (!$user) {
+                throw new Exception("Utilisateur non trouvé.", 404);
+            }
+            // On récupère les trajets terminés de l'utilisateur
+            $trips = Trip::getCompletedTripsByUser($userId);
+            if (empty($trips)) {
+                http_response_code(200);
+                echo json_encode(['message' => "Vous n'avez aucun trajet terminé."]);
+                return;
+            }
+            http_response_code(200);
+            $tripsArray = array_map(fn($trip) => $trip->toArray(), $trips);
+            echo json_encode($tripsArray);
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des trajets terminés de l'utilisateur: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    // Méthode pour démarrer un trajet (lorsque le conducteur clique sur "Démarrer le trajet")
+    public function startTrip(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->sub;
+            // On vérifie que l'utilisateur existe
+            $user = User::find($userId);
+            if (!$user) {
+                throw new Exception("Utilisateur non trouvé.", 404);
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['trip_id'])) {
+                throw new Exception("ID de trajet invalide.", 400);
+            }
+            $tripId = (int)$data['trip_id'];
+            // On vérifie que le trajet existe
+            $trip = Trip::findById($tripId);
+            if (!$trip) {
+                throw new Exception("Trajet non trouvé.", 404);
+            }
+            // On verifie l'utilisateur qui demarre le trajet est bien celui qui l'a proposé
+            if ($trip->getDriverId() !== $userId) {
+                throw new Exception("Vous n'êtes pas autorisé à démarrer ce trajet.", 403);
+            }
+            // On vérifie que le trajet n'est pas déjà démarré ou terminé
+            if ($trip->getStatus() !== 'ongoing' && $trip->getStatus() !== 'completed') {
+                throw new Exception("Le trajet a un statut incorrect pour être démarré.", 400);
+            }
+            // On met à jour le statut du trajet
+            $trip->setStatus('ongoing');
+            if ($trip->save()) {
+                http_response_code(200);
+                echo json_encode(["message" => "Trajet démarré avec succès."]);
+                $this->logger->info("Trajet ID: " . $tripId . " démarré par l'utilisateur ID: " . $userId);
+            } else {
+                throw new Exception("Erreur lors du démarrage du trajet.", 500);
+            }
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors du démarrage du trajet: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    // Méthode pour récupérer tous les trajets effectués sur les 7 derniers jours
+    public function getWeeklyTrips(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->sub;
+            // On vérifie que l'existence et le rôle de l'utilisateur seul admin peut accéder à cette ressource
+            $user = User::find($userId);
+            if (!$user || $user->getRoleId() !== 1) {
+                throw new Exception("Utilisateur non trouvé ou non autorisé.", 404);
+            }
+            // On récupère les trajets de la semaine
+            $trips = Trip::getTripsCountLast7Days();
+            if (empty($trips)) {
+                http_response_code(200);
+                echo json_encode(['message' => "Aucun trajet n'a été effectué cette semaine."]);
+                return;
+            }
+            http_response_code(200);
+            echo json_encode($trips);
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des trajets de la semaine: " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
             echo json_encode(['error' => $e->getMessage()]);
         }
