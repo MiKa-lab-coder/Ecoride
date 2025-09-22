@@ -8,6 +8,9 @@
 // On appelle le fichier autoload de composer
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// On charge les variables d'environnement
+\App\Config\Config::load(__DIR__ . '/../');
+
 // On precise quelle controller seront utilisés
 use App\Controllers\AuthController;
 use App\Controllers\AdminController\AdminController;
