@@ -1,42 +1,44 @@
 <?php
-
 namespace App\Models\Database;
-
 use App\Config\Config;
 use PDO;
 use PDOException;
 
 class Database
 {
-    //propriété static pour stocker l'instance unique de PDO
     private static ?PDO $instance = null;
 
-    //le construct est privé pour empecher la creation d'objet via new
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
-    //la méthode clone est privé pour empecher de cloner l'instance
-    private function __clone()
-    {
-    }
+    private function __clone() {}
 
     public static function getInstance(): PDO
     {
+        // On s'assure que l'instance est créée une seule fois
         if (self::$instance === null) {
+            try {
+                // On définit toutes les variables de connexion
+                $host = Config::get("DB_HOST");
+                $port = Config::get("DB_PORT", "3306");
+                $dbname = Config::get("DB_NAME");
+                $user = Config::get("DB_USER");
+                $password = Config::get("DB_PASSWORD");
 
-            //on construit le dsn (data source name) avec les infos du fichier .env
-            $dsn = sprintf("mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4", Config::get("DB_HOST"), Config::get("DB_PORT", "3306"), Config::get("DB_NAME"));
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,//lance les exceptions en cas d'erreur sql
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,//recup les resultats sous forme de tableau
-            ];
-        }
-        //on creer l'instance de pdo et on la stock
-        try {
-            self::$instance = new PDO($dsn, Config::get("DB_USER"), Config::get("DB_PASSWORD"), $options);
-        } catch (PDOException $e) {
-            die("Connection failed: " . $e->getMessage());
+                // On construit le dsn à partir des variables de .env
+                $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+                $options = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false
+                ];
+
+                // On crée l'instance de PDO et on la stocke
+                self::$instance = new PDO($dsn, $user, $password, $options);
+
+            } catch (PDOException $e) {
+                // On gère l'erreur de connexion
+                die("Connection failed: " . $e->getMessage());
+            }
         }
         return self::$instance;
     }
