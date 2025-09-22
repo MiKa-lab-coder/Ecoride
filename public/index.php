@@ -12,6 +12,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Controllers\AuthController;
 use App\Controllers\AdminController\AdminController;
 use App\Controllers\BookingController\BookingController;
+use App\Controllers\ContactController\ContactController;
 use App\Controllers\IssuesController\IssuesController;
 use App\Controllers\RatingController\RatingController;
 use App\Controllers\ReviewController\ReviewController;
@@ -46,6 +47,7 @@ $transactionController = new TransactionController();
 $tripController = new TripController();
 $userController = new UserController();
 $vehicleController = new VehicleController();
+$contactController = new ContactController();
 
 // Définir les routes sous forme de tableau associatif en fonction des méthodes HTTP
 $routes = [
@@ -99,6 +101,9 @@ $routes = [
 
         // Booking
         '/api/bookings' => [$bookingController, 'bookTrip'],
+
+        // Contact
+        '/api/contact' => [$contactController, 'handleContactForm'],
 
         // Issues
         '/api/issues' => [$issuesController, 'startIssue'],
