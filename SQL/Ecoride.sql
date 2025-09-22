@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS TRIPS (
     animal_pref BOOLEAN DEFAULT FALSE,
     smoking_pref BOOLEAN DEFAULT FALSE,
     seating INT NOT NULL,
-    status ENUM ('pending', 'completed', 'approved') NOT NULL DEFAULT 'pending',
+    status ENUM ('pending', 'ongoing', 'completed', 'approved') NOT NULL DEFAULT 'pending',
     driver_id INT,
     vehicle_id INT,
     FOREIGN KEY (driver_id) REFERENCES USERS(user_id) ON DELETE CASCADE,
