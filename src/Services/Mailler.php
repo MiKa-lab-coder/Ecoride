@@ -34,8 +34,8 @@ class Mailler
         $this->mailer->isSMTP();
         $this->mailer->Host = $_ENV['MAIL_HOST'];
         $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = $_ENV['MAIL_USERNAME']; // Votre adresse email app //a mettre a jour
-        $this->mailer->Password = $_ENV['MAIL_PASSWORD']; // Votre mot de passe email app //a mettre a jour
+        $this->mailer->Username = $_ENV['MAIL_USERNAME'];  //a mettre a jour
+        $this->mailer->Password = $_ENV['MAIL_PASSWORD'];  //a mettre a jour
         // Définir le type de chiffrement en fonction de la configuration
         if ($_ENV['MAIL_ENCRYPTION'] === 'null' || $_ENV['MAIL_ENCRYPTION'] === '') {
             $this->mailer->SMTPSecure = ''; // Pas de chiffrement
