@@ -413,6 +413,7 @@ class Trip extends BaseModel
             return null;
         }
     }
+
 // Méthode pour récupérer/afficher tous les trajets d'un utilisateur (conducteur ou passager)
     public static function findByDriverOrUserId(int $user_id): array
     {
@@ -498,6 +499,7 @@ class Trip extends BaseModel
             return [];
         }
     }
+
     // Méthode pour trouver un trajet par son status
     public static function findByStatus(string $status): array
     {
@@ -519,6 +521,7 @@ class Trip extends BaseModel
             return [];
         }
     }
+
     // Méthode pour décompter le nombre de places disponibles après une réservation
     public function decrementAvailableSeats(): bool
     {
@@ -537,6 +540,7 @@ class Trip extends BaseModel
             return false;
         }
     }
+
     // Méthode pour incrementer le nombre de places disponibles après une annulation de réservation
     public function incrementAvailableSeats(): bool
     {
@@ -555,6 +559,7 @@ class Trip extends BaseModel
             return false;
         }
     }
+
     // Méthode pour recupérer tous les trajets proposés par un conducteur
     public static function getTripsByDriverId(int $driver_id): array
     {
@@ -571,6 +576,60 @@ class Trip extends BaseModel
             return $trips;
         } catch (PDOException $e) {
             $logger->error("Erreur lors de la récupération des trajets par ID conducteur : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return [];
+        }
+    }
+
+    // Méthode pour récupérer tous les trajets complétés par un conducteur ou un passager
+    public static function getCompletedTripsByUser($userId): array
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('trip_getCompletedTripsByUser');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+
+        try {
+            $stmt = $db->prepare("
+            SELECT DISTINCT t.*
+            FROM TRIPS t
+            LEFT JOIN BOOKINGS b ON t.trip_id = b.trip_id
+            WHERE t.status = 'completed' AND (t.driver_id = :userId OR b.user_id = :userId)
+            ORDER BY t.departure_day DESC, t.departure_time DESC
+        ");
+
+            $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $trip) {
+                $trips[] = self::hydrate($trip);
+            }
+
+            return $trips;
+        } catch (PDOException $e) {
+            $logger->error("Erreur lors de la récupération des trajets terminés de l'utilisateur : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return [];
+        }
+    }
+
+    // Méthode pour récupérer tous les trajets fait par jour pendant les 7 derniers jours
+    public static function getTripsCountLast7Days(): array
+    {
+        $db = Database::getInstance();
+        $logger = new Logger('trip_getTripsCountLast7Days');
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        try {
+            $stmt = $db->prepare("
+                SELECT departure_day, COUNT(*) AS trip_count
+                FROM TRIPS
+                WHERE departure_day >= CURDATE() - INTERVAL 7 DAY
+                GROUP BY departure_day
+                ORDER BY departure_day DESC
+            ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $logger->error("Erreur lors de la récupération du nombre de trajets des 7 derniers jours : " . $e->getMessage(),
                 ['trace' => $e->getTraceAsString()]);
             return [];
         }
