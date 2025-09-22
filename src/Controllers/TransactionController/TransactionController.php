@@ -34,7 +34,7 @@ class TransactionController
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
     }
     // Créer un paiement pour un trajet réservé de façon automatique
-    public function payTrip($userId, $amount, $tripRef)
+    public function payTrip($userId, $amount, $tripRef): false|string
     {
         header('Content-Type: application/json');
 
@@ -119,7 +119,7 @@ class TransactionController
     }
 
     // Méthode pour rembourser un trajet annulé/supprimé de façon automatique
-    public function payBackTrip($userId, $amount, $tripRef)
+    public function payBackTrip($userId, $amount, $tripRef): false|string
     {
         header('Content-Type: application/json');
 
@@ -207,7 +207,7 @@ class TransactionController
         }
     }
     // Méthode pour obtenir les statistiques de crédit de la plateforme (total crédits par jour)
-    public function getPlatformStats()
+    public function getPlatformStats(): false|string
     {
         header('Content-Type: application/json');
 
@@ -249,6 +249,41 @@ class TransactionController
             $this->logger->error("Erreur lors de la récupération des statistiques de la plateforme - " . $e->getMessage());
             http_response_code(500);
             return json_encode(['message' => 'Erreur lors de la récupération des statistiques.', 'error' => $e->getMessage()]);
+        }
+    }
+    // Méthode pour obtenir le solde de crédit d'un utilisateur (profil)
+    public function getUserBalance($userId): false|string
+    {
+        header('Content-Type: application/json');
+        try {
+            // Récupération du token depuis l'en-tête Authorization
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+            // On valide le token JWT et on récupère les données décodées
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+
+            // Vérification de l'autorisation
+            if ((int)$decodedToken->data->id !== $userId) {
+                $this->logger->warning("Tentative d'accès non autorisé au profil de l'utilisateur ID: $userId");
+                throw new Exception("Accès non autorisé.", 403);
+            }
+            // Vrification de l'existence de l'utilisateur
+            $user = User::find($userId);
+            if (!$user) {
+                $this->logger->error("Utilisateur non trouvé pour l'ID: $userId");
+                throw new Exception("Utilisateur non trouvé.", 404);
+            }
+            // Récupération du solde de crédit de l'utilisateur
+            $balance = Transaction::getUserBalance($userId);
+            return json_encode([
+                'user_id' => $userId,
+                'balance' => $balance
+            ]);
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération du solde de l'utilisateur ID: $userId - " . $e->getMessage());
+            http_response_code(500);
+            return json_encode(['message' => 'Erreur lors de la récupération du solde.', 'error' => $e->getMessage()]);
         }
     }
 }
