@@ -161,7 +161,6 @@ class AuthController
     }
 
     public function login(): void
-
     {
         $logger = new Logger('auth_logger');
         $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
@@ -169,55 +168,58 @@ class AuthController
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            throw new Exception("Méthode non autorisée.", 405);
+            http_response_code(405);
+            echo json_encode(["error" => "Méthode non autorisée."]);
+            exit;
         }
 
         // Récupération des données (username et password)
         $data = json_decode(file_get_contents('php://input'), true);
 
-        // Échappement des données pour éviter les failles XSS
+        // Vérification des champs requis EN DEHORS du try-catch principal
         $username = htmlspecialchars($data['username'] ?? '');
         $password = $data['password'] ?? '';
-
-        // Verification des champs
         if (empty($username) || empty($password)) {
-            throw new Exception("Champs requis manquants.", 400);
+            http_response_code(400);
+            echo json_encode(["error" => "Champs requis manquants."]);
+            exit;
         }
 
         // Authentification
         try {
             $user = User::findByUsername($username);
             if ($user && $user->verifyPassword($password)) {
-                // Authentification réussie on log l'info
+                // Authentification réussie
                 $logger->info("Authentification réussie pour l'utilisateur: $username");
 
-                // Verification du statut du compte
+                // Vérification du statut du compte
                 if ($user->getAccountStatus() !== 'active') {
                     $logger->warning("Compte inactif pour l'utilisateur: $username");
-                    throw new Exception("Compte inactif. Contactez l'administrateur.", 403);
+                    http_response_code(403);
+                    echo json_encode(["error" => "Compte inactif. Contactez l'administrateur."]);
+                    exit;
                 }
 
-                // on protège la route avec JWT
+                // Génération du token JWT
                 $tokenManager = new TokenManager();
                 $sequence = [
                     'id' => $user->getUserId(),
                     'username' => $user->getUsername(),
-                    // on recupère le role de l'utilisateur pour contrôler l'accès aux ressources
                     'role' => $user->getRoleId()
                 ];
-
-                // on génère le token
                 $jwt = $tokenManager->generateToken($sequence);
-                // on renvoie le token au client
+
+                // Envoi de la réponse avec le token
                 http_response_code(200);
-                echo json_encode(["message" => "Authentification réussie.",
-                    "token" => $jwt]);
+                echo json_encode(["message" => "Authentification réussie.", "token" => $jwt]);
                 exit;
 
             } else {
                 // Échec de l'authentification
                 $logger->warning("Échec de l'authentification pour l'utilisateur: $username");
-                throw new Exception("Erreur lors de l'authentification.", 401);
+                http_response_code(401);
+                echo json_encode(["error" => "Erreur lors de l'authentification."]);
+                exit;
             }
         } catch (PDOException $e) {
             $logger->error('Erreur PDO: ' . $e->getMessage());
@@ -230,14 +232,7 @@ class AuthController
             echo json_encode(["error" => "Erreur de reuperation des données."]);
             exit;
         }
-        // fin de l'authentification
-    }
-
-    public function logout(): void
-    {
-        header('Content-Type: application/json');
-        // Pour une API RESTful, le logout côté serveur est inutile car javascript(client) va detruire le token.
-        http_response_code(200);
-        echo json_encode(["message" => "Déconnexion réussie."]);
     }
 }
+    // Pour la déconnexion, côté client il suffit de supprimer le token JWT stocké (localStorage) avec JavaScript
+    // Exemple : localStorage.removeItem('token');
