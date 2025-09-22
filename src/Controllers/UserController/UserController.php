@@ -243,4 +243,49 @@ class UserController
             exit;
         }
     }
+    // Recuperer la photo d'un utilisateur pour l'afficher
+    public function showMyPhoto(int $userId): void
+    {
+        header('Content-Type: application/json');
+
+        try {
+            // Récupération du token depuis l'en-tête Authorization
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+            // On valide le token JWT et on récupère les données décodées
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+
+            // Vérification de l'autorisation
+            if ((int)$decodedToken->data->id !== $userId) {
+                $this->logger->warning("Tentative d'accès non autorisé au profil de l'utilisateur ID: $userId");
+                throw new Exception("Accès non autorisé.", 403);
+            }
+
+            // Récupération des informations de l'utilisateur
+            $user = User::find($userId);
+            if (!$user) {
+                $this->logger->error("Utilisateur non trouvé pour l'ID: $userId");
+                throw new Exception("Ressource non trouvée.", 404);
+            }
+
+            // Envoi de la réponse en cas de succès
+            $this->logger->info("Affichage de la photo de profil pour ID: $userId");
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Photo de profil récupérée avec succès.',
+                'data' => [
+                    'photo' => $user->getPhoto(),
+                ]
+            ]);
+            exit;
+        } catch (Exception $e) {
+            $code_status = $e->getCode() > 100 ? $e->getCode() : 500;
+            $this->logger->error("Erreur lors de la récupération de la photo pour l'ID: $userId - " . $e->getMessage());
+            http_response_code($code_status);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            exit;
+        }
+    }
 }
