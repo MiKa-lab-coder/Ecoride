@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS Ecoride.TRANSACTIONS
     amount           INT                                                            NOT NULL,
     transaction_type ENUM ('payment', 'cancellation','service_fee','welcome_bonus') NOT NULL DEFAULT 'payment',
     transaction_date TIMESTAMP                                                               DEFAULT CURRENT_TIMESTAMP,
-    reference        INT                                                            NOT NULL,
+    reference        INT                                                            NULL,
     FOREIGN KEY (user_id) REFERENCES Ecoride.USERS (user_id) ON DELETE CASCADE,
     FOREIGN KEY (reference) REFERENCES Ecoride.TRIPS (trip_id) ON DELETE CASCADE
 );
