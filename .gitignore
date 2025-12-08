@@ -49,3 +49,7 @@ coverage/
 /storage/cache/
 /storage/framework/
 /storage/app/
+
+# Fichiers de seeding contenant des données sensibles
+SQL/seed.sql
+noSQL/seed.js
