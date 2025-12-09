@@ -10,7 +10,7 @@ export async function reviewOffer() {
     }
 
     const userRole = localStorage.getItem('role');
-    if (userRole !== 'Moderator' && userRole !== 'Admin') {
+    if (userRole !== '2' && userRole !== '1') {
         reviewContainer.innerHTML = '<p class="error">Vous n\'avez pas les droits pour accéder à cette page.</p>';
         return;
     }

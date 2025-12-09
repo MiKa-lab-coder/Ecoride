@@ -12,8 +12,7 @@ export async function createDashboardLink() {
         dashboardLink.appendChild(listItem);
     }
 }
-//fonction pour afficher/masquer les éléments de la sidebar en fonction des rôles
-// Fonction pour afficher/masquer les éléments de la sidebar et du contenu
+
 export function displayDashboardContentByRoles() {
     // 1. Définir les éléments de la page
     const adminNav = document.querySelector('.admin-nav');
@@ -21,18 +20,8 @@ export function displayDashboardContentByRoles() {
     const userNav = document.querySelector('.user-nav');
     const allSections = document.querySelectorAll('.dashboard-section');
 
-    const token = localStorage.getItem('token');
-    let userRole = "admin"; // Valeur par défaut pour les tests
-
-    // 2. Vérifier l'existence et la validité du token
-    if (token) {
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            userRole = payload.role;
-        } catch (e) {
-            console.error('Token invalide ou malformé', e);
-        }
-    }
+    // 2. Récupérer le rôle directement depuis le localStorage
+    const userRole = localStorage.getItem('userRole');
 
     // 3. Masquer tout par défaut pour des raisons de sécurité
     if (adminNav) adminNav.classList.add('js-hidden');
@@ -43,13 +32,13 @@ export function displayDashboardContentByRoles() {
     allSections.forEach(section => section.classList.add('js-hidden'));
 
     // 4. Afficher le contenu en fonction du rôle de l'utilisateur
-    if (userRole === 'admin') {
+    if (userRole === '1') {
         // L'administrateur voit tout
         if (adminNav) adminNav.classList.remove('js-hidden');
         if (moderatorNav) moderatorNav.classList.remove('js-hidden');
         if (userNav) userNav.classList.remove('js-hidden');
         allSections.forEach(section => section.classList.remove('js-hidden'));
-    } else if (userRole === 'moderator') {
+    } else if (userRole === '2') {
         // Le modérateur voit ses sections et celles de l'utilisateur
         if (moderatorNav) moderatorNav.classList.remove('js-hidden');
         if (userNav) userNav.classList.remove('js-hidden');
@@ -59,7 +48,7 @@ export function displayDashboardContentByRoles() {
         document.getElementById('manage-trips-content').classList.remove('js-hidden');
         document.getElementById('review-content').classList.remove('js-hidden');
         document.getElementById('past-trips-content').classList.remove('js-hidden');
-    } else if (userRole === 'user') {
+    } else if (userRole === '3') {
         // L'utilisateur simple ne voit que ses sections
         if (userNav) userNav.classList.remove('js-hidden');
         document.getElementById('view-profile-content').classList.remove('js-hidden');

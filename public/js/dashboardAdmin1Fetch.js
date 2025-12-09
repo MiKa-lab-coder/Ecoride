@@ -6,7 +6,7 @@ export async function manageAdminActions() {
     }
     // Recuperer le rôle de l'utilisateur
     const userRole = localStorage.getItem('userRole');
-    if (userRole !== 'admin') {
+    if (userRole !== '1') { // Vérification par ID de rôle
         console.error('Accès refusé. Rôle administrateur requis.');
         return;
     }

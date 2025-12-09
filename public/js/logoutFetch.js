@@ -1,6 +1,8 @@
 // Methode pour se déconnecter et supprimer le token du localStorage
 export function logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
     window.location.href = '/index.html'; // Redirige vers la page d'accueil
 }
 
