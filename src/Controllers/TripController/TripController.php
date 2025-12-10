@@ -25,7 +25,7 @@ class TripController
     public function __construct()
     {
         $this->logger = new Logger('trip_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/trip.log', Logger::INFO));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/trip.log', Logger::INFO));
     }
 
     /**
@@ -390,7 +390,7 @@ class TripController
             // Champs obligatoires
             $departure = htmlspecialchars($_GET['departure'] ?? '');
             $arrival = htmlspecialchars($_GET['arrival'] ?? '');
-            $departureDay = htmlspecialchars($_GET['departure_day'] ?? '');
+            $date = htmlspecialchars($_GET['date'] ?? '');
 
             // Validation des champs obligatoires
             if (!$validator->validateDepartureOrArrival($departure)) {
@@ -399,46 +399,44 @@ class TripController
             if (!$validator->validateDepartureOrArrival($arrival)) {
                 throw new Exception("Le format du lieu d'arrivée est invalide ou manquant.", 400);
             }
-            if (!$validator->validateTripDate($departureDay, 'Y-m-d')) {
+            if (!$validator->validateYmdDateFormat($date)) {
                 throw new Exception("Le format de la date de départ est invalide ou manquant. Utilisez 'Y-m-d'.", 400);
             }
 
             // On met les filtres optionnels
             $filters = [];
 
-            if (isset($_GET['max_price'])) {
-                if (!$validator->validateTripPrice((int)$_GET['max_price'])) {
+            if (isset($_GET['price'])) {
+                if (!$validator->validateTripPrice((int)$_GET['price'])) {
                     throw new Exception("Le prix maximum doit être un entier positif.", 400);
                 }
-                $filters['max_price'] = (int)$_GET['max_price'];
+                $filters['max_price'] = (int)$_GET['price'];
             }
 
-            if (isset($_GET['trip_nature'])) {
-                if (!$validator->validateTripName($_GET['trip_nature'])) {
+            if (isset($_GET['carpoolType']) && $_GET['carpoolType'] !== 'all') {
+                if (!$validator->validateTripNature($_GET['carpoolType'])) {
                     throw new Exception("Le format de la nature du trajet est invalide.", 400);
                 }
-                $filters['trip_nature'] = htmlspecialchars($_GET['trip_nature']);
+                $filters['trip_nature'] = htmlspecialchars($_GET['carpoolType']);
             }
 
-            if (isset($_GET['seating'])) {
-                if (!$validator->validateSeatsAvailable((int)$_GET['seating'])) {
+            if (isset($_GET['seats'])) {
+                if (!$validator->validateSeatsAvailable((int)$_GET['seats'])) {
                     throw new Exception("Le nombre de sièges doit être un entier positif entre 1 et 9.", 400);
                 }
-                $filters['seating'] = (int)$_GET['seating'];
+                $filters['seating'] = (int)$_GET['seats'];
             }
 
-            if (isset($_GET['animal_pref'])) {
-                // La préférence est un simple drapeau, pas besoin de validation complexe
-                $filters['animal_pref'] = true;
+            if (isset($_GET['petsAllowed'])) {
+                $filters['animal_pref'] = $_GET['petsAllowed'] === 'yes' ? 1 : 0;
             }
 
-            if (isset($_GET['smoking_pref'])) {
-                // La préférence est un simple drapeau, pas besoin de validation complexe
-                $filters['smoking_pref'] = true;
+            if (isset($_GET['smokingAllowed'])) {
+                $filters['smoking_pref'] = $_GET['smokingAllowed'] === 'yes' ? 1 : 0;
             }
 
             // On recherche les trajets
-            $trips = Trip::searchTrips($departure, $arrival, $departureDay, $filters);
+            $trips = Trip::searchTrips($departure, $arrival, $date, $filters);
 
             if (empty($trips)) {
                 http_response_code(200);
@@ -674,7 +672,7 @@ class TripController
         } catch (Exception $e) {
             $this->logger->error("Erreur lors du démarrage du trajet: " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
-            echo json_encode(["error" => $e->getMessage()]);
+            echo json_encode(['error' => $e->getMessage()]);
         }
     }
 

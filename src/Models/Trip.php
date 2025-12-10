@@ -246,7 +246,7 @@ class Trip extends BaseModel
         return $trip;
     }
 
-    public static function searchTrips(mixed $departure, mixed $arrival, mixed $departureDay, array $filters): array
+    public static function searchTrips(string $departure, string $arrival, string $departureDay, array $filters): array
     {
         $db = Database::getInstance();
         $logger = new Logger('trip_searchTrips');
@@ -285,14 +285,7 @@ class Trip extends BaseModel
             }
 
             $stmt = $db->prepare($sql);
-            foreach ($params as $key => &$val) {
-                if (is_int($val)) {
-                    $stmt->bindParam($key, $val, PDO::PARAM_INT);
-                } else {
-                    $stmt->bindParam($key, $val, PDO::PARAM_STR);
-                }
-            }
-            $stmt->execute();
+            $stmt->execute($params);
 
             $trips = [];
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $trip) {

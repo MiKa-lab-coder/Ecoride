@@ -21,19 +21,18 @@ class Validator
         // Au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial
         $pass = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
         return preg_match($pass, $password) === 1;
-        //penser a l'ajout de texte pour prevenir les utilisateurs
     }
     public function validateName(string $name): bool
     {
         // Lettres et espaces, entre 2 et 50 caractères
-        $valide = '^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,50}$';
-        return mb_ereg_match($valide, $name) === 1;
+        $valide = '/^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,50}$/u';
+        return preg_match($valide, $name) === 1;
     }
     public function validateFirstname(string $firstname): bool
     {
         // Lettres et espaces, entre 2 et 50 caractères
-        $first = '^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,50}$';
-        return mb_ereg_match($first, $firstname) === 1;
+        $first = '/^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,50}$/u';
+        return preg_match($first, $firstname) === 1;
     }
 
     public function validateUsername(string $username): bool
@@ -41,14 +40,12 @@ class Validator
         // Alphanumérique, entre 3 et 20 caractères
         $use = '/^[a-zA-Z0-9]{3,20}$/';
         return preg_match($use, $username) === 1;
-        //penser a l'ajout de texte pour prevenir les utilisateurs
     }
 
     public function validateBirthdate(string $birthdate): bool
     {
         $date = \DateTime::createFromFormat('d-m-Y', $birthdate);
         return $date && $date->format('d-m-Y') === $birthdate;
-        //voir comment s'assurer du format en bdd
     }
     public function validateAge(string $birthdate): bool
     {
@@ -63,26 +60,21 @@ class Validator
 
     public function validateCredit(int $credit, int $trip_price): bool
     {
-        // s'assurer que les crdits sont >= au prix du trajet
         return $credit >= $trip_price;
-        //ne pas utiliser de float pour l'instant
     }
 
     public function validateDriverRating(int $driver_rating): bool
     {
         return $driver_rating >= 0 && $driver_rating <= 5;
-        //pas de demi points pour l'instant
     }
     public function validateAccountStatus(string $account_status): bool
     {
-        // s'assurer que le status est dans une liste definie
         $valid_statuses = ['active', 'suspended', 'deactivated'];
         return in_array($account_status, $valid_statuses);
     }
 
     public function validatePhotoUrl(string $photo_url): bool
     {
-        // s'assurer que c'est une url valide
         return filter_var($photo_url, FILTER_VALIDATE_URL) !== false;
     }
 
@@ -92,22 +84,18 @@ class Validator
         $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
         $max_file_size = 3 * 1024 * 1024; // 3MB
 
-        // Vérifier les erreurs de téléchargement
         if ($photo['error'] !== UPLOAD_ERR_OK) {
             $errors[] = "Erreur lors du téléchargement.";
         }
-        // Vérifier le type de fichier
         if (!in_array($photo['type'], $allowed_types)) {
             $errors[] = "Le format de la photo est invalide.";
         }
-        // Vérifier la taille du fichier
         if ($photo['size'] > $max_file_size) {
             $errors[] = "La taille de la photo dépasse la limite de 3MB.";
         }
         return $errors;
     }
     // véhicules
-    // Valider le numéro d'immatriculation (format français standard)
     public function validateRegistrationNumber(string $registration): bool
     {
         $reg = '/^[A-Z]{2}-\d{3}-[A-Z]{2}$/';
@@ -120,54 +108,46 @@ class Validator
         return $date && $date->format('d-m-Y') === $date;
     }
 
-    // Valider la capacité d'accueil (entre 1 et 9 sièges maximum pour un véhicule standard)
     public function validateSeatCapacity(int $seat_capacity): bool
     {
         return $seat_capacity >= 1 && $seat_capacity <= 9;
     }
     public function validateColor(string $color): bool
     {
-        // Lettres et espaces, entre 2 et 30 caractères
-        $col = '^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,30}$';
-        return mb_ereg_match($col, $color) === 1;
+        $col = '/^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,30}$/u';
+        return preg_match($col, $color) === 1;
     }
-    // Valider le type d'énergie (thermique, électrique, hybride)
     public function validateEnergyType(string $energy): bool
     {
         $valid_energies = ['thermique', 'électrique', 'hybride'];
         return in_array($energy, $valid_energies);
     }
-    // Valider la marque (lettres et espaces, entre 2 et 50 caractères)
     public function validateBrand(string $brand): bool
     {
-        $marque = '^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,50}$';
-        return mb_ereg_match($marque, $brand) === 1;
+        $marque = '/^[a-zA-Z\sàâäéèêëçîïôöùûüÿñ-]{2,50}$/u';
+        return preg_match($marque, $brand) === 1;
     }
-    // Valider le modèle (lettres, chiffres et espaces, entre 1 et 50 caractères)
     public function validateModel(string $model): bool
     {
-        $mod = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-]{1,50}$';
-        return mb_ereg_match($mod, $model) === 1;
+        $mod = '/^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-]{1,50}$/u';
+        return preg_match($mod, $model) === 1;
     }
 
     // trajets
     public function validateTripName(string $trip_name): bool
     {
-        // Lettres, chiffres, espaces et certains caractères spéciaux, entre 2 et 100 caractères
-        $name = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-_,.!?]{2,100}$';
-        return mb_ereg_match($name, $trip_name) === 1;
+        $name = '/^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ_.,!?-]{2,100}$/u';
+        return preg_match($name, $trip_name) === 1;
     }
     public function validateDescription(string $description): bool
     {
-        // Lettres, chiffres, espaces et certains caractères spéciaux, entre 10 et 1000 caractères
-        $desc = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-_,.!?]{10,1000}$';
-        return mb_ereg_match($desc, $description) === 1;
+        $desc = '/^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ_.,!?-]{10,1000}$/u';
+        return preg_match($desc, $description) === 1;
     }
     public function validateDepartureOrArrival(string $location): bool
     {
-        // Lettres, chiffres, espaces et certains caractères spéciaux, entre 2 et 100 caractères
-        $loc = '^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ-_,.!?]{2,100}$';
-        return mb_ereg_match($loc, $location) === 1;
+        $loc = '/^[a-zA-Z0-9\sàâäéèêëçîïôöùûüÿñ,.-]{2,100}$/u';
+        return preg_match($loc, $location) === 1;
     }
 
     public function validateTripDate(string $date): bool
@@ -176,21 +156,30 @@ class Validator
         return $tripDate && $tripDate->format('d-m-Y H:i') === $date;
     }
 
+    public function validateYmdDateFormat(string $date): bool
+    {
+        $d = \DateTime::createFromFormat('Y-m-d', $date);
+        return $d && $d->format('Y-m-d') === $date;
+    }
+
+    public function validateTripNature(string $nature): bool
+    {
+        $valid_natures = ['ecologic', 'standard', 'all'];
+        return in_array($nature, $valid_natures);
+    }
+
     public function validateTripPrice(int $price): bool
     {
-        // La plage minimale est ajustée à 1 pour ne pas permettre un prix nul.
         return filter_var($price, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]) !== false;
     }
 
     public function validateSeatsAvailable(int $seats): bool
     {
-        // Doit être un entier positif (au moins 1 siège disponible) et en maximum le nombre de sièges du véhicule
         return $seats >= 1 && $seats <= 9;
     }
 
     public function validateSmokingAllowed(int $smokingAllowed): bool
     {
-        // Doit être 0 (non autorisé) ou 1 (autorisé) pour contraindre le format boolean en bdd
         return $smokingAllowed === 0 || $smokingAllowed === 1;
     }
     public function validatePetAllowed(int $petAllowed): bool
@@ -203,5 +192,4 @@ class Validator
         $time = \DateTime::createFromFormat('H:i', $arrival_time);
         return $time && $time->format('H:i') === $arrival_time;
     }
-
 }
