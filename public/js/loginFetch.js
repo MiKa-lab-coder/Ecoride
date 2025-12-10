@@ -42,7 +42,7 @@ export async function setupLoginFetch() {
                     }
 
                     const decodedToken = JSON.parse(atob(token.split('.')[1]));
-                    console.log('Decoded Token:', decodedToken);
+                    //console.log('Decoded Token:', decodedToken);
                     const userId = decodedToken?.data?.id;
                     const userRole = decodedToken?.data?.role;
 
