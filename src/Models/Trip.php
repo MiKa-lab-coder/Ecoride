@@ -254,7 +254,7 @@ class Trip extends BaseModel
 
         try {
             $sql = "SELECT * FROM TRIPS WHERE departure_location LIKE :departure AND arrival_location LIKE :arrival AND
-                          departure_day = :departure_day AND status = :status";
+                          departure_day = :departure_day AND status = :status AND departure_day >= CURDATE()";
             $params = [
                 ':departure' => '%' . $departure . '%',
                 ':arrival' => '%' . $arrival . '%',
