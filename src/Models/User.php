@@ -144,7 +144,7 @@ class User extends BaseModel
         $this->setUsername($username);
         $this->setPhoto($photo);
         $this->setEmail($email);
-        $this->setPassword($password);
+        $this->password = $password;
         $this->setTotalTrips($total_trips);
         $this->setAccountStatus($account_status);
         $this->setRoleId($role_id);
@@ -163,6 +163,7 @@ class User extends BaseModel
                 $stmt->bindParam(':user_id', $this->user_id, \PDO::PARAM_INT);
             } else {
                 // Logique pour l'INSERT
+                $this->setPassword($this->password); // Hash password only on new user creation
                 $stmt = $db->prepare("INSERT INTO USERS (name, firstname, birth_date, username, photo, email, password,
                      total_trips, account_status, role_id) VALUES (:name, :firstname, :birth_date, :username, :photo, :email,
                     :password, :total_trips, :account_status, :role_id)");
@@ -207,16 +208,12 @@ class User extends BaseModel
             $data['username'],
             $data['photo'],
             $data['email'],
-            // On passe un mot de passe vide, car on ne veut pas le hacher à nouveau
-            '',
+            $data['password'],
             (int)$data['total_trips'],
             $data['account_status'],
             $data['role_id'] ?? 3
         );
-        // On assigne le mot de passe haché récupéré de la BDD
-        $user->password = $data['password'];
-
-        // On assigne l'ID utilisateur récupéré de la BDD
+        
         $user->user_id = (int)$data['user_id'];
         return $user;
     }

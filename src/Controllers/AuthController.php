@@ -188,6 +188,17 @@ class AuthController
         // Authentification
         try {
             $user = User::findByUsername($username);
+            // --- DEBUG ---
+//            if ($user) {
+//                echo "User Found. Hashed password from DB: " . $user->getPassword() . "\n";
+//                echo "Password from form: " . $password . "\n";
+//                echo "Verification result: " . (password_verify($password, $user->getPassword()) ? 'SUCCESS' : 'FAILURE') . "\n"; // Added semicolon
+//            } else {
+//                echo "User NOT Found for username: " . $username . "\n"; // Added semicolon
+//            }
+//            exit;
+            // --- END DEBUG
+
             if ($user && $user->verifyPassword($password)) {
                 // Authentification réussie
                 $logger->info("Authentification réussie pour l'utilisateur: $username");
