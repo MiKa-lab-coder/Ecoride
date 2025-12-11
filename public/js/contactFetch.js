@@ -1,23 +1,54 @@
-// On récupère le formulaire via le DOM
+// On récupère le formulaire et le conteneur de réponse via le DOM
 const contactForm = document.getElementById('contact-form');
-const contactResponse = document.getElementById('contact-response');
+const formResponse = document.getElementById('form-response');
 
 // On ajoute un écouteur d'événement pour la soumission du formulaire
 if (contactForm) {
     contactForm.addEventListener('submit', async (event) => {
         event.preventDefault(); // Empêche le rechargement de la page
+        formResponse.innerHTML = '';
+        formResponse.style.color = 'red';
 
-        // On récupère les données du formulaire
+        // --- Validation côté client ---
         const formData = new FormData(contactForm);
-        // On transforme les données en un objet simple
         const data = Object.fromEntries(formData.entries());
+        const errors = [];
 
-        // Pas de validation côté client puisqu'aucuns contact avec la base de données
-        // On envoie transforme les données en JSON
+        if (!data.name.trim()) {
+            errors.push("Le nom complet est requis.");
+        }
+        if (!data.subject.trim()) {
+            errors.push("Le sujet est requis.");
+        }
+        if (!data.email.trim()) {
+            errors.push("L'email est requis.");
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(data.email)) {
+                errors.push("L'adresse email n'est pas valide.");
+            }
+        }
+        if (!data.message.trim()) {
+            errors.push("Le message est requis.");
+        }
+
+        // S'il y a des erreurs, on les affiche et on arrête l'exécution
+        if (errors.length > 0) {
+            const errorList = document.createElement('ul');
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+            formResponse.appendChild(errorList);
+            return; // On n'envoie pas le formulaire
+        }
+        // --- Fin de la validation côté client ---
+
         const jsonData = JSON.stringify(data);
 
         try {
-            // On envoie les données au serveur pour le traitement par la methode de mail
+            // On envoie les données au serveur
             const response = await fetch('/api/contact/contact', {
                 method: 'POST',
                 headers: {
@@ -26,20 +57,32 @@ if (contactForm) {
                 body: jsonData
             });
 
-            // On traite la réponse du serveur
+            const responseData = await response.json();
+            formResponse.innerHTML = ''; // On vide à nouveau
+
             if (response.ok) {
                 // Si la réponse est OK, on affiche un message de succès
-                contactResponse.innerHTML = '';
-                contactResponse.textContent = 'Message envoyé avec succès !';
+                formResponse.textContent = responseData.message || 'Message envoyé avec succès !';
+                formResponse.style.color = 'green';
                 contactForm.reset(); // On réinitialise le formulaire
-            }
-            else {
-                const responseData = await response.json();
-                contactResponse.innerHTML = '';
-                contactResponse.textContent = "Un problème est survenu : " + (responseData.message || response.status);
+            } else {
+                // Si le serveur retourne des erreurs
+                if (responseData.errors) {
+                    const errorList = document.createElement('ul');
+                    responseData.errors.forEach(error => {
+                        const li = document.createElement('li');
+                        li.textContent = error;
+                        errorList.appendChild(li);
+                    });
+                    formResponse.appendChild(errorList);
+                } else {
+                    formResponse.textContent = "Un problème est survenu : " + (response.status);
+                }
             }
         } catch (error) {
             console.error('Erreur réseau ou autre :', error);
+            formResponse.innerHTML = '';
+            formResponse.textContent = 'Une erreur de communication est survenue. Veuillez réessayer.';
         }
     });
 }
