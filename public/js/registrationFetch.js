@@ -2,14 +2,14 @@ export async function setupRegistrationFetch() {
 
 // Récupérer le formulaire d'inscription
     const registrationData = document.getElementById('registration-form');
-    const helper = document.getElementById('helper');
+    const errorMsg = document.getElementById('error-helper');
 
     if (registrationData) {
         registrationData.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             // On efface les messages d'erreur précédents
-            helper.innerHTML = '';
+            errorMsg.innerHTML = '';
 
             // On crée un objet FormData pour récupérer les données et les valider
             const formData = new FormData(registrationData);
@@ -34,10 +34,12 @@ export async function setupRegistrationFetch() {
                 errorMessages.forEach(msg => {
                     const p = document.createElement("p");
                     p.textContent = msg;
-                    helper.appendChild(p);
+                    errorMsg.appendChild(p);
                 });
                 return; // On arrête l'exécution si la validation échoue
             }
+
+            //console.log(data);
 
             try {
                 // Création d'un nouvel objet FormData pour l'envoi, incluant le fichier
@@ -60,7 +62,7 @@ export async function setupRegistrationFetch() {
                     if (photoFile.size > 3 * 1024 * 1024) {
                         const p = document.createElement("p");
                         p.textContent = "La taille de la photo ne doit pas dépasser 3 Mo.";
-                        helper.appendChild(p);
+                        errorMsg.appendChild(p);
                         return;
                     }
                     sendFormData.append('photo', photoFile);
@@ -80,13 +82,13 @@ export async function setupRegistrationFetch() {
                     const result = await response.json();
                     const p = document.createElement("p");
                     p.textContent = result.message || "Une erreur est survenue lors de l'inscription.";
-                    helper.appendChild(p);
+                    errorMsg.appendChild(p);
                 }
             } catch (error) {
                 console.error('Erreur inscription:', error);
                 const errorMessage = document.createElement("p");
                 errorMessage.textContent = "Une erreur est survenue. Veuillez réessayer plus tard.";
-                helper.appendChild(errorMessage);
+                errorMsg.appendChild(errorMessage);
             }
         });
     }

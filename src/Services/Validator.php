@@ -44,12 +44,12 @@ class Validator
 
     public function validateBirthdate(string $birthdate): bool
     {
-        $date = \DateTime::createFromFormat('d-m-Y', $birthdate);
-        return $date && $date->format('d-m-Y') === $birthdate;
+        $date = \DateTime::createFromFormat('Y-m-d', $birthdate);
+        return $date && $date->format('Y-m-d') === $birthdate;
     }
     public function validateAge(string $birthdate): bool
     {
-        $date = \DateTime::createFromFormat('d-m-Y', $birthdate);
+        $date = \DateTime::createFromFormat('Y-m-d', $birthdate);
         if (!$date) {
             return false;
         }

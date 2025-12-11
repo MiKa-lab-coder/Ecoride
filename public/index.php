@@ -26,7 +26,7 @@ use App\Controllers\VehicleController\VehicleController;
 
 // Définir les entêtes autorisés pour les requêtes
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-control-allow-headers: Content-Type, Authorization");
 header("Content-Type: application/json; charset=UTF-8");
 
 // Gérer les requêtes OPTIONS
@@ -91,7 +91,7 @@ $routes = [
     'POST' => [
         // Auth
         '/api/auth/login' => [$authController, 'login'],
-        '/api/auh/registration' => [$authController, 'registration'],
+        '/api/auth/registration' => [$authController, 'registration'],
         '/api/auth/forgot-password' => [$authController, 'forgotPassword'],//a faire
         '/api/auth/reset-password' => [$authController, 'resetPassword'], //a faire
 

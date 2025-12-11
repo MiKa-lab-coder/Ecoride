@@ -57,7 +57,7 @@ class AuthController
                 $errors['firstname'] = 'Prénom invalide. Utilisez uniquement des lettres et espaces, entre 2 et 50 caractères.';
             }
             if (!$validator->validateBirthdate($birthdate)) {
-                $errors['birthdate'] = 'Date de naissance invalide. Utilisez le format JJ-MM-AAAA.';
+                $errors['birthdate'] = 'Date de naissance invalide. Utilisez le format AAAA-MM-JJ.';
             } elseif (!$validator->validateAge($birthdate)) {
                 $errors['birthdate'] = 'Vous devez avoir au moins 18 ans pour vous inscrire.';
             }
@@ -85,14 +85,14 @@ class AuthController
                 if (!empty($photoErrors)) {
                     $errors = array_merge($errors, $photoErrors);
                 } else {
-                    $uploadDir = __DIR__ . '/../../public/uploads/';
+                    $uploadDir = __DIR__ . '/../../uploads/';
                     if (!is_dir($uploadDir)) {
                         mkdir($uploadDir, 0755, true);
                     }
                     $photoName = uniqid() . '_' . basename($photo['name']);
                     $uploadFile = $uploadDir . $photoName;
                     if (move_uploaded_file($photo['tmp_name'], $uploadFile)) {
-                        $photo_path = '/uploads/' . $photoName;
+                        $photo_path = 'uploads/' . $photoName;
                     } else {
                         $errors['photo'] = 'Échec du téléchargement de la photo de profil.';
                         $logger->error('Échec du téléchargement de la photo de profil.');
@@ -106,7 +106,7 @@ class AuthController
                 exit;
             }
 
-            $birthdateFormatted = DateTime::createFromFormat('d-m-Y', $birthdate);
+            $birthdateFormatted = \DateTime::createFromFormat('Y-m-d', $birthdate);
             $user = new User(
                 $name,
                 $firstname,
