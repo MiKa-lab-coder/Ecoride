@@ -85,7 +85,7 @@ class AuthController
                 if (!empty($photoErrors)) {
                     $errors = array_merge($errors, $photoErrors);
                 } else {
-                    $uploadDir = __DIR__ . '/../../uploads/';
+                    $uploadDir = __DIR__ . '/../../../public/uploads/';
                     if (!is_dir($uploadDir)) {
                         mkdir($uploadDir, 0755, true);
                     }
