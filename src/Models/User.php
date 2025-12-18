@@ -29,6 +29,9 @@ class User extends BaseModel
     private int $total_trips;
     private string $account_status;
     private int $role_id;
+    private ?float $driver_rating = null;
+    private ?int $credit = null;
+
 
     // Getters
     public function getUserId(): ?int
@@ -56,9 +59,18 @@ class User extends BaseModel
         return $this->username;
     }
 
-    public function getPhoto(): string
+    public function getPhoto(): ?string
     {
-        return $this->photo;
+        // Assure que le chemin de la photo est toujours absolu pour le front-end
+        if ($this->photo === null || $this->photo === '') {
+            return '/uploads/default.png'; // Chemin par défaut absolu
+        }
+        // Si le chemin est déjà absolu, le retourner tel quel
+        if (str_starts_with($this->photo, '/')) {
+            return $this->photo;
+        }
+        // Si le chemin est relatif (ex: 'uploads/image.png'), le rendre absolu
+        return '/' . $this->photo;
     }
 
     public function getEmail(): string
@@ -84,6 +96,16 @@ class User extends BaseModel
     public function getRoleId(): int
     {
         return $this->role_id;
+    }
+
+    public function getDriverRating(): ?float
+    {
+        return $this->driver_rating;
+    }
+
+    public function getCredit(): ?int
+    {
+        return $this->credit;
     }
 
     // Setters
@@ -131,6 +153,17 @@ class User extends BaseModel
     {
         $this->role_id = $role_id;
     }
+
+    public function setDriverRating(?float $rating): void
+    {
+        $this->driver_rating = $rating;
+    }
+
+    public function setCredit(?int $credit): void
+    {
+        $this->credit = $credit;
+    }
+
 
     // Constructeur
     public function __construct(string $name, string $firstname, DateTime $birth_date, string $username, ?string $photo,
@@ -215,6 +248,12 @@ class User extends BaseModel
         );
         
         $user->user_id = (int)$data['user_id'];
+        if (isset($data['driver_rating'])) {
+            $user->setDriverRating((float)$data['driver_rating']);
+        }
+        if (isset($data['credit'])) {
+            $user->setCredit((int)$data['credit']);
+        }
         return $user;
     }
 
@@ -222,7 +261,16 @@ class User extends BaseModel
     public static function find(int $user_id): ?self
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM USERS WHERE user_id = :user_id");
+        $stmt = $db->prepare("
+        SELECT 
+            u.*,
+            (SELECT AVG(r.rating_value) FROM RATINGS r WHERE r.rated_user_id = u.user_id) as driver_rating,
+            (SELECT SUM(t.amount) FROM TRANSACTIONS t WHERE t.user_id = u.user_id) as credit
+        FROM 
+            USERS u
+        WHERE 
+            u.user_id = :user_id
+    ");
         $stmt->bindParam(':user_id', $user_id, \PDO::PARAM_INT);
         try {
             $stmt->execute();

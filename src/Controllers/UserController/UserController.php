@@ -31,11 +31,10 @@ class UserController
     }
 
     /**
-     * Affiche le profil de l'utilisateur connecté à partir de son ID.
-     * @param int $userId L'ID de l'utilisateur à afficher.
+     * Affiche le profil de l'utilisateur connecté à partir de son token JWT.
      * @return void
      */
-    public function showMyProfile(int $userId): void
+    public function showMyProfile(): void
     {
         header('Content-Type: application/json');
 
@@ -47,16 +46,13 @@ class UserController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
-            // Vérification de l'autorisation
-            if ((int)$decodedToken->data->id !== $userId) {
-                $this->logger->warning("Tentative d'accès non autorisé au profil de l'utilisateur ID: $userId");
-                throw new Exception("Accès non autorisé.", 403);
-            }
+            // On récupère l'ID de l'utilisateur depuis le token
+            $userId = $decodedToken->data->id;
 
             // Récupération des informations de l'utilisateur
             $user = User::find($userId);
             if (!$user) {
-                $this->logger->error("Utilisateur non trouvé pour l'ID: $userId");
+                $this->logger->error("Utilisateur non trouvé pour l'ID: $userId (depuis token)");
                 throw new Exception("Utilisateur non trouvé.", 404);
             }
 
@@ -64,27 +60,23 @@ class UserController
             $this->logger->info("Affichage du profil pour ID: $userId");
             http_response_code(200);
             echo json_encode([
-                'success' => true,
-                'message' => 'Profil récupéré avec succès.',
-                'data' => [
-                    'id' => $user->getUserId(),
-                    'username' => $user->getUsername(),
-                    'email' => $user->getEmail(),
-                    'name' => $user->getName(),
-                    'firstname' => $user->getFirstname(),
-                    'birthdate' => $user->getBirthdate()->format('d-m-Y'),
-                    'role_id' => $user->getRoleId(),
-                    'photo' => $user->getPhoto(),
-                    'credit' => $user->getCredit(),
-                    'total_trips' => $user->getTotalTrips(),
-                    'driver_rating' => $user->getDriverRating(),
-                ]
+                'id' => $user->getUserId(),
+                'username' => $user->getUsername(),
+                'email' => $user->getEmail(),
+                'name' => $user->getName(),
+                'firstname' => $user->getFirstname(),
+                'birthdate' => $user->getBirthDate()->format('d-m-Y'),
+                'role_id' => $user->getRoleId(),
+                'photo' => $user->getPhoto(),
+                'total_trips' => $user->getTotalTrips(),
+                'driver_rating' => $user->getDriverRating(),
+                'credit' => $user->getCredit(),
             ]);
             exit;
 
         } catch (Exception $e) {
             $code_status = $e->getCode() > 100 ? $e->getCode() : 500;
-            $this->logger->error("Erreur lors de la récupération du profil pour l'ID: $userId - " . $e->getMessage());
+            $this->logger->error("Erreur lors de la récupération du profil via token - " . $e->getMessage());
             http_response_code($code_status);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
             exit;
@@ -232,7 +224,7 @@ class UserController
             // Envoi de la réponse en cas de succès
             $this->logger->info("Mise à jour de la photo de profil pour ID: $userId");
             http_response_code(200);
-            echo json_encode(['success' => true, 'message' => 'Photo de profil mise à jour avec succès.', 'photo' => $photoPath]);
+            echo json_encode(['success' => true, 'message' => 'Photo de profil mise à jour avec succès.', 'newProfilePicUrl' => $photoPath]);
             exit;
 
         } catch (Exception $e) {
@@ -275,9 +267,7 @@ class UserController
             echo json_encode([
                 'success' => true,
                 'message' => 'Photo de profil récupérée avec succès.',
-                'data' => [
-                    'photo' => $user->getPhoto(),
-                ]
+                'profilePictureUrl' => $user->getPhoto(),
             ]);
             exit;
         } catch (Exception $e) {
