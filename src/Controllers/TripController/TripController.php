@@ -288,7 +288,7 @@ class TripController
                 $trip->setVehicleId((int)$data['vehicle_id']);
             }
             // On met a jour la nature du trajet si le véhicule a changé
-            $fuelType = Vehicle::getFuelTypeById($vehicleId);
+            $fuelType = Vehicle::getFuelTypeById($trip->getVehicleId());
             if ($fuelType) {
                 $tripNature = in_array(strtolower($fuelType), ['electric', 'hybrid']) ? 'ecologic' : 'standard';
                 $trip->setTripNature($tripNature);
@@ -427,12 +427,21 @@ class TripController
                 $filters['seating'] = (int)$_GET['seats'];
             }
 
-            if (isset($_GET['petsAllowed'])) {
+            if (isset($_GET['petsAllowed']) && $_GET['petsAllowed'] !== 'all') {
                 $filters['animal_pref'] = $_GET['petsAllowed'] === 'yes' ? 1 : 0;
             }
 
-            if (isset($_GET['smokingAllowed'])) {
+            if (isset($_GET['smokingAllowed']) && $_GET['smokingAllowed'] !== 'all') {
                 $filters['smoking_pref'] = $_GET['smokingAllowed'] === 'yes' ? 1 : 0;
+            }
+
+            if (isset($_GET['rating'])) {
+                $rating = (float)$_GET['rating'];
+                if ($rating >= 1 && $rating <= 5) {
+                    $filters['rating'] = $rating;
+                } else {
+                    throw new Exception("La note doit être un nombre entre 1 et 5.", 400);
+                }
             }
 
             // On recherche les trajets
@@ -444,8 +453,9 @@ class TripController
                 return;
             }
 
-            http_response_code(200);
+            // On convertit les objets en tableaux pour la réponse JSON
             $tripsArray = array_map(fn($trip) => $trip->toArray(), $trips);
+            http_response_code(200);
             echo json_encode($tripsArray);
 
         } catch (Exception $e) {
@@ -491,6 +501,7 @@ class TripController
             if ($trip->getStatus() === 'completed') {
                 throw new Exception("Le trajet est déjà terminé.", 400);
             }
+            
             // On met à jour le statut du trajet
             $trip->setStatus('completed');
 
@@ -503,8 +514,7 @@ class TripController
                     $passenger->getFirstName()
                 );
             }
-            // On change le statut du trajet en 'completed'
-            $trip->setStatus('completed');
+            
             if ($trip->save()) {
                 http_response_code(200);
                 echo json_encode(["message" => "Trajet terminé avec succès."]);
@@ -544,6 +554,7 @@ class TripController
             // On vérifie que l'utilisateur est bien le conducteur
             $isDriver = $trip->getDriverId() === $userId;
             $isPassenger = false;
+            
             $passengers = $trip->getPassengers();
             foreach ($passengers as $passenger) {
                 if ($passenger->getUserId() === $userId) {
@@ -585,8 +596,8 @@ class TripController
                 echo json_encode(['message' => "Vous n'avez proposé aucun trajet."]);
                 return;
             }
-            http_response_code(200);
             $tripsArray = array_map(fn($trip) => $trip->toArray(), $trips);
+            http_response_code(200);
             echo json_encode($tripsArray);
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la récupération des trajets de l'utilisateur: " . $e->getMessage());
@@ -616,8 +627,8 @@ class TripController
                 echo json_encode(['message' => "Vous n'avez aucun trajet terminé."]);
                 return;
             }
-            http_response_code(200);
             $tripsArray = array_map(fn($trip) => $trip->toArray(), $trips);
+            http_response_code(200);
             echo json_encode($tripsArray);
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la récupération des trajets terminés de l'utilisateur: " . $e->getMessage());
@@ -659,6 +670,7 @@ class TripController
             if ($trip->getStatus() !== 'ongoing' && $trip->getStatus() !== 'completed') {
                 throw new Exception("Le trajet a un statut incorrect pour être démarré.", 400);
             }
+            
             // On met à jour le statut du trajet
             $trip->setStatus('ongoing');
             if ($trip->save()) {

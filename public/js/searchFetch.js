@@ -1,6 +1,6 @@
-// Gestion de la recherche rapide sur la page d'accueil
-//import {parseJwt} from "./JwtTool";
+import { parseJwt } from './JwtTool.js';
 
+// Gestion de la recherche rapide sur la page d'accueil
 export function setupSearchFetch() {
     // On attache l'écouteur au document, qui est toujours présent.
     document.addEventListener('submit', (event) => {
@@ -20,118 +20,110 @@ export function setupSearchFetch() {
 
                 sessionStorage.setItem('quickSearch', JSON.stringify({departure, arrival, date}));
                 window.location.href = '/html/carpool.html';
+
+                // Vidange du formulaire de recherche rapide
+                searchDeparture.value = '';
+                searchArrival.value = '';
+                searchDate.value = '';
             }
         }
     });
 }
-// Remplir le formulaire de recherche avancée avec les critères de recherche rapide
-// et pour gérer la soumission du formulaire de recherche avancée
+
+// Remplir le formulaire de recherche avancée et gérer la soumission
 export async function populateAdvancedSearchFetch() {
-    // Remplir les champs dès que la page est chargée
     const advancedSearchForm = document.getElementById('advanced-search-form');
-    if (advancedSearchForm) {
-        const advancedDeparture = document.getElementById('departure');
-        const advancedArrival = document.getElementById('arrival');
-        const advancedDate = document.getElementById('departure_day');
+    if (!advancedSearchForm) return;
 
-        const quickSearch = sessionStorage.getItem('quickSearch');
-        if (quickSearch) {
-            const {departure, arrival, date} = JSON.parse(quickSearch);
+    const advancedDeparture = document.getElementById('departure');
+    const advancedArrival = document.getElementById('arrival');
+    const advancedDate = document.getElementById('departure_day');
 
-            // On s'assure que les éléments existent avant de les manipuler
-            if (advancedDeparture && advancedArrival && advancedDate) {
-                advancedDeparture.value = departure;
-                advancedArrival.value = arrival;
-                advancedDate.value = date;
+    // Écouteur pour la soumission du formulaire de recherche avancée
+    advancedSearchForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const departure = advancedDeparture.value;
+        const arrival = advancedArrival.value;
+        const date = advancedDate.value;
+
+        const carpoolType = document.getElementById('carpool-type').value;
+        const departureTime = document.getElementById('time').value;
+        const arrivalTime = document.getElementById('time2').value;
+        const seats = document.getElementById('seats').value;
+        const price = document.getElementById('price').value;
+        const rating = document.getElementById('eco-rating').value;
+        const petsAllowed = document.getElementById('pet-allowed').value;
+        const smokingAllowed = document.getElementById('smoking-allowed').value;
+
+        const searchCriteria = { departure, arrival, date };
+
+        if (carpoolType) searchCriteria.carpoolType = carpoolType;
+        if (departureTime) searchCriteria.departureTime = departureTime;
+        if (arrivalTime) searchCriteria.arrivalTime = arrivalTime;
+        if (seats) searchCriteria.seats = parseInt(seats);
+        if (price) searchCriteria.price = parseFloat(price);
+        if (rating) searchCriteria.rating = parseFloat(rating);
+        if (petsAllowed) searchCriteria.petsAllowed = petsAllowed;
+        if (smokingAllowed) searchCriteria.smokingAllowed = smokingAllowed;
+
+        try {
+            const Params = new URLSearchParams(searchCriteria).toString();
+            const response = await fetch(`/api/trips/search?${Params}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const carpoolData = await response.json();
+            //console.log('Données de covoiturage reçues:', carpoolData);
+
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = ''; // Vider le conteneur
+
+            if (carpoolData.message) {
+                const resultsMessage = document.createElement('p');
+                resultsMessage.textContent = carpoolData.message;
+                resultsContainer.appendChild(resultsMessage);
             } else {
-                console.warn("Champs de recherche avancée non trouvés.");
+                displaySearchResults(carpoolData);
             }
-            sessionStorage.removeItem('quickSearch');
+
+        } catch (error) {
+            console.error('Erreur lors de la recherche de covoiturages:', error);
         }
-    }
-    // On ne vérifie pas que les champs sont remplis, car ils sont requis dans le HTML et
-    // sanitize par le backend.
-    // On ne vérifie pas que les filtres sont remplis, parce qu'ils sont optionnels
 
-    // On ajoute un écouteur d'événement pour intercepter la soumission du formulaire de recherche avancée
-    if (advancedSearchForm) {
-        advancedSearchForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        // On referme le panneau de filtres pour une meilleure UX
+        const advancedSearchFilters = document.getElementById('advanced-search-filters');
+        const filtersBtn = document.getElementById('filters-btn');
+        if (advancedSearchFilters && filtersBtn) {
+            advancedSearchFilters.classList.add('js-hidden');
+            filtersBtn.classList.remove('js-hidden');
+        }
+    });
 
-            // On récupère les valeurs obligatoires des champs de recherche
-            const departure = advancedDeparture.value;
-            const arrival = advancedArrival.value;
-            const date = advancedDate.value;
+    // Vérifier s'il y a une recherche rapide en attente dans sessionStorage
+    const quickSearch = sessionStorage.getItem('quickSearch');
+    if (quickSearch) {
+        const {departure, arrival, date} = JSON.parse(quickSearch);
 
-            // On récupère les valeurs optionnelles des filtres si elles sont remplies
-            const carpoolType = document.getElementById('carpool-type').value;
-            const departureTime = document.getElementById('time').value;
-            const arrivalTime = document.getElementById('time2').value;
-            const seats = document.getElementById('seats').value;
-            const price = document.getElementById('price').value;
-            const rating = document.getElementById('eco-rating').value;
-            const petsAllowed = document.getElementById('pets_allowed').checked;
-            const smokingAllowed = document.getElementById('luggage_allowed').checked;
+        if (advancedDeparture && advancedArrival && advancedDate) {
+            advancedDeparture.value = departure;
+            advancedArrival.value = arrival;
+            advancedDate.value = date;
 
-            // On construit un objet avec les critères de recherche
-            const searchCriteria = {
-                departure,
-                arrival,
-                date,
-            };
-
-            // On ajoute les filtres optionnels uniquement s'ils sont remplis
-            if (carpoolType) searchCriteria.carpoolType = carpoolType;
-            if (departureTime) searchCriteria.departureTime = departureTime;
-            if (arrivalTime) searchCriteria.arrivalTime = arrivalTime;
-            if (seats) searchCriteria.seats = parseInt(seats);
-            if (price) searchCriteria.price = parseFloat(price);
-            if (rating) searchCriteria.rating = parseFloat(rating);
-            if (petsAllowed) searchCriteria.petsAllowed = petsAllowed;
-            if (smokingAllowed) searchCriteria.smokingAllowed = smokingAllowed;
-
-            try {
-                // On envoie une requête GEt avec les critères de recherche en tant que paramètres d'URL
-                const Params = new URLSearchParams(searchCriteria).toString();
-                const response = await fetch(`/api/trips/search?${Params}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                // On vérifie si la réponse est correcte
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP: ${response.status}`);
-                }
-
-                // On parse la réponse JSON
-                const carpoolData = await response.json();
-                // On log les données pour matcher les résultats avec displaySearchResults() la première fois
-                console.log('Données de covoiturage reçues:', carpoolData);
-
-                // Si aucun covoiturage n'est trouvé, on affiche un message
-                if (carpoolData.length === 0) {
-                    const resultsContainer = document.getElementById('results-container');
-                    const resultsMessage = document.createElement('p');
-                    resultsMessage.textContent = "Aucun covoiturage ne correspond à vos critères de recherche," +
-                        " essayez avec d'autres critères.";
-                    // On vide le conteneur de résultats avant d'afficher le message
-                    resultsContainer.innerHTML = '';
-                    resultsContainer.appendChild(resultsMessage);
-                } else {
-                    // On affiche les résultats dans le conteneur prévu à cet effet
-                    displaySearchResults(carpoolData);
-                }
-
-            } catch (error) {
-                console.error('Erreur lors de la recherche de covoiturages:', error);
-            }
-        });
+            // Déclencher la soumission du formulaire pour lancer la recherche automatiquement
+            advancedSearchForm.requestSubmit();
+        }
+        sessionStorage.removeItem('quickSearch');
     }
 }
+
 // Affichage des résultats de la recherche de covoiturages
-export function displaySearchResults(carpoolData) {
+export function displaySearchResults(data) {
     const resultsContainer = document.getElementById('results-container');
     if (!resultsContainer) {
         console.warn("Conteneur des résultats non trouvé.");
@@ -140,13 +132,23 @@ export function displaySearchResults(carpoolData) {
 
     resultsContainer.innerHTML = ''; // On vide le conteneur
 
+    const carpoolData = Array.isArray(data) ? data : data.trips;
+
+    if (!carpoolData || carpoolData.length === 0) {
+        const resultsMessage = document.createElement('p');
+        resultsMessage.textContent = "Aucun covoiturage ne correspond à vos critères de recherche," +
+            " essayez avec d'autres critères.";
+        resultsContainer.appendChild(resultsMessage);
+        return;
+    }
+
     // On parcourt les données des covoiturages et on crée des cartes pour chaque covoiturage
     // On limite l'affichage aux 10 premiers résultats pour éviter de surcharger la page
     carpoolData.slice(0, 10).forEach(carpool => {
         // Crée la structure principale de la carte
         const card = document.createElement('div');
         card.classList.add('results-card', 'card');
-        card.dataset.tripId = carpool.id; // Ajout d'un attribut de données pour identifier le trajet
+        card.dataset.tripId = carpool.trip_id;
 
         // Header card
         const header = document.createElement('div');
@@ -155,21 +157,23 @@ export function displaySearchResults(carpoolData) {
         // Titre du trajet
         const title = document.createElement('h4');
         title.classList.add('results-card-road');
-        title.innerHTML = `${carpool.departure} <span class="arrow">→</span> ${carpool.arrival}`;
+        title.innerHTML = `${carpool.departure_location} <span class="arrow">→</span> ${carpool.arrival_location}`;
 
         // Info conducteur
         const driverDiv = document.createElement('div');
         driverDiv.classList.add('results-card-driver');
 
         const driverImg = document.createElement('img');
-        driverImg.src = carpool.driverImg;
+        // Problème de récupération de l'image du conducteur, utilisation d'une image par défaut.
+        driverImg.src = carpool.driverImg || '../img/bx-user.svg';
         driverImg.alt = "image profil conducteur";
         driverImg.classList.add('results-card-img');
         driverImg.width = 80;
         driverImg.height = 80;
 
         const driverNameP = document.createElement('p');
-        driverNameP.innerHTML = `Conducteur : <span class="results-details">${carpool.driverName}</span>`;
+        // Le nom du conducteur n'est pas récupéré, probablement un problème côté backend (SQL).
+        driverNameP.innerHTML = `Conducteur : <span class="results-details">${carpool.driverName || 'N/A'}</span>`;
 
         driverDiv.appendChild(driverImg);
         driverDiv.appendChild(driverNameP);
@@ -180,15 +184,14 @@ export function displaySearchResults(carpoolData) {
         // Détails du trajet
         const detailsDiv = document.createElement('div');
         detailsDiv.classList.add('results-card-details');
-
-        // Détails du trajet
+        // La note Ecorider n'est pas récupérée.
         detailsDiv.innerHTML = `
-            <p>Départ : <span class="results-details">${carpool.departureTime}</span></p>
-            <p>Arrivée : <span class="results-details">${carpool.arrivalTime}</span></p>
-            <p>Places restantes : <span class="results-details">${carpool.remainingSeats}</span></p>
-            <p>Prix : <span class="results-details">${carpool.price} credits</span></p>
-            <p>Type de trajet : <span class="results-details">${carpool.type}</span></p>
-            <p>Note Ecorider : <span class="results-details">${carpool.ecoNote} <span class="star">⭐</span></span></p>
+            <p>Départ : <span class="results-details">${carpool.departure_time}</span></p>
+            <p>Arrivée : <span class="results-details">${carpool.arrival_time}</span></p>
+            <p>Places restantes : <span class="results-details">${carpool.seating}</span></p>
+            <p>Prix : <span class="results-details">${carpool.trip_price} credits</span></p>
+            <p>Type de trajet : <span class="results-details">${carpool.trip_nature}</span></p>
+            <p>Note Ecorider : <span class="results-details">${carpool.ecoNote || 'N/A'} <span class="star">⭐</span></span></p>
         `;
 
         // Footer card
@@ -197,154 +200,195 @@ export function displaySearchResults(carpoolData) {
         const detailsBtn = document.createElement('button');
         detailsBtn.classList.add('details-btn');
         detailsBtn.textContent = 'Voir les détails';
+        
+        // Ajout de l'écouteur d'événement pour stocker les données et rediriger
+        detailsBtn.addEventListener('click', () => {
+            sessionStorage.setItem('carpoolDetails', JSON.stringify(carpool));
+            window.location.href = `../html/details.html?tripId=${carpool.trip_id}`;
+        });
+
         footer.appendChild(detailsBtn);
 
         card.appendChild(detailsDiv);
         card.appendChild(footer);
 
-        // On ajoute la carte au conteneur des résultats
         resultsContainer.appendChild(card);
     });
 }
-// Ajout des écouteurs d'événements aux boutons "Voir les détails" après le rendu des résultats
-export function viewDetails() {
-    const detailButtons = document.querySelectorAll('.details-btn');
-    // On vérifie que des boutons existent avant d'ajouter les écouteurs.
-    if (detailButtons.length > 0) {
-        detailButtons.forEach(btn => {
-            btn.addEventListener('click', function () {
-                window.open("../html/details.html", "_self");
+
+// Affiche les détails d'un covoiturage dans une page dédiée
+function renderCarpoolDetails(carpoolDetails, detailsContainer) {
+    // On vide le conteneur principal
+    detailsContainer.innerHTML = '';
+
+    // On crée le conteneur des détails (la carte)
+    const detailsCard = document.createElement('div');
+    detailsCard.classList.add('details-content', 'card');
+    detailsCard.style.position = 'relative'; // Pour le positionnement du bouton X
+
+    // Bouton de fermeture (X)
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;'; // Caractère "X"
+    closeBtn.classList.add('close-btn');
+    // Style pour le bouton X
+    Object.assign(closeBtn.style, {
+        position: 'absolute',
+        top: '10px',
+        right: '15px',
+        fontSize: '24px',
+        lineHeight: '1',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '0',
+        color: 'black'
+    });
+    closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.history.back();
+    });
+    detailsCard.appendChild(closeBtn);
+
+
+    // Section Chauffeur
+    const driverTitle = document.createElement('h2');
+    driverTitle.textContent = 'Chauffeur';
+    detailsCard.appendChild(driverTitle);
+
+    const driverNameP = document.createElement('p');
+    driverNameP.innerHTML = `<strong>Nom:</strong> ${carpoolDetails.driverName || 'Non disponible'}`;
+    detailsCard.appendChild(driverNameP);
+
+    const carTypeP = document.createElement('p');
+    carTypeP.innerHTML = `<strong>Type de voiture : </strong>${carpoolDetails.carType || 'N/A'} (${carpoolDetails.carEnergy || 'N/A'})`;
+    detailsCard.appendChild(carTypeP);
+
+    const preferencesP = document.createElement('p');
+    preferencesP.innerHTML = `<strong>Préférences : </strong>${carpoolDetails.preferences || 'Aucune'}`;
+    detailsCard.appendChild(preferencesP);
+
+    // Section Trajet
+    const tripTitle = document.createElement('h2');
+    tripTitle.classList.add('middle');
+    tripTitle.textContent = 'Trajet';
+    detailsCard.appendChild(tripTitle);
+
+    const departureP = document.createElement('p');
+    departureP.innerHTML = `<strong>Départ:</strong> ${carpoolDetails.departureCity || carpoolDetails.departure_location}, ${carpoolDetails.departureLocation || ''}`;
+    detailsCard.appendChild(departureP);
+
+    const arrivalP = document.createElement('p');
+    arrivalP.innerHTML = `<strong>Arrivée:</strong> ${carpoolDetails.arrivalCity || carpoolDetails.arrival_location}, ${carpoolDetails.arrivalLocation || ''}`;
+    detailsCard.appendChild(arrivalP);
+
+    const dateTimeP = document.createElement('p');
+    dateTimeP.innerHTML = `<strong>Date et Heure : </strong>${carpoolDetails.date || carpoolDetails.departure_day}, ${carpoolDetails.time || carpoolDetails.departure_time}`;
+    detailsCard.appendChild(dateTimeP);
+
+    // Section Tarif
+    const priceTitle = document.createElement('h2');
+    priceTitle.textContent = 'Tarif';
+    detailsCard.appendChild(priceTitle);
+
+    const priceP = document.createElement('p');
+    priceP.innerHTML = `<strong>Prix par passager : </strong>${carpoolDetails.price || carpoolDetails.trip_price} credits`;
+    detailsCard.appendChild(priceP);
+
+    // Conteneur pour les boutons
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('ride-footer');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.justifyContent ='center';
+
+    // Bouton de réservation
+    const reserveBtn = document.createElement('button');
+    reserveBtn.classList.add('reserve-btn');
+    reserveBtn.textContent = 'Réserver';
+
+    // Ajout de l'écouteur d'événement pour le bouton de réservation
+    reserveBtn.addEventListener('click', () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Vous devez être connecté pour réserver un trajet. Vous allez être redirigé vers la page de connexion.');
+            sessionStorage.setItem('redirectAfterLogin', window.location.href);
+            window.location.href = '/html/connexion.html';
+        } else {
+            const { sub: userId } = parseJwt(token);
+            fetch(`/api/bookings/${carpoolDetails.trip_id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Réservation réussie !');
+                window.location.href = '/html/dashboard.html';
+            })
+            .catch(error => {
+                console.error('Erreur lors de la réservation :', error);
+                alert('Erreur lors de la réservation. Veuillez réessayer plus tard.');
             });
-        });
-    }
+        }
+    });
+    buttonContainer.appendChild(reserveBtn);
+
+    detailsCard.appendChild(buttonContainer);
+
+    detailsContainer.appendChild(detailsCard);
 }
+
 // Affichage des details d'un covoiturage dans une page dédiée
 export async function displayCarpoolDetails() {
-    // On récupère l'ID du trajet depuis l'URL de la page
-    const Params = new URLSearchParams(window.location.search);
-    const tripId = Params.get('tripId');
     const detailsContainer = document.getElementById('details-container');
-
-    // Si l'ID ou le conteneur n'existe pas, on arrête
-    if (!tripId || !detailsContainer) {
-        console.warn("ID du trajet manquant ou conteneur non trouvé.");
+    if (!detailsContainer) {
+        console.warn("Conteneur des détails non trouvé.");
         return;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const tripId = params.get('tripId');
+    const storedDetails = sessionStorage.getItem('carpoolDetails');
+
+    // Utilisation des données de sessionStorage pour éviter une nouvelle requête API
+    if (storedDetails) {
+        const carpoolDetails = JSON.parse(storedDetails);
+        // On vérifie que les détails stockés correspondent bien au trajet demandé
+        if (carpoolDetails.trip_id == tripId) {
+            console.log('Détails du covoiturage récupérés depuis sessionStorage:', carpoolDetails);
+            renderCarpoolDetails(carpoolDetails, detailsContainer);
+            // On nettoie le sessionStorage après utilisation
+            sessionStorage.removeItem('carpoolDetails');
+            return;
+        }
+    }
+    
+    // Si l'ID du trajet n'est pas dans l'URL, on ne peut rien faire
+    if (!tripId) {
+        console.warn("ID du trajet manquant dans l'URL.");
+        detailsContainer.innerHTML = "Détails du trajet non disponibles.";
+        return;
+    }
+
+    // Si les détails ne sont pas dans le sessionStorage, on les récupère via l'API
+    console.log("Récupération des détails du covoiturage depuis l'API...");
     try {
-        // On envoie une requête GET pour récupérer les détails du covoiturage
         const response = await fetch(`/api/trips/${tripId}`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
         });
 
-        // On vérifie si la réponse est correcte
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
 
-        // On parse la réponse JSON
         const carpoolDetails = await response.json();
-        console.log('Détails du covoiturage reçus:', carpoolDetails);
-
-        // On remplit le conteneur avec les détails du covoiturage
-        // On crée le conteneur des détails (la carte)
-        const detailsCard = document.createElement('div');
-        detailsCard.classList.add('details-content', 'card');
-
-        // Section Chauffeur
-        const driverTitle = document.createElement('h2');
-        driverTitle.textContent = 'Chauffeur';
-        detailsCard.appendChild(driverTitle);
-
-        const driverNameP = document.createElement('p');
-        driverNameP.innerHTML = `<strong>Nom:</strong> ${carpoolDetails.driverName}`;
-        detailsCard.appendChild(driverNameP);
-
-        const carTypeP = document.createElement('p');
-        carTypeP.innerHTML = `<strong>Type de voiture : </strong>${carpoolDetails.carType} (${carpoolDetails.carEnergy})`;
-        detailsCard.appendChild(carTypeP);
-
-        const preferencesP = document.createElement('p');
-        preferencesP.innerHTML = `<strong>Préférences : </strong>${carpoolDetails.preferences}`;
-        detailsCard.appendChild(preferencesP);
-
-        // Section Trajet
-        const tripTitle = document.createElement('h2');
-        tripTitle.classList.add('middle');
-        tripTitle.textContent = 'Trajet';
-        detailsCard.appendChild(tripTitle);
-
-        const departureP = document.createElement('p');
-        departureP.innerHTML = `<strong>Départ:</strong> ${carpoolDetails.departureCity}, ${carpoolDetails.departureLocation}`;
-        detailsCard.appendChild(departureP);
-
-        const arrivalP = document.createElement('p');
-        arrivalP.innerHTML = `<strong>Arrivée:</strong> ${carpoolDetails.arrivalCity}, ${carpoolDetails.arrivalLocation}`;
-        detailsCard.appendChild(arrivalP);
-
-        const dateTimeP = document.createElement('p');
-        dateTimeP.innerHTML = `<strong>Date et Heure : </strong>${carpoolDetails.date}, ${carpoolDetails.time}`;
-        detailsCard.appendChild(dateTimeP);
-
-        // Section Tarif
-        const priceTitle = document.createElement('h2');
-        priceTitle.textContent = 'Tarif';
-        detailsCard.appendChild(priceTitle);
-
-        const priceP = document.createElement('p');
-        priceP.innerHTML = `<strong>Prix par passager : </strong>${carpoolDetails.price} credits`;
-        detailsCard.appendChild(priceP);
-
-        // Bouton de réservation
-        const reserveBtn = document.createElement('button');
-        reserveBtn.classList.add('reserve-btn');
-        reserveBtn.textContent = 'Réserver ce trajet';
-
-        // Ajout de l'écouteur d'événement pour le bouton de réservation
-        reserveBtn.addEventListener('click', () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                // On prévient l'utilisateur qu'il doit se connecter
-                alert('Vous devez être connecté pour réserver un trajet. Vous allez être redirigé vers la page de connexion.');
-                // On stocke l'URL de la page de détails dans le sessionStorage pour y revenir après login.
-                sessionStorage.setItem('redirectAfterLogin', window.location.href);
-                window.location.href = '/html/connexion.html';
-            } else {
-                // Si l'utilisateur est connecté on fetch la methode de réservation
-                const userId = parseJwt(token).userId;
-                // On envoie la requete de réservation
-                fetch(`/api/bookings/${tripId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({userId})
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Erreur HTTP: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        alert('Réservation réussie !');
-                        // On redirige vers le dashboard
-                        window.location.href = '/html/dashboard.html';
-                    })
-                    .catch(error => {
-                        console.error('Erreur lors de la réservation :', error);
-                        alert('Erreur lors de la réservation. Veuillez réessayer plus tard.');
-                    });
-            }
-        });
-        detailsCard.appendChild(reserveBtn);
-
-        // On vide le conteneur principal et on y ajoute la nouvelle carte
-        detailsContainer.innerHTML = '';
-        detailsContainer.appendChild(detailsCard);
+        //console.log('Détails du covoiturage reçus depuis lAPI:', carpoolDetails);
+        renderCarpoolDetails(carpoolDetails, detailsContainer);
 
     } catch (error) {
         console.error('Erreur lors de la récupération des détails du covoiturage:', error);

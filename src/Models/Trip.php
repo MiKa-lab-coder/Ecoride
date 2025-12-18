@@ -37,6 +37,13 @@ class Trip extends BaseModel
     private string $status;
     private int $driver_id;
     private int $vehicle_id;
+    // Propriétés pour les jointures
+    private ?string $driverName = null;
+    private ?string $driverImg = null;
+    private ?float $ecoNote = null;
+    private ?string $carType = null;
+    private ?string $carEnergy = null;
+
 
     // Getters
 
@@ -120,6 +127,32 @@ class Trip extends BaseModel
         return $this->vehicle_id;
     }
 
+    public function getDriverName(): ?string
+    {
+        return $this->driverName;
+    }
+
+    public function getDriverImg(): ?string
+    {
+        return $this->driverImg;
+    }
+
+    public function getEcoNote(): ?float
+    {
+        return $this->ecoNote;
+    }
+
+    public function getCarType(): ?string
+    {
+        return $this->carType;
+    }
+
+    public function getCarEnergy(): ?string
+    {
+        return $this->carEnergy;
+    }
+
+
     // Setters
     public function setDepartureDay(DateTime $departure_day): void
     {
@@ -196,6 +229,32 @@ class Trip extends BaseModel
         $this->vehicle_id = $vehicle_id;
     }
 
+    public function setDriverName(?string $driverName): void
+    {
+        $this->driverName = $driverName;
+    }
+
+    public function setDriverImg(?string $driverImg): void
+    {
+        $this->driverImg = $driverImg;
+    }
+
+    public function setEcoNote(?float $ecoNote): void
+    {
+        $this->ecoNote = $ecoNote;
+    }
+
+    public function setCarType(?string $carType): void
+    {
+        $this->carType = $carType;
+    }
+
+    public function setCarEnergy(?string $carEnergy): void
+    {
+        $this->carEnergy = $carEnergy;
+    }
+
+
     // Constructeur
     public function __construct(DateTime $departure_day, DateTime $arrival_day, string $departure_location, string $arrival_location,
                                 DateTime $departure_time, DateTime $arrival_time, int $trip_time, int $trip_price, string $trip_nature,
@@ -240,8 +299,25 @@ class Trip extends BaseModel
             (int)$data['driver_id'],
             (int)$data['vehicle_id']
         );
-        // Assigner l'ID du trajet s'il est présent dans les données
+        
         $trip->trip_id = isset($data['trip_id']) ? (int)$data['trip_id'] : null;
+
+        // Hydratation des propriétés étendues
+        if (isset($data['driverName'])) {
+            $trip->setDriverName($data['driverName']);
+        }
+        if (isset($data['driverImg'])) {
+            $trip->setDriverImg($data['driverImg']);
+        }
+        if (isset($data['ecoNote'])) {
+            $trip->setEcoNote((float)$data['ecoNote']);
+        }
+        if (isset($data['carType'])) {
+            $trip->setCarType($data['carType']);
+        }
+        if (isset($data['carEnergy'])) {
+            $trip->setCarEnergy($data['carEnergy']);
+        }
 
         return $trip;
     }
@@ -253,43 +329,72 @@ class Trip extends BaseModel
         $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
 
         try {
-            $sql = "SELECT * FROM TRIPS WHERE departure_location LIKE :departure AND arrival_location LIKE :arrival AND
-                          departure_day = :departure_day AND status = :status AND departure_day >= CURDATE()";
-            $params = [
-                ':departure' => '%' . $departure . '%',
-                ':arrival' => '%' . $arrival . '%',
-                ':departure_day' => $departureDay,
-                ':status' => 'approved' // Seuls les trajets approuvés sont affichés
-            ];
+            $sql = "
+                SELECT
+                    t.*,
+                    CONCAT(u.firstname, ' ', u.name) AS driverName,
+                    CONCAT('/', u.photo) AS driverImg,
+                    v.brand AS carType,
+                    v.energy_type AS carEnergy,
+                    (SELECT AVG(r.rating_value) FROM RATINGS r WHERE r.rated_user_id = t.driver_id) AS ecoNote
+                FROM TRIPS t
+                JOIN USERS u ON t.driver_id = u.user_id
+                JOIN VEHICLES v ON t.vehicle_id = v.vehicle_id
+                WHERE t.departure_location LIKE :departure
+                  AND t.arrival_location LIKE :arrival
+                  AND t.departure_day >= :departure_day
+                  AND t.status = :status";
 
-            // Ajout des filtres dynamiquement
             if (isset($filters['max_price'])) {
-                $sql .= " AND trip_price <= :max_price";
-                $params[':max_price'] = $filters['max_price'];
+                $sql .= " AND t.trip_price <= :max_price";
             }
             if (isset($filters['trip_nature'])) {
-                $sql .= " AND trip_nature = :trip_nature";
-                $params[':trip_nature'] = $filters['trip_nature'];
+                $sql .= " AND t.trip_nature = :trip_nature";
             }
             if (isset($filters['animal_pref'])) {
-                $sql .= " AND animal_pref = :animal_pref";
-                $params[':animal_pref'] = (int)$filters['animal_pref'];
+                $sql .= " AND t.animal_pref = :animal_pref";
             }
             if (isset($filters['smoking_pref'])) {
-                $sql .= " AND smoking_pref = :smoking_pref";
-                $params[':smoking_pref'] = (int)$filters['smoking_pref'];
+                $sql .= " AND t.smoking_pref = :smoking_pref";
             }
             if (isset($filters['seating'])) {
-                $sql .= " AND seating >= :seating";
-                $params[':seating'] = $filters['seating'];
+                $sql .= " AND t.seating >= :seating";
+            }
+            if (isset($filters['rating'])) {
+                $sql .= " HAVING ecoNote >= :rating";
             }
 
             $stmt = $db->prepare($sql);
-            $stmt->execute($params);
+
+            $stmt->bindValue(':departure', '%' . $departure . '%', PDO::PARAM_STR);
+            $stmt->bindValue(':arrival', '%' . $arrival . '%', PDO::PARAM_STR);
+            $stmt->bindValue(':departure_day', $departureDay, PDO::PARAM_STR);
+            $stmt->bindValue(':status', 'approved', PDO::PARAM_STR);
+
+            if (isset($filters['max_price'])) {
+                $stmt->bindValue(':max_price', $filters['max_price'], PDO::PARAM_INT);
+            }
+            if (isset($filters['trip_nature'])) {
+                $stmt->bindValue(':trip_nature', $filters['trip_nature'], PDO::PARAM_STR);
+            }
+            if (isset($filters['animal_pref'])) {
+                $stmt->bindValue(':animal_pref', $filters['animal_pref'], PDO::PARAM_INT);
+            }
+            if (isset($filters['smoking_pref'])) {
+                $stmt->bindValue(':smoking_pref', $filters['smoking_pref'], PDO::PARAM_INT);
+            }
+            if (isset($filters['seating'])) {
+                $stmt->bindValue(':seating', $filters['seating'], PDO::PARAM_INT);
+            }
+            if (isset($filters['rating'])) {
+                $stmt->bindValue(':rating', $filters['rating'], PDO::PARAM_STR);
+            }
+
+            $stmt->execute();
 
             $trips = [];
-            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $trip) {
-                $trips[] = self::hydrate($trip);
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $tripData) {
+                $trips[] = self::hydrate($tripData);
             }
             return $trips;
 
@@ -392,10 +497,24 @@ class Trip extends BaseModel
         $logger = new Logger('trip_findById');
         $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
         try {
-            $stmt = $db->prepare("SELECT * FROM TRIPS WHERE trip_id = :trip_id");
+            $sql = "
+                SELECT
+                    t.*,
+                    CONCAT(u.firstname, ' ', u.name) AS driverName,
+                    CONCAT('/', u.photo) AS driverImg,
+                    v.brand AS carType,
+                    v.energy_type AS carEnergy,
+                    (SELECT AVG(r.rating_value) FROM RATINGS r WHERE r.rated_user_id = t.driver_id) AS ecoNote
+                FROM TRIPS t
+                JOIN USERS u ON t.driver_id = u.user_id
+                JOIN VEHICLES v ON t.vehicle_id = v.vehicle_id
+                WHERE t.trip_id = :trip_id";
+
+            $stmt = $db->prepare($sql);
             $stmt->bindParam(':trip_id', $trip_id, PDO::PARAM_INT);
             $stmt->execute();
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
             if ($data) {
                 return self::hydrate($data);
             }
@@ -446,7 +565,7 @@ class Trip extends BaseModel
         } catch (PDOException $e) {
             $logger->error("Erreur lors du calcul des places disponibles : " . $e->getMessage(),
                 ['trace' => $e->getTraceAsString()]);
-            return $this->seating; // En cas d'erreur, retourner le nombre total de places
+            return $this->seating; // En cas d'erreur, on retourne le nombre de places disponibles
         }
     }
 
@@ -469,7 +588,12 @@ class Trip extends BaseModel
             'seating' => $this->seating,
             'status' => $this->status,
             'driver_id' => $this->driver_id,
-            'vehicle_id' => $this->vehicle_id
+            'vehicle_id' => $this->vehicle_id,
+            'driverName' => $this->getDriverName(),
+            'driverImg' => $this->getDriverImg(),
+            'ecoNote' => $this->getEcoNote() ? round($this->getEcoNote(), 1) : null,
+            'carType' => $this->getCarType(),
+            'carEnergy' => $this->getCarEnergy(),
         ];
     }
 
