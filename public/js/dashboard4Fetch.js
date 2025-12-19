@@ -1,157 +1,220 @@
-// Affichage des vehicules de l'utilisateur (max 3)
+/**
+ * Affiche les véhicules de l'utilisateur et gère leur suppression.
+ */
 export async function displayUserCar() {
     const token = localStorage.getItem('token');
     if (!token) {
-        console.error('No token found in localStorage');
+        console.error('Aucun token trouvé pour afficher les véhicules.');
         return;
     }
-    const carContainer = document.getElementById('cars-container');
-    const addCarForm = document.getElementById('add-car-form'); // Assure-toi d'avoir cet ID sur ton formulaire
 
-    if (!carContainer || !addCarForm) {
-        console.error('No required DOM elements found');
+    const myCarsContainer = document.querySelector('.my-cars');
+    const carsContainer = document.getElementById('cars-container');
+
+    if (!myCarsContainer || !carsContainer) {
+        console.warn('Un des conteneurs de véhicules est introuvable.');
         return;
     }
 
     try {
         const response = await fetch('/api/vehicles/user', {
             method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
-            throw new Error('Erreur lors de la récupération des véhicules');
+            throw new Error('Erreur lors de la récupération des véhicules.');
         }
 
         const vehicles = await response.json();
-        console.log(vehicles);
-
-        // C'est ici que tu gères la limite des 3 véhicules
-        if (vehicles.length >= 3) {
-            carContainer.innerHTML = '<p>Vous avez atteint le nombre maximum de véhicules enregistrés (3).</p>';
-            addCarForm.style.display = 'none'; // Cache le formulaire d'ajout
-            return;
-        } else {
-            addCarForm.style.display = 'block'; // S'assure que le formulaire est visible si la limite n'est pas atteinte
-        }
+        
+        // Vider le conteneur des cartes de véhicules avant de le remplir
+        carsContainer.innerHTML = ''; 
 
         if (vehicles.length === 0) {
-            carContainer.innerHTML = '<p>Aucun véhicule enregistré.</p>';
+            carsContainer.innerHTML = '<p>Aucun véhicule enregistré.</p>';
         } else {
-            // on boucle sur les véhicules et on crée des cartes pour chaque véhicule
-            carContainer.innerHTML = '';
-            vehicles.forEach((vehicle) => {
+            vehicles.forEach(vehicle => {
                 const carCard = document.createElement('div');
-                carCard.classList.add('car-card');
+                carCard.className = 'car-card';
                 carCard.innerHTML = `
-                    <h4>Marque: ${vehicle.brand}</h4>
-                    <p>Modèle: ${vehicle.model}</p>       
-                    <p>Année: ${vehicle.year}</p>
+                    <h4>${vehicle.brand} ${vehicle.model}</h4>
                     <p>Immatriculation: ${vehicle.registration_number}</p>
+                    <p>Année: ${new Date(vehicle.first_service).getFullYear()}</p>
+                    <p>Nombre de places: ${vehicle.seating_capacity}</p>
                     <p>Couleur: ${vehicle.color}</p>
-                    <p>Énergie:${vehicle.energy_type}</p>
-                    <button class="delete-btn" data-car-id="${vehicle.id}">Supprimer</button>
+                    <p>Énergie: ${vehicle.energy_type}</p>
+                    <button class="delete-car-btn" data-car-id="${vehicle.vehicle_id}">Supprimer</button>
                 `;
-                carContainer.appendChild(carCard);
+                carsContainer.appendChild(carCard);
             });
         }
 
-        // Ajouter des écouteurs d'événements aux boutons de suppression
-        const deleteButtons = document.querySelectorAll('.delete-btn');
-        deleteButtons.forEach((button) => {
+        // --- Création et gestion du bouton et formulaire d'ajout ---
+        // Supprimer les anciens éléments s'ils existent pour éviter les doublons
+        let addCarBtn = document.getElementById('add-car-btn');
+        let addCarFormContainer = document.querySelector('.add-car-form');
+
+        if (addCarBtn) addCarBtn.remove();
+        if (addCarFormContainer) addCarFormContainer.remove();
+
+        // Créer le bouton "Ajouter"
+        addCarBtn = document.createElement('button');
+        addCarBtn.id = 'add-car-btn';
+        addCarBtn.className = 'add-car-btn';
+        addCarBtn.textContent = 'Ajouter';
+        myCarsContainer.appendChild(addCarBtn);
+
+        // Créer le conteneur du formulaire d'ajout
+        addCarFormContainer = document.createElement('div');
+        addCarFormContainer.className = 'add-car-form js-hidden';
+        addCarFormContainer.innerHTML = `
+            <form id="add-car-form-js" method="post" action="">
+                <label for="registration_number">Plaque d'immatriculation</label>
+                <input type="text" id="registration_number" name="registration_number" required>
+
+                <label for="first_service">Date de première mise en circulation</label>
+                <input type="date" id="first_service" name="first_service" required>
+
+                <label for="brand">Marque</label>
+                <input type="text" id="brand" name="brand" required>
+
+                <label for="model">Modèle</label>
+                <input type="text" id="model" name="model" required>
+
+                <label for="color">Couleur</label>
+                <input type="text" id="color" name="color" required>
+
+                <label for="seating_capacity">Nombre de places</label>
+                <input type="number" id="seating_capacity" name="seating_capacity" required min="1" max="9">
+
+                <label for="energy_type">Énergie</label>
+                <select id="energy_type" name="energy_type" required>
+                    <option value="combustion">Combustion</option>
+                    <option value="electric">Électrique</option>
+                    <option value="hybrid">Hybride</option>
+                </select>
+
+                <br>
+                <br>
+                <button class="create-car-btn" id="create-car-btn">Créer</button>
+                <button type="button" class="cancel-car-btn" id="cancel-add-car-btn">Annuler</button>
+            </form>
+            <br>
+        `;
+        myCarsContainer.appendChild(addCarFormContainer);
+
+        // Gérer la visibilité du bouton "Ajouter"
+        if (vehicles.length >= 3) {
+            addCarBtn.classList.add('js-hidden');
+        } else {
+            addCarBtn.classList.remove('js-hidden');
+        }
+
+        // Attacher les écouteurs d'événements aux éléments nouvellement créés
+        setupAddNewCarListeners(addCarBtn, addCarFormContainer);
+
+
+        // Attacher les écouteurs pour la suppression
+        carsContainer.querySelectorAll('.delete-car-btn').forEach(button => {
             button.addEventListener('click', async (e) => {
                 const carId = e.target.dataset.carId;
-                const response = await fetch(`/api/vehicles/${carId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la suppression du véhicule');
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
+                    await deleteCar(carId, token);
+                    await displayUserCar(); // Recharger la liste
                 }
-                const carCard = e.target.closest('.car-card');
-                if (carCard) {
-                    carCard.remove();
-                }
-                // Réafficher les véhicules pour mettre à jour l'état
-                await displayUserCar();
             });
         });
+
     } catch (error) {
-        console.error('Error fetching vehicles:', error);
-        carContainer.innerHTML = '<p>Erreur lors de la récupération des véhicules.</p>';
+        console.error('Erreur lors de l\'affichage des véhicules:', error);
+        carsContainer.innerHTML = '<p>Erreur lors du chargement des véhicules.</p>';
     }
 }
-// Ajouter un nouveau véhicule
-export async function addNewCar(event) {
-    // Empecher le rechargement de la page
-    event.preventDefault();
-    // Récupérer le token depuis le localStorage
-    const token = localStorage.getItem('token');
-    if (!token) {
-        console.error('No token found in localStorage');
-        return;
+
+/**
+ * Met en place l'écouteur d'événement pour le formulaire d'ajout de véhicule.
+ * Cette fonction est maintenant interne et appelée par displayUserCar.
+ */
+function setupAddNewCarListeners(addCarBtn, addCarFormContainer) {
+    const addCarForm = document.getElementById('add-car-form-js');
+    const cancelCarBtn = document.getElementById('cancel-add-car-btn');
+
+    if (addCarForm) {
+        addCarForm.addEventListener('submit', addNewCar);
     }
 
-    // Vérifier si la limite de 3 véhicules est atteinte
-    try {
-        const checkResponse = await fetch('/api/vehicles', {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
+    if (addCarBtn && addCarFormContainer && cancelCarBtn) {
+        addCarBtn.addEventListener('click', () => {
+            addCarFormContainer.classList.remove('js-hidden');
+            addCarBtn.classList.add('js-hidden');
         });
-        const existingVehicles = await checkResponse.json();
+        cancelCarBtn.addEventListener('click', () => {
+            addCarFormContainer.classList.add('js-hidden');
+            addCarBtn.classList.remove('js-hidden');
+            addCarForm.reset(); // Réinitialiser le formulaire lors de l'annulation
+        });
+    }
+}
 
-        if (existingVehicles.length >= 3) {
-            alert('Vous ne pouvez pas ajouter plus de 3 véhicules.');
-            console.warn('Limite de véhicules atteinte.');
-            return;
+/**
+ * Gère la logique de suppression d'un véhicule.
+ * @param {number} carId - L'ID du véhicule à supprimer.
+ * @param {string} token - Le token JWT.
+ */
+async function deleteCar(carId, token) {
+    try {
+        const response = await fetch(`/api/vehicles/${carId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+            throw new Error('La suppression du véhicule a échoué.');
         }
     } catch (error) {
-        console.error('Erreur lors de la vérification des véhicules existants:', error);
+        console.error('Erreur lors de la suppression du véhicule:', error);
+        alert('Une erreur est survenue lors de la suppression.');
+    }
+}
+
+/**
+ * Gère la soumission du formulaire pour ajouter un nouveau véhicule.
+ * @param {Event} event - L'événement de soumission du formulaire.
+ */
+async function addNewCar(event) {
+    event.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error('Aucun token trouvé pour ajouter un véhicule.');
         return;
     }
 
-    // Si la limite n'est pas atteinte, on procède à l'ajout
-    const brand = document.getElementById('brand').value;
-    const model = document.getElementById('model').value;
-    const year = document.getElementById('year').value;
-    const registration_number = document.getElementById('registration_number').value;
-    const color = document.getElementById('color').value;
-    const energy_type = document.getElementById('energy_type').value;
-
-    if (!brand || !model || !year || !registration_number || !color || !energy_type) {
-        console.log('Veuillez remplir tous les champs.');
-        return;
-    }
-
-    const carData = { brand, model, year, registration_number, color, energy_type };
+    const form = event.target;
+    const formData = new FormData(form);
+    const carData = Object.fromEntries(formData.entries());
 
     try {
         const response = await fetch('/api/vehicles', {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${token}`,
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(carData),
+            body: JSON.stringify(carData)
         });
 
         if (!response.ok) {
-            throw new Error('Erreur lors de l\'ajout du véhicule');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erreur lors de l\'ajout du véhicule.');
         }
 
-        document.getElementById('add-car-form').reset();
-        await displayUserCar(); // On rafraîchit l'affichage
+        form.reset();
+        document.querySelector('.add-car-form').classList.add('js-hidden');
+        document.getElementById('add-car-btn').classList.remove('js-hidden');
+        await displayUserCar(); // Recharger la liste des véhicules
 
     } catch (error) {
-        console.error('Error adding vehicle:', error);
+        console.error('Erreur lors de l\'ajout du véhicule:', error);
+        alert(error.message);
     }
 }

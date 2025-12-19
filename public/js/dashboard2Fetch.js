@@ -25,7 +25,7 @@ export async function displayUserProfil() {
         profilePicContainer.innerHTML = '';
         profileContainer.innerHTML = '';
 
-        // --- Création et gestion de la photo de profil ---
+        // Création et gestion de la photo de profil
         setupProfilePicture(profilePicContainer, userData.photo);
 
         // --- Affichage des informations textuelles ---
@@ -33,7 +33,7 @@ export async function displayUserProfil() {
         const creditBalance = userData.credit !== null ? parseFloat(userData.credit).toFixed(0) : '0';
 
         profileContainer.innerHTML = `
-            <h2>Profil Utilisateur</h2>
+            <h2>Mes informations</h2>
             <p><strong>Nom:</strong> ${userData.name}</p>
             <p><strong>Prénom:</strong> ${userData.firstname}</p>
             <p><strong>Email:</strong> ${userData.email}</p>
@@ -42,7 +42,7 @@ export async function displayUserProfil() {
             <input type="button" class="edit-profile" value="Modifier">
         `;
 
-        // --- Gestion de l'édition des informations ---
+        // Gestion de l'édition des informations
         profileContainer.querySelector('.edit-profile').addEventListener('click', () => {
             displayEditForm(profileContainer, userData);
         });
