@@ -31,7 +31,7 @@ class TransactionController
     {
         // Initialisation du logger
         $this->logger = new Logger('TransactionController');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/app.log', 100));
     }
     // Créer un paiement pour un trajet réservé de façon automatique
     public function payTrip($userId, $amount, $tripRef): false|string

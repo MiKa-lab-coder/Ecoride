@@ -25,7 +25,7 @@ class AuthController
     public function registration(): void
     {
         $logger = new Logger('register_logger');
-        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', Logger::INFO));
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/app.log', Logger::INFO));
 
         header('Content-Type: application/json');
 

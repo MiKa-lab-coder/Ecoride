@@ -27,7 +27,7 @@ class BookingController
     {
         // Initialisation du logger
         $this->logger = new Logger('booking_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/booking.log', 100));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/booking.log', 100));
     }
 
     // Méthode pour réserver un trajet

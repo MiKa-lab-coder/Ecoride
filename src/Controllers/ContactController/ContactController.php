@@ -19,7 +19,7 @@ class ContactController
 
         // Initialiser le logger
         $this->logger = new Logger('contact_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/contact.log', 100));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/contact.log', 100));
     }
 
     // Méthode pour gérer le formulaire de contact (envoi vers le modérateur)

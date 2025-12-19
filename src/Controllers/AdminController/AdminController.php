@@ -25,7 +25,7 @@ class AdminController
     {
         // Initialisation unique du logger
         $this->logger = new Logger('admin_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 100));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/app.log', 100));
     }
 
     private function isAdmin(int $roleId): bool

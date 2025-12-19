@@ -25,7 +25,7 @@ class VehicleController
     public function __construct()
     {
         $this->logger = new Logger('vehicle_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/vehicle.log', Logger::DEBUG));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/vehicle.log', Logger::DEBUG));
     }
 
     // Ajouter un véhicule
@@ -139,7 +139,7 @@ class VehicleController
     }
 
     // supprimer un véhicule
-    public function deleteCar(): void
+    public function deleteCar(int $vehicleId): void
     {
         header("Content-Type: application/json");
         try {
@@ -156,26 +156,9 @@ class VehicleController
             if (!$user) {
                 throw new Exception("Utilisateur non trouvé.", 404);
             }
-            // Récupération et validation des données envoyées en JSON
-            $data = json_decode(file_get_contents('php://input'), true);
-            if (!$data) {
-                throw new Exception("Données invalides.", 400);
-            }
-
-            // Vérification du champ obligatoire
-            if (empty($data['registration_number'])) {
-                throw new Exception("Le champ immatriculation est obligatoire.", 400);
-            }
-            // Validation des données
-            $validator = new Validator();
-            if (!$validator->validateRegistrationNumber($data['registration_number'])) {
-                throw new Exception("Numéro d'immatriculation invalide.", 400);
-            }
-            // Protection contre les attaques XSS
-            $registration_number = htmlspecialchars($data['registration_number'], ENT_QUOTES, 'UTF-8');
-
+            
             // Vérification que le véhicule existe
-            $vehicle = Vehicle::findByRegistration($registration_number);
+            $vehicle = Vehicle::findById($vehicleId);
             if (!$vehicle) {
                 throw new Exception("Véhicule non trouvé.", 404);
             }
@@ -187,7 +170,7 @@ class VehicleController
             if (Vehicle::delete($vehicle->getVehicleId())) {
                 http_response_code(200);
                 echo json_encode(["message" => "Véhicule supprimé avec succès."]);
-                $this->logger->info("Véhicule supprimé avec succès: " . $registration_number .
+                $this->logger->info("Véhicule supprimé avec succès: " . $vehicle->getRegistrationNumber() .
                     " par l'utilisateur ID: " . $user->getUserId());
                 exit;
             } else {
@@ -213,7 +196,7 @@ class VehicleController
             $decodedToken = $tokenValidator->validateToken($token);
 
             // Récupération des données l'utilisateur pour récupérer l'user_id nécessaire pour relier le véhicule à son propriétaire
-            $user_id = $decodedToken->sub;
+            $user_id = $decodedToken->data->id;
             $user = User::find($user_id);
             if (!$user) {
                 throw new Exception("Utilisateur non trouvé.", 404);
@@ -231,12 +214,12 @@ class VehicleController
                     'seating_capacity' => $vehicle->getSeatingCapacity(),
                     'color' => $vehicle->getColor(),
                     'energy_type' => $vehicle->getEnergyType(),
-                    'first_service' => $vehicle->getFirstService()->format('d-m-Y'),
+                    'first_service' => $vehicle->getFirstService()->format('Y-m-d'),
                 ];
             }
 
             http_response_code(200);
-            echo json_encode(["vehicles" => $vehicleList]);
+            echo json_encode($vehicleList);
             exit;
 
         } catch (Exception $e) {

@@ -66,7 +66,7 @@ class User extends BaseModel
             return '/uploads/default.png'; // Chemin par défaut absolu
         }
         // Si le chemin est déjà absolu, le retourner tel quel
-        if (str_starts_with($this->photo, '/')) {
+        if (strpos($this->photo, '/') === 0) {
             return $this->photo;
         }
         // Si le chemin est relatif (ex: 'uploads/image.png'), le rendre absolu

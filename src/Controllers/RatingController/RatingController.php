@@ -63,7 +63,7 @@ class RatingController
             }
         } catch (Exception $e) {
             $logger = new Logger('rating_controller');
-            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/rating_controller.log', 400));
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/rating_controller.log', 400));
             $logger->error("Erreur d'enregistrement de la note " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
             echo json_encode(["error" => $e->getMessage()]);
@@ -92,7 +92,7 @@ class RatingController
             echo json_encode(["user_id" => $userId, "average_rating" => $averageRating]);
         } catch (Exception $e) {
             $logger = new Logger('rating_controller');
-            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/rating_controller.log', 400));
+            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/rating_controller.log', 400));
             $logger->error("Erreur de récupération de la note " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
             echo json_encode(["error" => $e->getMessage()]);

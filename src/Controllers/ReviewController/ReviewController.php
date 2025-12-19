@@ -24,7 +24,7 @@ class ReviewController
     public function __construct()
     {
         $this->logger = new Logger('error_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/error.log', 400));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/error.log', 400));
     }
 
     // Soumission d'un commentaire pour un voyage
