@@ -211,4 +211,33 @@ class TripController
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+
+    // Méthode pour récupérer tous les trajets terminés pour affichage dans l'historique d'un utilisateur
+    public function getUserCompletedTrips(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->data->id;
+            
+            $trips = Trip::getCompletedTripsByUser($userId);
+            
+            if (empty($trips)) {
+                http_response_code(200);
+                echo json_encode([]); // Toujours renvoyer un tableau vide si aucun trajet
+                return;
+            }
+            
+            // Les trajets sont déjà des tableaux associatifs grâce à getCompletedTripsByUser
+            http_response_code(200);
+            echo json_encode($trips);
+            
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des trajets terminés de l'utilisateur: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
 }
