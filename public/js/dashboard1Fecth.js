@@ -1,349 +1,385 @@
-// Mise en place de fetch pour le dashboard (affiche des infos : profil, mes covoiturages, mes réservations, etc...)
+// --- Fonctions pour la gestion des trajets de l'utilisateur ---
 
-
-// historique des trajets
-export async function fetchPastTrips() {
-    // Récupérer le token JWT depuis le stockage local
-    const token = localStorage.getItem('token');
-    if (!token) {
-        console.error('Aucun token trouvé dans le localStorage');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/trips/past', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP! statut: ${response.status}`);
-        }
-
-        const pastTrips = await response.json();
-
-        //console.log('Trajets passés:', pastTrips); // Pour vérifier les données reçues
-
-        const pastTripsContainer = document.getElementById('past-trips-container');
-        if (!pastTripsContainer) {
-            console.error('Élément conteneur non trouvé.');
-            return;
-        }
-
-        // Boucler sur les trajets passés et les afficher
-        pastTrips.forEach(trip => {
-            const tripCard = document.createElement('div');
-            tripCard.classList.add('trip-card');
-            tripCard.innerHTML = `
-                <p>Titre trajet : ${trip.title}</p>
-                <p>Départ : ${trip.departure}</p>
-                <p>Arrivée : ${trip.arrival}</p>
-                <p>Date : ${new Date(trip.date).toLocaleDateString()}</p>
-                <p>Prix en crédit : ${trip.price} </p>
-            `;
-            pastTripsContainer.appendChild(tripCard);
-        });
-
-    } catch (error) {
-        console.error('Erreur lors de la récupération des trajets passés:', error);
-    }
-}
-
-// Afficher les réservations
+/**
+ * Affiche les trajets auxquels l'utilisateur est inscrit.
+ */
 export async function fetchBooking() {
-    // Récupérer le token JWT depuis le stockage local
     const token = localStorage.getItem('token');
     if (!token) {
-        console.error('Aucun token trouvé dans le localStorage');
+        console.error('Aucun token trouvé pour afficher les réservations.');
         return;
     }
-    // Faire une requête Fetch pour obtenir les réservations de l'utilisateur
+
+    const bookingsContainer = document.getElementById('bookings-container');
+    if (!bookingsContainer) {
+        console.warn('Le conteneur de réservations "bookings-container" est introuvable.');
+        return;
+    }
+
     try {
         const response = await fetch('/api/bookings/user', {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
+
         if (!response.ok) {
-            throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            throw new Error('Erreur lors de la récupération des réservations.');
         }
 
         const bookings = await response.json();
-        //console.log('Réservations:', bookings); // Pour vérifier les données reçues
+        
+        bookingsContainer.innerHTML = '';
 
-        const bookingsContainer = document.getElementById('bookings-container');
-        if (!bookingsContainer) {
-            console.error('Élément conteneur non trouvé.');
-            return;
+        if (bookings.length === 0) {
+            bookingsContainer.innerHTML = '<p>Vous n\'êtes inscrit à aucun trajet pour le moment.</p>';
+        } else {
+            bookings.forEach(booking => {
+                const bookingCard = document.createElement('div');
+                bookingCard.className = 'booking-card';
+                bookingCard.innerHTML = `
+                    <h4>Trajet vers ${booking.arrival_location}</h4>
+                    <p><strong>Départ:</strong> ${booking.departure_location}</p>
+                    <p><strong>Date:</strong> ${new Date(booking.departure_day).toLocaleDateString()}</p>
+                    <p><strong>Heure:</strong> ${booking.departure_time}</p>
+                    <p><strong>Conducteur:</strong> ${booking.driver_firstname} ${booking.driver_name}</p>
+                    <p><strong>Prix:</strong> ${booking.trip_price} crédits</p>
+                    <button class="cancel-booking-btn" data-booking-id="${booking.booking_id}">Annuler ma participation</button>
+                `;
+                bookingsContainer.appendChild(bookingCard);
+            });
         }
 
-        // Boucler sur les réservations et les afficher
-        bookings.forEach(booking => {
-            const bookingCard = document.createElement('div');
-            bookingCard.classList.add('booking-card');
-            bookingCard.innerHTML = `
-                <p>Titre trajet : ${booking.tripTitle}</p>
-                <p>Départ : ${booking.departure}</p>
-                <p>Arrivée : ${booking.arrival}</p>
-                <p>Date : ${new Date(booking.date).toLocaleDateString()}</p>
-                <p>Heure de départ : ${booking.departureTime}</p>
-                <p>Heure d'arrivée : ${booking.arrivalTime}</p>
-                <p>Type de trajet : ${booking.tripNature}</p>
-                <p>Conducteur : ${booking.driverName}</p>
-                <p>Prix en crédit : ${booking.price} </p>
-                <select id="rating-select-${booking.id}" class="rating-select">
-                    <option value="">Noter le trajet</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
-                <br>
-                <textarea id="review-textarea-${booking.id}" class="review-textarea" placeholder="Laisser un commentaire"></textarea>
-                <br>
-                <input type="button" class="end-trip-btn" value="Terminer">
-                <input type="button" class="cancel-booking-btn" value="Annuler">
-                <input type="button" class="send-issues-btn" value="Signaler">
-            `;
-            bookingsContainer.appendChild(bookingCard);
-
-            // Gérer les écouteurs d'événements à l'extérieur du HTML
-            const endTripBtn = bookingCard.querySelector('.end-trip-btn');
-            const cancelBookingBtn = bookingCard.querySelector('.cancel-booking-btn');
-            const sendIssuesBtn = bookingCard.querySelector('.send-issues-btn');
-
-            // Écouteur pour "Terminer trajet"
-            endTripBtn.addEventListener('click', async () => {
-                const ratingSelect = bookingCard.querySelector('.rating-select');
-                const reviewTextarea = bookingCard.querySelector('.review-textarea');
-                const rating = ratingSelect.value;
-                const review = reviewTextarea.value;
-
-                try {
-                    const response = await fetch(`/api/trips/${booking.tripId}/end`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ rating, review, bookingId: booking.id })
-                    });
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                    }
-                    console.log('Trajet terminé avec succès!');
-                } catch (error) {
-                    console.error('Erreur lors de la terminaison du trajet:', error);
-                }
-            });
-
-            // Écouteur pour "Annuler"
-            cancelBookingBtn.addEventListener('click', async () => {
-                try {
-                    const response = await fetch(`/api/bookings/${booking.id}/cancel`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    });
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                    }
-                    console.log('Réservation annulée avec succès!');
-                } catch (error) {
-                    console.error('Erreur lors de l\'annulation de la réservation:', error);
-                }
-            });
-
-            // Écouteur pour "Signaler"
-            sendIssuesBtn.addEventListener('click', async () => {
-                const reviewTextarea = bookingCard.querySelector('.review-textarea');
-                const issues = reviewTextarea.value;
-
-                try {
-                    const response = await fetch(`/api/issues`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ issues, bookingId: booking.id }) // Ajouter l'ID de la réservation
-                    });
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                    }
-                    console.log('Problème signalé avec succès!');
-                } catch (error) {
-                    console.error('Erreur lors du signalement du problème:', error);
+        bookingsContainer.querySelectorAll('.cancel-booking-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const bookingId = e.target.dataset.bookingId;
+                if (confirm('Êtes-vous sûr de vouloir annuler votre participation à ce trajet ?')) {
+                    await cancelBooking(bookingId, token);
+                    await fetchBooking();
                 }
             });
         });
 
     } catch (error) {
-        console.error('Erreur lors de la récupération des réservations:', error);
+        console.error('Erreur lors de l\'affichage des réservations:', error);
+        bookingsContainer.innerHTML = '<p>Erreur lors du chargement des réservations.</p>';
     }
 }
 
-// Afficher les covoiturages proposés
+async function cancelBooking(bookingId, token) {
+    try {
+        const response = await fetch(`/api/bookings/${bookingId}/cancel`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+            throw new Error('L\'annulation de la réservation a échoué.');
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'annulation:', error);
+        alert('Une erreur est survenue lors de l\'annulation.');
+    }
+}
+
+/**
+ * Affiche les trajets proposés par l'utilisateur (conducteur).
+ */
 export async function fetchOfferedTrip() {
-    // Récupérer le token JWT depuis le stockage local
     const token = localStorage.getItem('token');
-    if (!token) {
-        console.error('Aucun token trouvé dans le localStorage');
-        return;
+    if (!token) return;
+
+    const driverContent = document.getElementById('drivers-content');
+    if (!driverContent) return;
+
+    // La structure de base est déjà dans le HTML, on ne la recrée pas ici
+    const offeredTripsContainer = document.getElementById('offered-trips-cards-container');
+    const addTripsBtn = document.getElementById('add-trips-btn');
+    const addTripFormContainer = driverContent.querySelector('.add-trip-form-container');
+
+    // Assurez-vous que le formulaire est masqué par défaut
+    if (addTripFormContainer) {
+        addTripFormContainer.classList.add('js-hidden');
+    }
+
+    // Logique pour afficher/masquer le formulaire
+    if (addTripsBtn && addTripFormContainer) {
+        addTripsBtn.addEventListener('click', () => {
+            addTripFormContainer.classList.toggle('js-hidden');
+            if (!addTripFormContainer.classList.contains('js-hidden')) {
+                renderTripForm(addTripFormContainer);
+            }
+        });
     }
 
     try {
         const response = await fetch('/api/trips/user', {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP! statut: ${response.status}`);
-        }
+        if (!response.ok) throw new Error('Erreur lors de la récupération des trajets proposés.');
 
         const offeredTrips = await response.json();
-        const offeredTripsContainer = document.getElementById('offered-trips-container');
+        offeredTripsContainer.innerHTML = ''; // Vider le conteneur des cartes
 
-        if (!offeredTripsContainer) {
-            console.error('Élément conteneur non trouvé.');
-            return;
+        if (offeredTrips.length === 0) {
+            offeredTripsContainer.innerHTML = '<p>Vous n\'avez proposé aucun trajet.</p>';
+        } else {
+            offeredTrips.forEach(trip => {
+                const tripCard = document.createElement('div');
+                tripCard.className = 'trip-card';
+                tripCard.innerHTML = `
+                    <h4>Trajet ${trip.departure_location} -> ${trip.arrival_location}</h4>
+                    <p><strong>Date:</strong> ${new Date(trip.departure_day).toLocaleDateString()}</p>
+                    <p><strong>Heure:</strong> ${trip.departure_time}</p>
+                    <p><strong>Prix:</strong> ${trip.trip_price} crédits</p>
+                    <p><strong>Places:</strong> ${trip.seating}</p>
+                    <p><strong>Conducteur:</strong> ${trip.driver_firstname} ${trip.driver_name}</p>
+                    <p><strong>Véhicule:</strong> ${trip.brand} ${trip.model} (${trip.registration_number})</p>
+                    <p><strong>Animaux autorisés:</strong> ${trip.animal_pref ? 'Oui' : 'Non'}</p>
+                    <p><strong>Fumeurs autorisés:</strong> ${trip.smoking_pref ? 'Oui' : 'Non'}</p>
+                    <button class="edit-trip-btn" data-trip-id='${trip.trip_id}'>Modifier</button>
+                    <button class="delete-trip-btn" data-trip-id='${trip.trip_id}'>Supprimer</button>
+                    <button class="launch-trip-btn" data-trip-id='${trip.trip_id}' ${trip.status !== 'approved' ? 'disabled' : ''}>Lancer</button>
+                `;
+                offeredTripsContainer.appendChild(tripCard);
+            });
         }
 
-        // Boucler sur les covoiturages proposés et les afficher
-        offeredTrips.forEach(trip => {
-            const tripCard = document.createElement('div');
-            tripCard.classList.add('trip-card');
-            tripCard.innerHTML = `
-                <p>Titre trajet : ${trip.title}</p>
-                <p>Départ : ${trip.departure}</p>
-                <p>Arrivée : ${trip.arrival}</p>
-                <p>Date : ${new Date(trip.date).toLocaleDateString()}</p>
-                <p>Heure de départ : ${trip.departureTime}</p>
-                <p>Heure d'arrivée : ${trip.arrivalTime}</p>
-                <p>Places libres : ${trip.seats}</p>
-                <p>Prix en crédit : ${trip.price} </p>
-                <input type="button" class="launch-trip-btn" value="Lancer le trajet">
-                <input type="button" class="end-trip-btn" value="Terminer">
-                <input type="button" class="edit-trip-btn" value="Modifier">
-                <input type="button" class="cancel-trip-btn" value="Annuler">
-            `;
-            offeredTripsContainer.appendChild(tripCard);
-
-            // Gérer les écouteurs d'événements
-            const launchTripBtn = tripCard.querySelector('.launch-trip-btn');
-            const endTripBtn = tripCard.querySelector('.end-trip-btn');
-            const editTripBtn = tripCard.querySelector('.edit-trip-btn');
-            const cancelTripBtn = tripCard.querySelector('.cancel-trip-btn');
-
-            // Écouteur pour "Lancer le trajet"
-            launchTripBtn.addEventListener('click', async () => {
-                try {
-                    const response = await fetch(`/api/trips/${trip.id}/launch`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    });
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                    }
-                    console.log('Trajet lancé avec succès!');
-                } catch (error) {
-                    console.error('Erreur lors du lancement du trajet:', error);
-                }
-            });
-
-            // Écouteur pour "Terminer le trajet"
-            endTripBtn.addEventListener('click', async () => {
-                try {
-                    const response = await fetch(`/api/trips/${trip.id}/end`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    });
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                    }
-                    console.log('Trajet terminé avec succès!');
-                } catch (error) {
-                    console.error('Erreur lors de la terminaison du trajet:', error);
-                }
-            });
-
-            // Écouteur pour "Modifier le trajet"
-            editTripBtn.addEventListener('click', async () => {
-                // On crée un formulaire pour modifier le trajet
-                const updateForm = document.createElement('div');
-                updateForm.innerHTML = `
-                    <h3>Modifier le trajet</h3>
-                    <label for="new-title-${trip.id}">Titre:</label>
-                    <input type="text" id="new-title-${trip.id}" value="${trip.title}">
-                    <label for="new-departure-${trip.id}">Départ:</label>
-                    <input type="text" id="new-departure-${trip.id}" value="${trip.departure}">
-                    <label for="new-arrival-${trip.id}">Arrivée:</label>
-                    <input type="text" id="new-arrival-${trip.id}" value="${trip.arrival}">
-                    <label for="new-date-${trip.id}">Date:</label>
-                    <input type="date" id="new-date-${trip.id}" value="${trip.date.split('T')[0]}">
-                    <label for="new-departure-time-${trip.id}">Heure de départ:</label>
-                    <input type="time" id="new-departure-time-${trip.id}" value="${trip.departureTime}">
-                    <label for="new-arrival-time-${trip.id}">Heure d'arrivée:</label>
-                    <input type="time" id="new-arrival-time-${trip.id}" value="${trip.arrivalTime}">
-                    <label for="new-seats-${trip.id}">Places:</label>
-                    <input type="number" id="new-seats-${trip.id}" value="${trip.seats}">
-                    <label for="new-price-${trip.id}">Prix en crédit:</label>
-                    <input type="number" id="new-price-${trip.id}" value="${trip.price}">
-                    <button class="submit-update-btn">Soumettre</button>
-                    <button class="cancel-update-btn">Annuler</button>
-                `;
-                tripCard.appendChild(updateForm);
-
-                // On attache l'écouteur au bouton Soumettre du NOUVEAU formulaire
-                const submitUpdateBtn = updateForm.querySelector('.submit-update-btn');
-                submitUpdateBtn.addEventListener('click', async () => {
-                    // Recuperation des nouvelles valeurs
-                    const newTripData = {
-                        title: updateForm.querySelector(`#new-title-${trip.id}`).value,
-                        departure: updateForm.querySelector(`#new-departure-${trip.id}`).value,
-                        arrival: updateForm.querySelector(`#new-arrival-${trip.id}`).value,
-                        date: updateForm.querySelector(`#new-date-${trip.id}`).value,
-                        departureTime: updateForm.querySelector(`#new-departure-time-${trip.id}`).value,
-                        arrivalTime: updateForm.querySelector(`#new-arrival-time-${trip.id}`).value,
-                        seats: parseInt(updateForm.querySelector(`#new-seats-${trip.id}`).value, 10),
-                        price: parseFloat(updateForm.querySelector(`#new-price-${trip.id}`).value)
-                    };
-
-                    try {
-                        const response = await fetch(`/api/trips/${trip.id}/update`, {
-                            method: 'POST',
-                            headers: {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
-                            body: JSON.stringify(newTripData)
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                        }
-                        console.log('Trajet modifié avec succès!');
-                        // Logique pour masquer le formulaire et rafraîchir la carte
-                    } catch (error) {
-                        console.error('Erreur lors de la modification du trajet:', error);
-                    }
-                });
-            });
-
-            // Écouteur pour "Annuler le trajet"
-            cancelTripBtn.addEventListener('click', async () => {
-                try {
-                    const response = await fetch(`/api/trips/${trip.id}/delete`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    });
-                    if (!response.ok) {
-                        throw new Error(`Erreur HTTP! statut: ${response.status}`);
-                    }
-                    console.log('Trajet annulé avec succès!');
-                } catch (error) {
-                    console.error('Erreur lors de l\'annulation du trajet:', error);
+        // Attacher les écouteurs d'événements
+        offeredTripsContainer.querySelectorAll('.edit-trip-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tripId = e.target.dataset.tripId;
+                const tripData = offeredTrips.find(t => t.trip_id == tripId);
+                if (addTripFormContainer) {
+                    addTripFormContainer.classList.remove('js-hidden');
+                    renderTripForm(addTripFormContainer, tripData);
                 }
             });
         });
+
+        offeredTripsContainer.querySelectorAll('.delete-trip-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const tripId = e.target.dataset.tripId;
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce trajet ?')) {
+                    await deleteTrip(tripId, token);
+                    await fetchOfferedTrip();
+                }
+            });
+        });
+
+        offeredTripsContainer.querySelectorAll('.launch-trip-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const tripId = e.target.dataset.tripId;
+                if (confirm('Êtes-vous sûr de vouloir lancer ce trajet ? Cette action est irréversible.')) {
+                    await launchTrip(tripId, token);
+                    await fetchOfferedTrip();
+                }
+            });
+        });
+
     } catch (error) {
-        console.error('Erreur lors de la récupération des covoiturages proposés:', error);
+        console.error('Erreur lors de l\'affichage des trajets proposés:', error);
     }
+}
+
+async function renderTripForm(container, tripData = null) {
+    const token = localStorage.getItem('token');
+    const vehiclesResponse = await fetch('/api/vehicles/user', { headers: { 'Authorization': `Bearer ${token}` } });
+    const vehicles = await vehiclesResponse.json();
+    const vehicleOptions = vehicles.map(v => `<option value="${v.vehicle_id}" ${tripData && tripData.vehicle_id == v.vehicle_id ? 'selected' : ''}>${v.brand} ${v.model} (${v.registration_number})</option>`).join('');
+
+    container.innerHTML = `
+        <form id="propose-trip-form">
+            <input type="hidden" name="trip_id" value="${tripData ? tripData.trip_id : ''}">
+            
+            <label for="departure_location">Départ :</label>
+            <input type="text" name="departure_location" value="${tripData ? tripData.departure_location : ''}" required>
+
+            <label for="arrival_location">Arrivée :</label>
+            <input type="text" name="arrival_location" value="${tripData ? tripData.arrival_location : ''}" required>
+
+            <label for="departure_day">Date de départ :</label>
+            <input type="date" name="departure_day" value="${tripData ? tripData.departure_day : ''}" required>
+            
+            <label for="departure_time">Heure de départ :</label>
+            <input type="time" name="departure_time" value="${tripData ? tripData.departure_time : ''}" required>
+
+            <label for="arrival_day">Date d'arrivée :</label>
+            <input type="date" name="arrival_day" value="${tripData ? tripData.arrival_day : ''}" required>
+
+            <label for="arrival_time">Heure d'arrivée :</label>
+            <input type="time" name="arrival_time" value="${tripData ? tripData.arrival_time : ''}" required>
+
+            <label for="trip_price">Prix (crédits) :</label>
+            <input type="number" name="trip_price" value="${tripData ? tripData.trip_price : ''}" required>
+
+            <label for="seating">Places disponibles :</label>
+            <input type="number" name="seating" value="${tripData ? tripData.seating : ''}" required>
+
+            <label for="vehicle_id">Véhicule :</label>
+            <select name="vehicle_id" required>${vehicleOptions}</select>
+
+            <div>
+                <input type="checkbox" name="smoking_pref" ${tripData && tripData.smoking_pref ? 'checked' : ''}>
+                <label for="smoking_pref">Fumeurs autorisés</label>
+            </div>
+            <div>
+                <input type="checkbox" name="animal_pref" ${tripData && tripData.animal_pref ? 'checked' : ''}>
+                <label for="animal_pref">Animaux autorisés</label>
+            </div>
+
+            <button type="submit">${tripData ? 'Modifier' : 'Créer'}</button>
+            <button type="button" class="cancel-form-btn">Annuler</button>
+        </form>
+    `;
+
+    container.querySelector('.cancel-form-btn').addEventListener('click', () => {
+        container.innerHTML = '';
+        container.classList.add('js-hidden');
+    });
+
+    container.querySelector('#propose-trip-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        
+        data.smoking_pref = form.querySelector('[name="smoking_pref"]').checked;
+        data.animal_pref = form.querySelector('[name="animal_pref"]').checked;
+
+        const tripId = data.trip_id;
+        const method = tripId ? 'POST' : 'POST';
+        const url = tripId ? `/api/trips/${tripId}/update` : '/api/trips';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) throw new Error(tripId ? 'Erreur lors de la modification.' : 'Erreur lors de la création.');
+            
+            await fetchOfferedTrip();
+        } catch (error) {
+            console.error(error);
+        }
+    });
+}
+
+async function deleteTrip(tripId, token) {
+    try {
+        const response = await fetch(`/api/trips/${tripId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Erreur lors de la suppression.');
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function launchTrip(tripId, token) {
+    try {
+        const response = await fetch(`/api/trips/start`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trip_id: tripId })
+        });
+        if (!response.ok) throw new Error('Erreur lors du lancement du trajet.');
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+/**
+ * Affiche les trajets terminés et gère leur évaluation.
+ */
+export async function fetchPastTrips() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const container = document.getElementById('past-trips-container');
+    if (!container) return;
+
+    try {
+        const response = await fetch('/api/trips/past', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Erreur lors de la récupération des trajets passés.');
+
+        const trips = await response.json();
+        container.innerHTML = '';
+
+        if (trips.length === 0) {
+            container.innerHTML = '<p>Aucun trajet précédent à afficher.</p>';
+        } else {
+            trips.forEach(trip => {
+                const tripCard = document.createElement('div');
+                tripCard.className = 'past-trip-card';
+                tripCard.innerHTML = `
+                    <h4>Trajet vers ${trip.arrival_location}</h4>
+                    <p><strong>Date:</strong> ${new Date(trip.departure_day).toLocaleDateString()}</p>
+                    <p><strong>Avec:</strong> ${trip.user_to_rate_name}</p>
+                    <div class="rating-form-container"></div>
+                `;
+
+                if (!trip.has_rated) {
+                    const rateBtn = document.createElement('button');
+                    rateBtn.textContent = 'Évaluer';
+                    rateBtn.onclick = () => renderRatingForm(tripCard.querySelector('.rating-form-container'), trip, token);
+                    tripCard.appendChild(rateBtn);
+                } else {
+                    tripCard.innerHTML += '<p><em>Évaluation déjà soumise.</em></p>';
+                }
+                container.appendChild(tripCard);
+            });
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'affichage des trajets passés:', error);
+        container.innerHTML = '<p>Erreur lors du chargement des trajets.</p>';
+    }
+}
+
+/**
+ * Affiche le formulaire de notation.
+ */
+function renderRatingForm(container, trip, token) {
+    container.innerHTML = `
+        <form class="rating-form">
+            <select name="rating" required>
+                <option value="">Note</option>
+                <option value="1">1 ★</option>
+                <option value="2">2 ★</option>
+                <option value="3">3 ★</option>
+                <option value="4">4 ★</option>
+                <option value="5">5 ★</option>
+            </select>
+            <textarea name="comment" placeholder="Votre commentaire..."></textarea>
+            <button type="submit">Envoyer</button>
+        </form>
+    `;
+
+    container.querySelector('.rating-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = {
+            trip_id: trip.trip_id,
+            rated_user_id: trip.user_to_rate_id,
+            rating: formData.get('rating'),
+            comment: formData.get('comment')
+        };
+
+        try {
+            const response = await fetch('/api/ratings', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) throw new Error('Erreur lors de la soumission de l\'évaluation.');
+            
+            await fetchPastTrips();
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        }
+    });
 }

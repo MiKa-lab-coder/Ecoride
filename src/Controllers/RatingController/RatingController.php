@@ -11,92 +11,89 @@ use Exception;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
-/**
- * Class RatingController
- * Gère les opérations liées aux notes des conducteurs.
- */
 class RatingController
 {
-    // Soumission d'une note pour un conducteur
-    public function submitRating(int $ratedUserId, int $raterUserId, int $tripId, int $ratingValue): void
+    private Logger $logger;
+
+    public function __construct()
     {
-        header('Application-Type: application/json');
+        $this->logger = new Logger('rating_controller');
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/rating.log', Logger::INFO));
+    }
 
+    /**
+     * Soumet une note et un commentaire pour un trajet terminé.
+     */
+    public function submitRating(): void
+    {
+        header('Content-Type: application/json');
         try {
-
-            // Récupération et validation du token
             $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
-            $userId = $decodedToken->sub;
-            $user = User::find($userId);
-            if (!$user) {
-                throw new Exception("Utilisateur non trouvé.", 404);
-            }
+            $raterUserId = $decodedToken->data->id;
+
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data) {
                 throw new Exception("Données invalides.", 400);
             }
-            if ($user->getUserId() !== $raterUserId) {
-                throw new Exception("Vous ne pouvez pas noter pour un autre utilisateur.", 403);
+
+            $tripId = $data['trip_id'] ?? null;
+            $ratingValue = $data['rating'] ?? null;
+            $comment = $data['comment'] ?? '';
+
+            if (!$tripId || !$ratingValue) {
+                throw new Exception("L'ID du trajet et la note sont obligatoires.", 400);
             }
-            // Récupération du trajet
+
             $trip = Trip::findById($tripId);
             if (!$trip) {
                 throw new Exception("Trajet non trouvé.", 404);
             }
-            if ($trip->getDriverId() !== $ratedUserId) {
-                throw new Exception("L'utilisateur noté n'est pas le conducteur de ce trajet.", 400);
+
+            // Déterminer qui est noté (le conducteur ou le passager)
+            $ratedUserId = ($raterUserId === $trip->getDriverId()) 
+                ? ($data['rated_user_id'] ?? null) // Le conducteur note un passager
+                : $trip->getDriverId(); // Le passager note le conducteur
+
+            if (!$ratedUserId) {
+                throw new Exception("L'utilisateur à noter n'a pas été spécifié.", 400);
             }
-            // Validation de la note
+
             $validator = new Validator();
             if (!$validator->validateDriverRating($ratingValue)) {
                 throw new Exception("Note invalide. La note doit être un entier entre 1 et 5.", 400);
             }
-            // Enregistrement de la note
-            $rating = new Rating($ratedUserId, $raterUserId, $tripId, $ratingValue, 0);
+
+            // Vérifier si une note a déjà été laissée
+            if (Rating::hasUserRatedTrip($raterUserId, $tripId, $ratedUserId)) {
+                throw new Exception("Vous avez déjà noté cet utilisateur pour ce trajet.", 409); // 409 Conflict
+            }
+
+            $rating = new Rating($ratedUserId, $raterUserId, $tripId, $ratingValue, $comment);
             if ($rating->save()) {
                 http_response_code(201);
-                echo json_encode(["message" => "Note enregistrée avec succès."]);
+                echo json_encode(["message" => "Évaluation enregistrée avec succès."]);
             } else {
-                throw new Exception("Erreur lors de l'enregistrement de la note.", 500);
+                throw new Exception("Erreur lors de l'enregistrement de l'évaluation.", 500);
             }
         } catch (Exception $e) {
-            $logger = new Logger('rating_controller');
-            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/rating_controller.log', 400));
-            $logger->error("Erreur d'enregistrement de la note " . $e->getMessage());
+            $this->logger->error("Erreur lors de la soumission de l'évaluation: " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
             echo json_encode(["error" => $e->getMessage()]);
         }
-        exit;
     }
-    // Affichage de la note d'un utilisateur (pour son profil)
+
     public function getUserRating(int $userId): void
     {
-        header('Application-Type: application/json');
-
+        header('Content-Type: application/json');
         try {
-            // Récupération et validation du token
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $tokenValidator = new TokenValidator();
-            $decodedToken = $tokenValidator->validateToken($token);
-            $requestingUserId = $decodedToken->sub;
-            // Récupération de l'utilisateur
-            $requestingUser = User::find($requestingUserId);
-            if (!$requestingUser) {
-                throw new Exception("Utilisateur non trouvé.", 404);
-            }
-            // Récupération de la note moyenne
             $averageRating = Rating::getAverageRatingForUser($userId);
             http_response_code(200);
             echo json_encode(["user_id" => $userId, "average_rating" => $averageRating]);
         } catch (Exception $e) {
-            $logger = new Logger('rating_controller');
-            $logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/rating_controller.log', 400));
-            $logger->error("Erreur de récupération de la note " . $e->getMessage());
-            http_response_code($e->getCode() ?: 500);
-            echo json_encode(["error" => $e->getMessage()]);
+            http_response_code(500);
+            echo json_encode(["error" => "Erreur lors de la récupération de la note."]);
         }
-        exit;
     }
 }

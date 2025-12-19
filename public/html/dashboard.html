@@ -72,71 +72,26 @@
             </div>
             <div class="manage-trips dashboard-section js-hidden " id="manage-trips-content">
                 <h2>Gérer mes trajets</h2>
-                    <h3>Vos trajets réservés :</h3>
                 <div class="trips-list-passenger" id="bookings-container">
                     <!-- Les cartes de trajets réservés seront chargées ici par JavaScript -->
                 </div>
 
                 <div class="trips-list-driver" id="drivers-content">
-                    <h3>Mes propositions de trajet :</h3>
-                    <button class="add-trips-btn" id="add-trips-btn">proposer</button>
-                    <br>
-                    <form action="" method="post" class="add-trip-form js-hidden">
-
-                        <label for="departure_day">Date de départ :</label>
-                        <input type="date" id="departure_day" name="departure_day" required>
-
-                        <label for="arrival_day">Date d'arrivée :</label>
-                        <input type="date" id="arrival_day" name="arrival_day" required>
-
-                        <label for="departure_location">Départ :</label>
-                        <input type="text" id="departure_location" name="departure_location" required>
-
-                        <label for="arrival_location">Arrivée :</label>
-                        <input type="text" id="arrival_location" name="arrival_location" required>
-
-                        <label for="departure_time">Heure de départ :</label>
-                        <input type="time" id="departure_time" name="departure_time" required>
-
-                        <label for="arrival_time">Heure d'arrivée :</label>
-                        <input type="time" id="arrival_time" name="arrival_time" required>
-
-                        <label for="trip_time">Temps de trajet (en minutes) :</label>
-                        <input type="number" id="trip_time" name="trip_time" required min="1">
-
-                        <label for="trip_price">Prix en crédits :</label>
-                        <input type="number" id="trip_price" name="trip_price" required min="0">
-
-                        <label for="seating">Nombre de places disponibles :</label>
-                        <input type="number" id="seating" name="seating" required min="1">
-
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="smoking_pref" name="smoking_pref" value="1">
-                            <label for="smoking_pref">Fumeurs</label>
+                    <!-- Le contenu des trajets proposés sera entièrement géré par JavaScript -->
+                    <h3>Mes propositions de trajet</h3>
+                    <button class="add-trips-btn" id="add-trips-btn">Proposer un trajet</button>
+                    <div class="add-trip-form-container js-hidden"></div>
+                    <div id="offered-trips-container">
+                        <div id="offered-trips-cards-container">
+                            <!-- Les cartes de trajets proposés seront chargées ici par JavaScript -->
                         </div>
-
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="animal_pref" name="animal_pref" value="1">
-                            <label for="animal_pref">Animaux</label>
-                        </div>
-
-                        <label for="vehicle_id">Véhicule :</label>
-                        <select id="vehicle_id" name="vehicle_id" required>
-                            <!-- Les options seront générées dynamiquement en JavaScript -->
-                            <option value="">Sélectionnez un véhicule</option>
-                        </select>
-
-                        <button type="button" class="cancel-trip-btn" id="cancel-trip-btn">Annuler</button>
-                        <input type="submit" class="create-new-trips-btn" value="Créer">
-                    </form>
-                    <div id="offered-trips-container"></div>
-                    front ok? back install launchTips
+                    </div>
                 </div>
             </div>
             <div class="past-trips dashboard-section js-hidden" id="past-trips-content">
             <h3>Mes précédents trajets :</h3>
             <div id="past-trips-container"></div>
-            front ok revoir back manque getTripsByStatus-Completed
+            <!-- Le contenu des trajets passés sera chargé ici -->
         </div>
             <div id="review-content-content" class="dashboard-section js-hidden">
                 <h2>Gestion des annonces</h2>
