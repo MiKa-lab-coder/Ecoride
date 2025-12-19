@@ -96,10 +96,10 @@ $routes = [
         '/api/auth/reset-password' => [$authController, 'resetPassword'], //a faire
 
         // Admin
-        'api/admin/create-account' => [$adminController, 'createAccount'],
-        'api/admin/suspend-user' => [$adminController, 'suspendUser'],
-        'api/admin/reactivate-user' => [$adminController, 'reactivateUser'],
-        'api/admin/change-role' => [$adminController, 'changeUserRole'],
+        '/api/admin/create-account' => [$adminController, 'createAccount'],
+        '/api/admin/suspend-user' => [$adminController, 'suspendUser'],
+        '/api/admin/reactivate-user' => [$adminController, 'reactivateUser'],
+        '/api/admin/change-role' => [$adminController, 'changeUserRole'],
         '/api/admin/approve-trip' => [$adminController, 'approuveTrips'],
         '/api/admin/reject-trip' => [$adminController, 'rejectTrips'],
 
@@ -126,7 +126,7 @@ $routes = [
         // Trip
         '/api/trips' => [$tripController, 'proposeTrip'],
         '/api/trips/update' => [$tripController, 'updateTrip'],
-        'api/trips/start' => [$tripController, 'startTrip'],
+        '/api/trips/start' => [$tripController, 'startTrip'], // Ajout du '/' initial
         '/api/trips/end' => [$tripController, 'endTrip'],
 
         // User
