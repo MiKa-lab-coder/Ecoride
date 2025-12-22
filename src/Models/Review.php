@@ -15,7 +15,6 @@ use MongoDB\BSON\ObjectId;
  * -user_id (identifiant de l'utilisateur ayant posté le commentaire).
  * -trip_id (identifiant du voyage concerné par le commentaire).
  */
-
 class Review
 {
     private ?string $review_id; // ID du commentaire
@@ -30,30 +29,37 @@ class Review
     {
         return $this->review_id;
     }
+
     public function getUserId(): string
     {
         return $this->user_id;
     }
+
     public function getTripId(): string
     {
         return $this->trip_id;
     }
+
     public function getContent(): string
     {
         return $this->content;
     }
+
     public function setReviewId(string $review_id): void
     {
         $this->review_id = $review_id;
     }
+
     public function setUserId(string $user_id): void
     {
         $this->user_id = $user_id;
     }
+
     public function setTripId(string $trip_id): void
     {
         $this->trip_id = $trip_id;
     }
+
     public function setContent(string $content): void
     {
         $this->content = $content;
@@ -82,7 +88,7 @@ class Review
         ];
         $result = $reviewsCollection->insertOne($document);
 
-        $this->review_id = (string) $result->getInsertedId();
+        $this->review_id = (string)$result->getInsertedId();
 
         // Retourner true si l'insertion a réussi, sinon false
         return $result->getInsertedCount() > 0;
@@ -104,5 +110,21 @@ class Review
         }
         // Si aucun commentaire n'est trouvé, retourner null
         return null;
+    }
+
+    /**
+     * Récupère le contenu d'un commentaire pour un trajet et un auteur donnés.
+     */
+    public static function getReviewComment(int $tripId, int $authorId): ?string
+    {
+        $client = MongoDatabase::getInstance();
+        $reviewsCollection = $client->selectCollection('ecoride', 'reviews');
+
+        $review = $reviewsCollection->findOne([
+            'trip_id' => (string)$tripId,
+            'user_id' => (string)$authorId
+        ]);
+
+        return $review ? $review['content'] : null;
     }
 }

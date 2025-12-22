@@ -6,8 +6,9 @@ use App\Models\Review;
 use App\Models\Trip;
 use App\Models\User;
 use App\Models\Booking;
+use App\Models\Rating;
 use App\Services\Validator;
-use App\services\TokenValidator;
+use App\Services\TokenValidator;
 use Exception;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -30,7 +31,7 @@ class ReviewController
     // Soumission d'un commentaire pour un voyage
     public function submitReview(): void
     {
-        header('Application-Type: application/json');
+        header('Content-Type: application/json');
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 throw new Exception("Méthode non autorisée.", 405);
@@ -40,7 +41,7 @@ class ReviewController
             $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
-            $loggedInUserId = $decodedToken->sub;
+            $loggedInUserId = $decodedToken->data->id;
 
             // Récupération des données depuis le corps de la requête
             $data = json_decode(file_get_contents('php://input'), true);
@@ -49,12 +50,14 @@ class ReviewController
             }
 
             // Validation de la présence des champs
-            if (!isset($data['trip_id']) || !isset($data['content'])) {
-                throw new Exception("Les champs 'trip_id' et 'content' sont obligatoires.", 400);
+            if (!isset($data['trip_id']) || !isset($data['rating'])) {
+                throw new Exception("Les champs 'trip_id' et 'rating' sont obligatoires.", 400);
             }
 
             $tripId = (int)$data['trip_id'];
-            $content = $data['content'];
+            $ratingValue = (int)$data['rating'];
+            $ratedUserId = (int)$data['rated_user_id'];
+            $commentContent = $data['comment'] ?? '';
 
             // Vérification de l'utilisateur
             $user = User::find($loggedInUserId);
@@ -69,37 +72,31 @@ class ReviewController
                 throw new Exception("Voyage non trouvé.", 404);
             }
 
-            // Récupération des réservations pour vérifier que l'utilisateur a bien participé au voyage
-            // Note: La fonction getUserBookings devrait prendre un ID d'utilisateur comme argument.
-            $bookings = Booking::getUserBookings($loggedInUserId);
-            $hasBooked = false;
-            foreach ($bookings as $booking) {
-                if ($booking->getTripId() === $tripId) {
-                    $hasBooked = true;
-                    break;
-                }
+            // Vérification si l'utilisateur a déjà noté ce trajet pour cette personne
+            if (Rating::hasUserRatedTrip($loggedInUserId, $tripId, $ratedUserId)) {
+                throw new Exception("Vous avez déjà évalué cet utilisateur pour ce trajet.", 400);
             }
 
-            if (!$hasBooked) {
-                throw new Exception("Vous ne pouvez pas commenter un voyage auquel vous n'avez pas participé.", 403);
+            // Enregistrement de la note (SQL)
+            $rating = new Rating($ratedUserId, $loggedInUserId, $tripId, $ratingValue);
+            if (!$rating->save()) {
+                throw new Exception("Erreur lors de l'enregistrement de la note.", 500);
             }
 
-            // Enregistrement du commentaire
-            $cleanContent = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
-            $review = new Review(
-                $loggedInUserId,
-                $tripId,
-                $cleanContent
-            );
-
-            if ($review->create()) {
-                http_response_code(201);
-                echo json_encode(["message" => "Commentaire enregistré avec succès."]);
-                $this->logger->info("Commentaire soumis avec succès par l'utilisateur ID: " . $loggedInUserId .
-                    " pour le trajet ID: " . $tripId);
-            } else {
-                throw new Exception("Erreur lors de l'enregistrement du commentaire.", 500);
+            // Enregistrement du commentaire (NoSQL) si présent
+            if (!empty($commentContent)) {
+                $cleanContent = htmlspecialchars($commentContent, ENT_QUOTES, 'UTF-8');
+                $review = new Review(
+                    (string)$loggedInUserId,
+                    (string)$tripId,
+                    $cleanContent
+                );
+                $review->create();
             }
+
+            http_response_code(201);
+            echo json_encode(["message" => "Évaluation enregistrée avec succès."]);
+
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la soumission du commentaire: " . $e->getMessage(),
                 ['trace' => $e->getTraceAsString()]);
@@ -107,5 +104,58 @@ class ReviewController
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
-}
 
+    // Récupérer les avis reçus par l'utilisateur connecté
+    public function getReceivedReviews(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                throw new Exception("Méthode non autorisée.", 405);
+            }
+
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->data->id;
+
+            // 1. Récupérer toutes les notes reçues (SQL)
+            $ratings = Rating::getRatingsForUser($userId);
+            
+            $reviewsData = [];
+
+            foreach ($ratings as $rating) {
+                $tripId = (int)$rating['trip_id'];
+                $authorId = (int)$rating['passenger_id']; // Celui qui a laissé la note
+
+                // 2. Récupérer les infos du trajet
+                $trip = Trip::findById($tripId);
+                
+                // 3. Récupérer les infos de l'auteur
+                $author = User::find($authorId); // Correction: find() au lieu de findById()
+
+                // 4. Récupérer le commentaire associé (NoSQL)
+                $comment = Review::getReviewComment($tripId, $authorId);
+
+                if ($trip && $author) {
+                    $reviewsData[] = [
+                        'trip_departure' => $trip->getDepartureLocation(),
+                        'trip_arrival' => $trip->getArrivalLocation(),
+                        'trip_date' => $trip->getDepartureDay()->format('d/m/Y'),
+                        'author_firstname' => $author->getFirstname(),
+                        'author_name' => $author->getName(),
+                        'rating' => (int)$rating['rating_value'],
+                        'comment' => $comment ?? 'Aucun commentaire.'
+                    ];
+                }
+            }
+
+            echo json_encode($reviewsData);
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des avis reçus: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+}

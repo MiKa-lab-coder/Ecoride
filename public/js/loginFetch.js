@@ -43,13 +43,13 @@ export async function setupLoginFetch() {
 
                     const decodedToken = JSON.parse(atob(token.split('.')[1]));
                     //console.log('Decoded Token:', decodedToken);
-                    const userId = decodedToken?.data?.id;
+                    //const userId = decodedToken?.data?.id;
                     const userRole = decodedToken?.data?.role;
 
                     // Stockage du token et des informations utilisateur dans le localStorage
                     // pour l'accés aux pages protégées (dashboard, profil, etc.)
                     localStorage.setItem('token', token);
-                    localStorage.setItem('userId', userId);
+                    //localStorage.setItem('userId', userId);
                     localStorage.setItem('userRole', userRole);
 
                     window.location.href = '/html/dashboard.html';

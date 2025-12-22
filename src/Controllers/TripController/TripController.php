@@ -189,6 +189,42 @@ class TripController
         }
     }
 
+    public function endTrip(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $userId = $decodedToken->data->id;
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['trip_id'])) throw new Exception("ID de trajet invalide.", 400);
+            
+            $tripId = (int)$data['trip_id'];
+            $trip = Trip::findById($tripId);
+
+            if (!$trip || $trip->getDriverId() !== $userId) {
+                throw new Exception("Trajet non trouvé ou non autorisé.", 404);
+            }
+            
+            if ($trip->getStatus() !== 'ongoing') {
+                throw new Exception("Le trajet ne peut pas être terminé (statut: " . $trip->getStatus() . ").", 400);
+            }
+
+            $trip->setStatus('completed');
+            if ($trip->save()) {
+                http_response_code(200);
+                echo json_encode(["message" => "Trajet terminé avec succès."]);
+            } else {
+                throw new Exception("Erreur lors de la terminaison du trajet.", 500);
+            }
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
     public function getUserTrips(): void
     {
         header('Content-Type: application/json');
@@ -226,11 +262,10 @@ class TripController
             
             if (empty($trips)) {
                 http_response_code(200);
-                echo json_encode([]); // Toujours renvoyer un tableau vide si aucun trajet
+                echo json_encode([]);
                 return;
             }
-            
-            // Les trajets sont déjà des tableaux associatifs grâce à getCompletedTripsByUser
+
             http_response_code(200);
             echo json_encode($trips);
             

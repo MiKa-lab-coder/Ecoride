@@ -33,6 +33,10 @@ export async function fetchBooking() {
         if (bookings.length === 0) {
             bookingsContainer.innerHTML = '<p>Vous n\'êtes inscrit à aucun trajet pour le moment.</p>';
         } else {
+            const title = document.createElement('h3');
+            title.textContent = 'Mes réservations';
+            bookingsContainer.appendChild(title);
+
             bookings.forEach(booking => {
                 const bookingCard = document.createElement('div');
                 bookingCard.className = 'booking-card';
@@ -90,17 +94,14 @@ export async function fetchOfferedTrip() {
     const driverContent = document.getElementById('drivers-content');
     if (!driverContent) return;
 
-    // La structure de base est déjà dans le HTML, on ne la recrée pas ici
     const offeredTripsContainer = document.getElementById('offered-trips-cards-container');
     const addTripsBtn = document.getElementById('add-trips-btn');
     const addTripFormContainer = driverContent.querySelector('.add-trip-form-container');
 
-    // Assurez-vous que le formulaire est masqué par défaut
     if (addTripFormContainer) {
         addTripFormContainer.classList.add('js-hidden');
     }
 
-    // Logique pour afficher/masquer le formulaire
     if (addTripsBtn && addTripFormContainer) {
         addTripsBtn.addEventListener('click', () => {
             addTripFormContainer.classList.toggle('js-hidden');
@@ -118,7 +119,7 @@ export async function fetchOfferedTrip() {
         if (!response.ok) throw new Error('Erreur lors de la récupération des trajets proposés.');
 
         const offeredTrips = await response.json();
-        offeredTripsContainer.innerHTML = ''; // Vider le conteneur des cartes
+        offeredTripsContainer.innerHTML = '';
 
         if (offeredTrips.length === 0) {
             offeredTripsContainer.innerHTML = '<p>Vous n\'avez proposé aucun trajet.</p>';
@@ -136,10 +137,25 @@ export async function fetchOfferedTrip() {
                     <p><strong>Véhicule:</strong> ${trip.brand} ${trip.model} (${trip.registration_number})</p>
                     <p><strong>Animaux autorisés:</strong> ${trip.animal_pref ? 'Oui' : 'Non'}</p>
                     <p><strong>Fumeurs autorisés:</strong> ${trip.smoking_pref ? 'Oui' : 'Non'}</p>
-                    <button class="edit-trip-btn" data-trip-id='${trip.trip_id}'>Modifier</button>
-                    <button class="delete-trip-btn" data-trip-id='${trip.trip_id}'>Supprimer</button>
-                    <button class="launch-trip-btn" data-trip-id='${trip.trip_id}' ${trip.status !== 'approved' ? 'disabled' : ''}>Lancer</button>
                 `;
+                
+                // Boutons d'action
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'trip-actions';
+
+                if (trip.status === 'approved') {
+                    actionsDiv.innerHTML += `<button class="edit-trip-btn" data-trip-id='${trip.trip_id}'>Modifier</button>`;
+                    actionsDiv.innerHTML += `<button class="delete-trip-btn" data-trip-id='${trip.trip_id}'>Supprimer</button>`;
+                    actionsDiv.innerHTML += `<button class="launch-trip-btn" data-trip-id='${trip.trip_id}'>Lancer</button>`;
+                } else if (trip.status === 'ongoing') {
+                    actionsDiv.innerHTML += `<button class="end-trip-btn" data-trip-id='${trip.trip_id}'>Terminer</button>`;
+                } else if (trip.status === 'pending') {
+                    actionsDiv.innerHTML += `<p>En attente de validation</p>`;
+                    actionsDiv.innerHTML += `<button class="edit-trip-btn" data-trip-id='${trip.trip_id}'>Modifier</button>`;
+                    actionsDiv.innerHTML += `<button class="delete-trip-btn" data-trip-id='${trip.trip_id}'>Supprimer</button>`;
+                }
+
+                tripCard.appendChild(actionsDiv);
                 offeredTripsContainer.appendChild(tripCard);
             });
         }
@@ -171,6 +187,16 @@ export async function fetchOfferedTrip() {
                 const tripId = e.target.dataset.tripId;
                 if (confirm('Êtes-vous sûr de vouloir lancer ce trajet ? Cette action est irréversible.')) {
                     await launchTrip(tripId, token);
+                    await fetchOfferedTrip();
+                }
+            });
+        });
+
+        offeredTripsContainer.querySelectorAll('.end-trip-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const tripId = e.target.dataset.tripId;
+                if (confirm('Êtes-vous sûr de vouloir terminer ce trajet ?')) {
+                    await endTrip(tripId, token);
                     await fetchOfferedTrip();
                 }
             });
@@ -290,6 +316,19 @@ async function launchTrip(tripId, token) {
     }
 }
 
+async function endTrip(tripId, token) {
+    try {
+        const response = await fetch(`/api/trips/end`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trip_id: tripId })
+        });
+        if (!response.ok) throw new Error('Erreur lors de la terminaison du trajet.');
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 /**
  * Affiche les trajets terminés et gère leur évaluation.
  */
@@ -302,11 +341,13 @@ export async function fetchPastTrips() {
 
     try {
         const response = await fetch('/api/trips/past', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` },
         });
         if (!response.ok) throw new Error('Erreur lors de la récupération des trajets passés.');
 
         const trips = await response.json();
+        //console.log('infos trajets reçus:', trips);
         container.innerHTML = '';
 
         if (trips.length === 0) {
@@ -314,7 +355,7 @@ export async function fetchPastTrips() {
         } else {
             trips.forEach(trip => {
                 const tripCard = document.createElement('div');
-                tripCard.className = 'past-trip-card';
+                tripCard.className = 'trip-card'; // Changé de 'past-trip-card' à 'trip-card' pour le style
                 tripCard.innerHTML = `
                     <h4>Trajet vers ${trip.arrival_location}</h4>
                     <p><strong>Date:</strong> ${new Date(trip.departure_day).toLocaleDateString()}</p>

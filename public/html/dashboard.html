@@ -89,10 +89,16 @@
                 </div>
             </div>
             <div class="past-trips dashboard-section js-hidden" id="past-trips-content">
-            <h3>Mes précédents trajets :</h3>
-            <div id="past-trips-container"></div>
-            <!-- Le contenu des trajets passés sera chargé ici -->
-        </div>
+                <h3>Mes précédents trajets :</h3>
+                <div id="past-trips-container" class="card-container"></div>
+                <!-- Le contenu des trajets passés sera chargé ici -->
+            </div>
+            <div id="review-content" class="dashboard-section js-hidden">
+                <h3>Mes évaluations</h3>
+                <div id="reviews-container" class="card-container">
+                    <!-- Le contenu des avis sera chargé ici -->
+                </div>
+            </div>
             <div id="review-content-content" class="dashboard-section js-hidden">
                 <h2>Gestion des annonces</h2>
                 <ul>
@@ -110,11 +116,6 @@
                         <input type="submit" class="reject-announcement-btn" value="Rejeter">
                     </li>
                 </ul>
-            </div>
-            <div id="review-content" class="dashboard-section js-hidden">
-                <h2>Mes évaluations</h2>
-                <p>Consultez les avis que vous avez laissés et reçus.</p>
-                <!-- Le contenu des avis sera chargé ici -->
             </div>
             <div id="user-reports-content" class="dashboard-section js-hidden">
                 <h2>Gestion des litiges</h2>

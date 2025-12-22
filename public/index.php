@@ -70,6 +70,9 @@ $routes = [
         // Rating
         '/api/ratings/user' => [$ratingController, 'getUserRating'],
 
+        // Review
+        '/api/reviews/received' => [$reviewController, 'getReceivedReviews'],
+
         // Transaction
         '/api/transactions/credits' => [$transactionController, 'getUserBalance'],
 
@@ -114,7 +117,7 @@ $routes = [
         '/api/issues/close' => [$issuesController, 'closeIssue'],
 
         // Rating
-        '/api/ratings' => [$ratingController, 'submitRating'],
+        '/api/ratings' => [$reviewController, 'submitReview'], // Changé pour utiliser ReviewController
 
         // Review
         '/api/reviews' => [$reviewController, 'submitReview'],

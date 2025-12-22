@@ -23,18 +23,22 @@ class MongoDatabase
     public static function getInstance(): Client
     {
         if (self::$instance === null) {
-            $uri = sprintf("mongodb://%s:%s",
-                Config::get("DB_HOST"),
-                Config::get("DB_PORT", "27017")
-            );
-            // Si variable identification définies
-            if (Config::get("DB_USER") && Config::get("DB_PASSWORD")) {
+            // Utiliser des variables d'environnement spécifiques à MongoDB
+            $host = Config::get("MONGO_HOST", "mongo");
+            $port = Config::get("MONGO_PORT", "27017");
+            $user = Config::get("MONGO_INITDB_ROOT_USERNAME");
+            $pass = Config::get("MONGO_INITDB_ROOT_PASSWORD");
+
+            $uri = sprintf("mongodb://%s:%s", $host, $port);
+            
+            // Si les variables d'identification sont définies
+            if ($user && $pass) {
                 $uri = sprintf(
                     "mongodb://%s:%s@%s:%s",
-                    Config::get("DB_USER"),
-                    Config::get("DB_PASSWORD"),
-                    Config::get("DB_HOST"),
-                    Config::get("DB_PORT", "27017")
+                    $user,
+                    $pass,
+                    $host,
+                    $port
                 );
             }
             try {
@@ -44,7 +48,8 @@ class MongoDatabase
                 // Test de la connexion avec une commande ping
                 self::$instance->selectDatabase('admin')->command(['ping' => 1]);
             } catch (MongoDBException $e) {
-                die("Échec de la connexion à MongoDB: " . $e->getMessage());
+                // Renvoyer une exception au lieu de 'die' pour ne pas casser le JSON
+                throw new \RuntimeException("Échec de la connexion à MongoDB: " . $e->getMessage());
             }
         }
         return self::$instance;
