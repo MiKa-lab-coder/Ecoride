@@ -27,7 +27,7 @@ class UserController
     {
         // Initialisation unique du logger
         $this->logger = new Logger('user_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/app.log', 100));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../issues/app.log', 100));
     }
 
     /**

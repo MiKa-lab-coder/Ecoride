@@ -355,7 +355,7 @@ export async function fetchPastTrips() {
         } else {
             trips.forEach(trip => {
                 const tripCard = document.createElement('div');
-                tripCard.className = 'trip-card'; // Changé de 'past-trip-card' à 'trip-card' pour le style
+                tripCard.className = 'trip-card';
                 tripCard.innerHTML = `
                     <h4>Trajet vers ${trip.arrival_location}</h4>
                     <p><strong>Date:</strong> ${new Date(trip.departure_day).toLocaleDateString()}</p>
@@ -370,8 +370,41 @@ export async function fetchPastTrips() {
                     tripCard.appendChild(rateBtn);
                 } else {
                     tripCard.innerHTML += '<p><em>Évaluation déjà soumise.</em></p>';
+                    // Bouton Signaler uniquement si l'évaluation est soumise
+                    tripCard.innerHTML += `<button class="report-issue-btn" data-trip-id="${trip.trip_id}" style="background-color: #e74c3c; color: white; margin-top: 10px;">Signaler</button>`;
                 }
                 container.appendChild(tripCard);
+            });
+
+            // Gestionnaire pour les boutons "Signaler"
+            container.querySelectorAll('.report-issue-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const tripId = e.target.dataset.tripId;
+                    const description = prompt("Veuillez décrire le problème rencontré :");
+                    
+                    if (description) {
+                        try {
+                            const response = await fetch('/api/issues', {
+                                method: 'POST',
+                                headers: { 
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ trip_id: tripId, description: description })
+                            });
+
+                            if (response.ok) {
+                                alert("Votre signalement a bien été pris en compte.");
+                            } else {
+                                const errorData = await response.json();
+                                alert("Erreur : " + (errorData.error || "Impossible de signaler le litige."));
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert("Une erreur est survenue.");
+                        }
+                    }
+                });
             });
         }
     } catch (error) {

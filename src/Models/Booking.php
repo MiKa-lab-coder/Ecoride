@@ -139,4 +139,21 @@ class Booking extends BaseModel
             return [];
         }
     }
+
+    /**
+     * Vérifie si un utilisateur a une réservation pour un trajet donné.
+     */
+    public static function hasUserBookedTrip(int $userId, int $tripId): bool
+    {
+        $db = Database::getInstance();
+        try {
+            $stmt = $db->prepare("SELECT COUNT(*) FROM BOOKINGS WHERE user_id = :userId AND trip_id = :tripId");
+            $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':tripId', $tripId, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchColumn() > 0;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
 }

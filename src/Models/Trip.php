@@ -30,9 +30,10 @@ class Trip extends BaseModel
     private int $driver_id;
     private int $vehicle_id;
 
-    // Nouvelles propriétés pour les jointures
+    // Propriétés pour les jointures
     private ?string $driver_firstname = null;
     private ?string $driver_name = null;
+    private ?string $driver_email = null;
     private ?string $brand = null;
     private ?string $model = null;
     private ?string $registration_number = null;
@@ -128,6 +129,11 @@ class Trip extends BaseModel
     public function getDriverName(): ?string
     {
         return $this->driver_name;
+    }
+
+    public function getDriverEmail(): ?string
+    {
+        return $this->driver_email;
     }
 
     public function getBrand(): ?string
@@ -238,6 +244,11 @@ class Trip extends BaseModel
         $this->driver_name = $driver_name;
     }
 
+    public function setDriverEmail(?string $driver_email): void
+    {
+        $this->driver_email = $driver_email;
+    }
+
     public function setBrand(?string $brand): void
     {
         $this->brand = $brand;
@@ -301,6 +312,7 @@ class Trip extends BaseModel
         // Hydratation des nouvelles propriétés
         if (isset($data['driver_firstname'])) $trip->setDriverFirstname($data['driver_firstname']);
         if (isset($data['driver_name'])) $trip->setDriverName($data['driver_name']);
+        if (isset($data['driver_email'])) $trip->setDriverEmail($data['driver_email']);
         if (isset($data['brand'])) $trip->setBrand($data['brand']);
         if (isset($data['model'])) $trip->setModel($data['model']);
         if (isset($data['registration_number'])) $trip->setRegistrationNumber($data['registration_number']);
@@ -313,10 +325,19 @@ class Trip extends BaseModel
         $db = Database::getInstance();
         try {
             if ($this->getTripId() !== null) {
-                $stmt = $db->prepare("UPDATE TRIPS SET departure_day = :departure_day, arrival_day = :arrival_day, departure_location = :departure_location, arrival_location = :arrival_location, departure_time = :departure_time, arrival_time = :arrival_time, trip_time = :trip_time, trip_price = :trip_price, trip_nature = :trip_nature, animal_pref = :animal_pref, smoking_pref = :smoking_pref, seating = :seating, status = :status, driver_id = :driver_id, vehicle_id = :vehicle_id WHERE trip_id = :trip_id");
+                $stmt = $db->prepare("UPDATE TRIPS SET departure_day = :departure_day, arrival_day = :arrival_day,
+                 departure_location = :departure_location, arrival_location = :arrival_location, departure_time = :departure_time,
+                 arrival_time = :arrival_time, trip_time = :trip_time, trip_price = :trip_price,
+                 trip_nature = :trip_nature, animal_pref = :animal_pref, smoking_pref = :smoking_pref, seating = :seating,
+                 status = :status, driver_id = :driver_id, vehicle_id = :vehicle_id WHERE trip_id = :trip_id");
                 $stmt->bindValue(':trip_id', $this->getTripId(), PDO::PARAM_INT);
             } else {
-                $stmt = $db->prepare("INSERT INTO TRIPS (departure_day, arrival_day, departure_location, arrival_location, departure_time, arrival_time, trip_time, trip_price, trip_nature, animal_pref, smoking_pref, seating, status, driver_id, vehicle_id) VALUES (:departure_day, :arrival_day, :departure_location, :arrival_location, :departure_time, :arrival_time, :trip_time, :trip_price, :trip_nature, :animal_pref, :smoking_pref, :seating, :status, :driver_id, :vehicle_id)");
+                $stmt = $db->prepare("INSERT INTO TRIPS (departure_day, arrival_day, departure_location, arrival_location,
+                   departure_time, arrival_time, trip_time, trip_price, trip_nature, animal_pref, smoking_pref,
+                   seating, status, driver_id, vehicle_id)
+                VALUES (:departure_day, :arrival_day, :departure_location, :arrival_location,:departure_time, :arrival_time,
+                        :trip_time, :trip_price, :trip_nature, :animal_pref, :smoking_pref, :seating, :status, :driver_id, :vehicle_id)");
+
             }
 
             $stmt->bindValue(':departure_day', $this->getDepartureDay()->format('Y-m-d'));
@@ -357,6 +378,29 @@ class Trip extends BaseModel
             return $data ? self::hydrate($data) : null;
         } catch (PDOException $e) {
             return null;
+        }
+    }
+
+    public static function findByStatus(string $status): array
+    {
+        $db = Database::getInstance();
+        try {
+            $stmt = $db->prepare("
+                SELECT t.*, u.email as driver_email 
+                FROM TRIPS t
+                JOIN USERS u ON t.driver_id = u.user_id
+                WHERE t.status = :status
+            ");
+            $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $tripData) {
+                $trips[] = self::hydrate($tripData);
+            }
+            return $trips;
+        } catch (PDOException $e) {
+            return [];
         }
     }
 
@@ -477,6 +521,7 @@ class Trip extends BaseModel
             'vehicle_id' => $this->getVehicleId(),
             'driver_firstname' => $this->getDriverFirstname(),
             'driver_name' => $this->getDriverName(),
+            'driver_email' => $this->getDriverEmail(), // Ajout de l'email
             'brand' => $this->getBrand(),
             'model' => $this->getModel(),
             'registration_number' => $this->getRegistrationNumber(),

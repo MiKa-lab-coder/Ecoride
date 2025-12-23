@@ -52,21 +52,27 @@ class AdminController
             $decodedToken = $tokenValidator->validateToken($token);
 
             // Vérification de l'autorisation (seuls les modérateurs et admins peuvent accéder à cette route)
-            $userRole = (int)$decodedToken->data->role_id;
+            $userRole = (int)$decodedToken->data->role;
             if (!$this->isModeratorOrAdmin($userRole)) {
-                $this->logger->warning("Tentative d'accès non autoriser par l'utilisateur ID: {$decodedToken->sub}");
+                $this->logger->warning("Tentative d'accès non autoriser par l'utilisateur ID: {$decodedToken->data->id}");
                 throw new Exception("Accès non autorisé.", 403);
             }
 
             // Récupération des annonces de voyage en attente avec la méthode statique findByStatus
-            $pendingTrips = Trip::findByStatus('pending');
+            $pendingTripsObjects = Trip::findByStatus('pending');
+            
+            // Transformation des objets Trip en tableaux
+            $pendingTripsArray = [];
+            foreach ($pendingTripsObjects as $trip) {
+                $pendingTripsArray[] = $trip->toArray();
+            }
 
             // Envoi de la réponse en cas de succès
             http_response_code(200);
             echo json_encode([
                 "success" => true,
                 "message" => "Annonces de voyage en attente récupérées avec succès.",
-                "data" => $pendingTrips
+                "data" => $pendingTripsArray
             ]);
             exit;
 
@@ -89,9 +95,9 @@ class AdminController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
-            $userRole = (int)$decodedToken->data->role_id;
+            $userRole = (int)$decodedToken->data->role;
             if (!$this->isModeratorOrAdmin($userRole)) {
-                $this->logger->warning("Tentative d'accès non autoriser par l'utilisateur ID: {$decodedToken->sub}");
+                $this->logger->warning("Tentative d'accès non autoriser par l'utilisateur ID: {$decodedToken->data->id}");
                 throw new Exception("Accès non autorisé.", 403);
             }
 
@@ -116,7 +122,7 @@ class AdminController
                 throw new Exception("Erreur lors de la validation de l'annonce.", 500);
             }
 
-            $this->logger->info("Annonce {$tripId} approuvée par l'utilisateur ID: {$decodedToken->sub}");
+            $this->logger->info("Annonce {$tripId} approuvée par l'utilisateur ID: {$decodedToken->data->id}");
             http_response_code(200);
             echo json_encode([
                 "success" => true,
@@ -144,9 +150,9 @@ class AdminController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
-            $userRole = (int)$decodedToken->data->role_id;
+            $userRole = (int)$decodedToken->data->role;
             if (!$this->isModeratorOrAdmin($userRole)) {
-                $this->logger->warning("Tentative d'accès non autoriser par l'utilisateur ID: {$decodedToken->sub}");
+                $this->logger->warning("Tentative d'accès non autoriser par l'utilisateur ID: {$decodedToken->data->id}");
                 throw new Exception("Accès non autorisé.", 403);
             }
 
@@ -169,7 +175,7 @@ class AdminController
                 throw new Exception("Erreur lors du rejet de l'annonce.", 500);
             }
 
-            $this->logger->info("Annonce {$tripId} rejetée par l'utilisateur ID: {$decodedToken->sub}");
+            $this->logger->info("Annonce {$tripId} rejetée par l'utilisateur ID: {$decodedToken->data->id}");
             http_response_code(200);
             echo json_encode([
                 "success" => true,
@@ -203,9 +209,9 @@ class AdminController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
-            $userRole = (int)$decodedToken->data->role_id;
+            $userRole = (int)$decodedToken->data->role;
             if (!$this->isAdmin($userRole)) {
-                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->sub}");
+                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->data->id}");
                 throw new Exception("Accès non autorisé.", 403);
             }
 
@@ -274,7 +280,7 @@ class AdminController
 
             http_response_code(201);
             echo json_encode(["success" => true, "message" => "Compte créé avec succès.", "user_id" => $user->getUserId()]);
-            $this->logger->info("Nouveau compte créé par l'admin: {$decodedToken->sub}");
+            $this->logger->info("Nouveau compte créé par l'admin: {$decodedToken->data->id}");
             exit;
 
         } catch (Exception $e) {
@@ -295,9 +301,9 @@ class AdminController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
-            $userRole = (int)$decodedToken->data->role_id;
+            $userRole = (int)$decodedToken->data->role;
             if (!$this->isAdmin($userRole)) {
-                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->sub}");
+                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->data->id}");
                 throw new Exception("Accès non autorisé.", 403);
             }
 
@@ -331,7 +337,7 @@ class AdminController
             }
 
             $this->logger->info("Utilisateur {$user->getUserId()} suspendu par l'utilisateur ID: 
-            {$decodedToken->sub}");
+            {$decodedToken->data->id}");
             http_response_code(200);
             echo json_encode([
                 "success" => true,
@@ -356,9 +362,9 @@ class AdminController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
-            $userRole = (int)$decodedToken->data->role_id;
+            $userRole = (int)$decodedToken->data->role;
             if (!$this->isAdmin($userRole)) {
-                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->sub}");
+                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->data->id}");
                 throw new Exception("Accès non autorisé.", 403);
             }
 
@@ -393,7 +399,7 @@ class AdminController
                 throw new Exception("Erreur lors de la réactivation de l'utilisateur.", 500);
             }
 
-            $this->logger->info("Utilisateur {$user->getUserId()} réactivé par l'utilisateur ID: {$decodedToken->sub}");
+            $this->logger->info("Utilisateur {$user->getUserId()} réactivé par l'utilisateur ID: {$decodedToken->data->id}");
             http_response_code(200);
             echo json_encode([
                 "success" => true,
@@ -418,9 +424,9 @@ class AdminController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
-            $userRole = (int)$decodedToken->data->role_id;
+            $userRole = (int)$decodedToken->data->role;
             if (!$this->isAdmin($userRole)) {
-                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->sub}");
+                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->data->id}");
                 throw new Exception("Accès non autorisé.", 403);
             }
 
@@ -456,7 +462,7 @@ class AdminController
             }
 
             $this->logger->info("Rôle de l'utilisateur {$user->getUserId()} modifié par l'utilisateur ID:
-             {$decodedToken->sub}");
+             {$decodedToken->data->id}");
             http_response_code(200);
             echo json_encode([
                 "success" => true,

@@ -100,37 +100,39 @@
                 </div>
             </div>
             <div id="review-content-content" class="dashboard-section js-hidden">
-                <h2>Gestion des annonces</h2>
-                <ul>
-                    <li>
-                        <!-- Mettre en place une boucle pour afficher toutes les annonces en attente de modération,
-                         max 9 pour eviter poid trop important-->
-                        <p>ID Annonce : ${id_annonce}</p>
-                        <p>Titre annonce : ${titre_annonce}</p>
-                        <p>ID Chaufeur : ${id}</p>
-                        <!-- Verifier si conform avec regle de la plateforme? -->
-                        <p>Description : ${description_annonce}</p>
-                        <p>Date du trajet : ${date_trajet}</p>
-                        <p>Prix : ${prix}</p>
-                        <input type="submit" class="validate-announcement-btn" value="Accepter">
-                        <input type="submit" class="reject-announcement-btn" value="Rejeter">
-                    </li>
-                </ul>
+                <h3>Modérations des annonces</h3>
+                <div id="manage-announcements-container" class="card-container"></div>
+<!--                <ul>-->
+<!--                    <li>-->
+<!--                        &lt;!&ndash; Mettre en place une boucle pour afficher toutes les annonces en attente de modération,-->
+<!--                         max 9 pour eviter poid trop important&ndash;&gt;-->
+<!--                        <p>ID Annonce : ${id_annonce}</p>-->
+<!--                        <p>Titre annonce : ${titre_annonce}</p>-->
+<!--                        <p>Email Chaufeur : ${id}</p>-->
+<!--                        &lt;!&ndash; Verifier si conform avec regle de la plateforme? &ndash;&gt;-->
+<!--                        <p>Description : ${description_annonce}</p>-->
+<!--                        <p>Date du trajet : ${date_trajet}</p>-->
+<!--                        <p>Prix : ${prix}</p>-->
+<!--                        <input type="submit" class="validate-announcement-btn" value="Accepter">-->
+<!--                        <input type="submit" class="reject-announcement-btn" value="Rejeter">-->
+<!--                    </li>-->
+<!--                </ul>-->
             </div>
             <div id="user-reports-content" class="dashboard-section js-hidden">
-                <h2>Gestion des litiges</h2>
-                <ul>
-                    <li>
-                        <p>ID Trajet : ${id_trajet}</p>
-                        <p>Titre trajet : ${titre_trajet}</p>
-                        <p>ID chauffeur : ${id_chaufeur}</p>
-                        <p>ID passager : ${id_passager}</p>
-                        <p>Heure de départ : ${heure_depart}</p>
-                        <p>Heure d'arrivée : ${heure_arrivee}</p>
-                        <p>Commentaires : ${commentaire} </p>
-                        <input type="submit" class="close-dispute-btn" value="Clore le litige">
-                    </li>
-                </ul>
+                <h3>Gestion des litiges</h3>
+                <div id="report-container" class="card-container"></div>
+<!--                <ul>-->
+<!--                    <li>-->
+<!--                        <p>ID Trajet : ${id_trajet}</p>-->
+<!--                        <p>Titre trajet : ${titre_trajet}</p>-->
+<!--                        <p>ID chauffeur : ${id_chaufeur}</p>-->
+<!--                        <p>ID passager : ${id_passager}</p>-->
+<!--                        <p>Heure de départ : ${heure_depart}</p>-->
+<!--                        <p>Heure d'arrivée : ${heure_arrivee}</p>-->
+<!--                        <p>Commentaires : ${commentaire} </p>-->
+<!--                        <input type="submit" class="close-dispute-btn" value="Clore le litige">-->
+<!--                    </li>-->
+<!--                </ul>-->
             </div>
             <div id="manage-users-content" class="dashboard-section js js-hidden">
                 <h2>Gestion des Utilisateurs</h2>

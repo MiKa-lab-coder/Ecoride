@@ -1,6 +1,6 @@
 // Revue du contenu
 export async function reviewOffer() {
-    const reviewContainer = document.getElementById('review-container');
+    const reviewContainer = document.getElementById('manage-announcements-container');
     if (!reviewContainer) return;
 
     const token = localStorage.getItem('token');
@@ -9,7 +9,7 @@ export async function reviewOffer() {
         return;
     }
 
-    const userRole = localStorage.getItem('role');
+    const userRole = localStorage.getItem('userRole');
     if (userRole !== '2' && userRole !== '1') {
         reviewContainer.innerHTML = '<p class="error">Vous n\'avez pas les droits pour accéder à cette page.</p>';
         return;
@@ -23,32 +23,29 @@ export async function reviewOffer() {
 
         if (!response.ok) throw new Error('Erreur lors de la récupération des offres.');
 
-        const trips = await response.json();
-        console.log(trips);
+        const responseData = await response.json();
+        const trips = responseData.data; // Accéder au tableau de données
 
-        if (trips.length === 0) {
+        if (!trips || trips.length === 0) {
             reviewContainer.innerHTML = '<p>Aucune offre en attente de validation.</p>';
             return;
         }
-
-        // Utilisation de slice() pour afficher au maximum 10 offres
-        const displayedTrips = trips.slice(0, 10);
 
         // Vider le conteneur avant d'afficher les nouvelles cartes
         reviewContainer.innerHTML = '';
 
         // Boucle pour afficher les offres sous forme de cartes
-        displayedTrips.forEach(trip => {
+        trips.forEach(trip => {
             const tripCard = document.createElement('div');
             tripCard.className = 'trip-card';
             tripCard.innerHTML = `
-                <h3>Trajet ID: ${trip.id}</h3>
-                <p>Trajet: ${trip.title}</p>
-                <p>Chauffeur ID: ${trip.driver_id}</p>
-                <p>Date: ${trip.departure_day}</p>
-                <p>Prix: ${trip.price} €</p>
-                <button class="approve-btn" data-id="${trip.id}">Approuver</button>
-                <button class="reject-btn" data-id="${trip.id}">Rejeter</button>
+                <h4>Trajet ${trip.departure_location} -> ${trip.arrival_location}</h4>
+                <p><strong>ID Trajet:</strong> ${trip.trip_id}</p>
+                <p><strong>Email Conducteur:</strong> ${trip.driver_email}</p>
+                <p><strong>Date:</strong> ${new Date(trip.departure_day).toLocaleDateString()}</p>
+                <p><strong>Prix:</strong> ${trip.trip_price} crédits</p>
+                <button class="approve-btn" data-id="${trip.trip_id}">Approuver</button>
+                <button class="reject-btn" data-id="${trip.trip_id}" data-email="${trip.driver_email}">Rejeter</button>
             `;
             reviewContainer.appendChild(tripCard);
         });
@@ -58,36 +55,56 @@ export async function reviewOffer() {
             const target = e.target;
             const tripId = target.getAttribute('data-id');
 
+            if (!tripId) return;
+
             if (target.classList.contains('approve-btn')) {
                 try {
-                    const res = await fetch(`/api/admin/approve-trip/${tripId}`, {
+                    const res = await fetch('/api/admin/approve-trip', {
                         method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}` }
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ trip_id: tripId })
                     });
                     if (!res.ok) throw new Error('Erreur lors de l\'approbation de l\'offre.');
+                    
                     const card = target.closest('.trip-card');
                     if (card) card.remove();
+
                 } catch (error) {
                     console.error('Erreur:', error);
                 }
             } else if (target.classList.contains('reject-btn')) {
-                try {
-                    const res = await fetch(`/api/admin/reject-trip/${tripId}`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (!res.ok) throw new Error('Erreur lors du rejet de l\'offre.');
-                    const card = target.closest('.trip-card');
-                    if (card) card.remove();
-                } catch (error) {
-                    console.error('Erreur:', error);
+                const driverEmail = target.getAttribute('data-email');
+                if (confirm(`Êtes-vous sûr de vouloir rejeter ce trajet ? Un email sera simulé à ${driverEmail}.`)) {
+                    try {
+                        const res = await fetch('/api/admin/reject-trip', {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ trip_id: tripId })
+                        });
+                        if (!res.ok) throw new Error('Erreur lors du rejet de l\'offre.');
+                        
+                        // Simuler l'envoi d'email
+                        console.log(`Email de rejet envoyé (simulé) à : ${driverEmail}`);
+                        alert(`Trajet rejeté. Un email a été envoyé à ${driverEmail}.`);
+                        
+                        const card = target.closest('.trip-card');
+                        if (card) card.remove();
+
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                    }
                 }
             }
 
-            // Si le conteneur devient vide, on peut recharger la page
+            // Si le conteneur devient vide, afficher un message
             if (reviewContainer.children.length === 0) {
-                // Option : recharger après un délai pour une meilleure UX
-                setTimeout(() => window.location.reload(), 1000);
+                reviewContainer.innerHTML = '<p>Aucune offre en attente de validation.</p>';
             }
         });
 
@@ -107,8 +124,8 @@ export async function reviewReports() {
         return;
     }
 
-    const userRole = localStorage.getItem('role');
-    if (userRole !== 'Moderator' && userRole !== 'Admin') {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== '2' && userRole !== '1') {
         reportContainer.innerHTML = '<p class="error">Vous n\'avez pas les droits pour accéder à cette page.</p>';
         return;
     }
@@ -121,56 +138,70 @@ export async function reviewReports() {
         if (!issues.ok) throw new Error('Erreur lors de la récupération des litiges.');
 
         const issuesData = await issues.json();
-        console.log(issuesData);
+        //console.log(issuesData);
 
         if (issuesData.length === 0) {
             reportContainer.innerHTML = '<p>Aucun litige en attente de traitement.</p>';
             return;
         }
-        // Utilisation de slice() pour afficher au maximum 10 litiges
-        const displayedIssues = issuesData.slice(0, 10);
-
+        
         // Vider le conteneur avant d'afficher les nouvelles cartes
         reportContainer.innerHTML = '';
 
         // Boucle pour afficher les litiges sous forme de cartes
-        displayedIssues.forEach(issue => {
+        issuesData.forEach(issue => {
+            // On n'affiche que les litiges ouverts
+            if (issue.status !== 'open') return;
+
             const issueCard = document.createElement('div');
             issueCard.className = 'issue-card';
+            issueCard.classList.add('trip-card'); 
+            
             issueCard.innerHTML = `
-                <h3>Litige ID: ${issue.id}</h3>
-                <p>Trajet ID: ${issue.trip_id}</p>
-                <p>Conducteur ID:${issue.driver_id}</p>
-                <p>Utilisateur ID: ${issue.user_id}</p>
-                <p>Description: ${issue.description}</p>
-                <button class="resolve-btn" data-id="${issue.id}">Clore</button>
+                <h4>Litige #${issue.id} - ${new Date(issue.created_at).toLocaleDateString()}</h4>
+                <p><strong>Trajet :</strong> ${issue.trip_departure} -> ${issue.trip_arrival} (${new Date(issue.trip_date).toLocaleDateString()})</p>
+                <hr>
+                <p><strong>Plaignant :</strong> ${issue.plaintiff_username} (${issue.plaintiff_email})</p>
+                <p><strong>Conducteur :</strong> ${issue.driver_username} (${issue.driver_email})</p>
+                <hr>
+                <p><strong>Description :</strong></p>
+                <p><em>"${issue.description}"</em></p>
+                <button class="resolve-btn" data-id="${issue.id}" style="background-color: #27ae60; color: white; margin-top: 10px;">Clore le litige</button>
             `;
             reportContainer.appendChild(issueCard);
         });
 
-        // Utilisation de la délégation d'événements pour les boutons
         reportContainer.addEventListener('click', async (e) => {
             const target = e.target;
             const issueId = target.getAttribute('data-id');
 
             if (target.classList.contains('resolve-btn')) {
-                try {
-                    const res = await fetch(`/api/issues/close/${issueId}`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (!res.ok) throw new Error('Erreur lors de la clôture du litige.');
-                    const card = target.closest('.issue-card');
-                    if (card) card.remove();
-                }
-                catch (error) {
-                    console.error('Erreur:', error);
+                if(confirm("Voulez-vous vraiment clore ce litige ?")) {
+                    try {
+                        const res = await fetch('/api/issues/close', {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ issue_id: issueId })
+                        });
+                        if (!res.ok) throw new Error('Erreur lors de la clôture du litige.');
+                        
+                        const card = target.closest('.issue-card');
+                        if (card) card.remove();
+                        
+                        alert("Litige clos avec succès.");
+                    }
+                    catch (error) {
+                        console.error('Erreur:', error);
+                        alert("Erreur lors de la clôture.");
+                    }
                 }
             }
-            // Si le conteneur devient vide, on peut recharger la page
+            // Si le conteneur devient vide
             if (reportContainer.children.length === 0) {
-                // Option : recharger après un délai pour une meilleure UX
-                setTimeout(() => window.location.reload(), 1000);
+                reportContainer.innerHTML = '<p>Aucun litige en attente de traitement.</p>';
             }
         });
     }
