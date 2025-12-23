@@ -30,10 +30,10 @@ const setupToggleListener = (showBtn, cancelBtn, container) => {
             container.classList.add('js-hidden');
             showBtn.classList.remove('js-hidden');
         });
-    } else {
+    } //else {
         // Si un ou plusieurs éléments sont manquants, affiche un avertissement dans la console.
-        console.warn('Un ou plusieurs éléments sont introuvables. Vérifiez les sélecteurs.');
-    }
+       // console.warn('Un ou plusieurs éléments sont introuvables. Vérifiez les sélecteurs.');
+    //}
 };
 
 // Regroupement des appels de fonctions
