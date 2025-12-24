@@ -56,7 +56,12 @@ export async function setupLoginFetch() {
 
                 } else {
                     const errorResult = await response.json();
-                    errorMessage.textContent = errorResult?.message || "Nom d'utilisateur ou mot de passe incorrect.";
+                    
+                    if (response.status === 403) {
+                        errorMessage.innerHTML = 'Votre compte a été suspendu. Veuillez <a href="/html/contact.html">nous contacter</a>.';
+                    } else {
+                        errorMessage.textContent = errorResult?.error || "Nom d'utilisateur ou mot de passe incorrect.";
+                    }
                 }
 
             } catch (error) {
