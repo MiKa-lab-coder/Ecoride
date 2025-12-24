@@ -27,7 +27,8 @@ class UserController
     {
         // Initialisation unique du logger
         $this->logger = new Logger('user_logger');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../issues/app.log', 100));
+        // Correction du chemin du log
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/app.log', 100));
     }
 
     /**
@@ -59,19 +60,7 @@ class UserController
             // Envoi de la réponse en cas de succès
             $this->logger->info("Affichage du profil pour ID: $userId");
             http_response_code(200);
-            echo json_encode([
-                'id' => $user->getUserId(),
-                'username' => $user->getUsername(),
-                'email' => $user->getEmail(),
-                'name' => $user->getName(),
-                'firstname' => $user->getFirstname(),
-                'birthdate' => $user->getBirthDate()->format('d-m-Y'),
-                'role_id' => $user->getRoleId(),
-                'photo' => $user->getPhoto(),
-                'total_trips' => $user->getTotalTrips(),
-                'driver_rating' => $user->getDriverRating(),
-                'credit' => $user->getCredit(),
-            ]);
+            echo json_encode($user->toArray());
             exit;
 
         } catch (Exception $e) {
