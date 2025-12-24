@@ -363,6 +363,45 @@ class User extends BaseModel
             return false;
         }
     }
+    
+    public static function findAll(): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM USERS");
+        
+        try {
+            $stmt->execute();
+            $users = [];
+            while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $users[] = self::hydrate($data);
+            }
+            return $users;
+        } catch (PDOException $e) {
+            $log = new Logger('find_all_users_errors');
+            $log->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));
+            $log->error("Erreur lors de la récupération de tous les utilisateurs : " . $e->getMessage(),
+                ['trace' => $e->getTraceAsString()]);
+            return [];
+        }
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'user_id' => $this->getUserId(),
+            'name' => $this->getName(),
+            'firstname' => $this->getFirstname(),
+            'birth_date' => $this->getBirthDate()->format('Y-m-d'),
+            'username' => $this->getUsername(),
+            'photo' => $this->getPhoto(),
+            'email' => $this->getEmail(),
+            'total_trips' => $this->getTotalTrips(),
+            'account_status' => $this->getAccountStatus(),
+            'role_id' => $this->getRoleId(),
+            'driver_rating' => $this->getDriverRating(),
+            'credit' => $this->getCredit()
+        ];
+    }
 
     // Méthodes de sécurité
     public function setPassword(string $password): void
