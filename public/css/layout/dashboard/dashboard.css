@@ -46,6 +46,42 @@
     display: block;
 }
 
+/* Style pour le tableau des utilisateurs */
+.user-list-container {
+    margin-top: 30px;
+    overflow-x: auto; /* Pour gérer le débordement sur petits écrans */
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.95rem;
+}
+
+.user-table th,
+.user-table td {
+    border: 1px solid var(--boder-color);
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.user-table th {
+    background-color: var(--primary-color-eco);
+    color: var(--spcing-white, #fff);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.user-table tr:nth-child(even) {
+    background-color: var(--spcing-light, #f9f9f9);
+}
+
+.user-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
 /* media queries */
 /* tablets*/
 @media (min-width: 768px) {

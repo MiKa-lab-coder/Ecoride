@@ -59,10 +59,12 @@ $routes = [
         '/api/auth/logout' => [$authController, 'logout'],
 
         // Admin
+        '/api/admin/users' => [$adminController, 'getAllUsers'],
         '/api/admin/pending-trips' => [$adminController, 'getPendingTrips'],
         '/api/admin/issues' => [$issuesController, 'viewIssues'],
         '/api/admin/statCredits' => [$transactionController, 'getPlatformStats'],
         '/api/admin/statTrips' => [$tripController, 'getWeeklyTrips'],
+        '/api/admin/statUsers' => [$userController, 'getWeeklyUsers'],
 
         // Booking
         '/api/bookings/user' => [$bookingController, 'getUserBookings'],

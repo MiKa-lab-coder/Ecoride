@@ -232,7 +232,6 @@ class AdminController
             $lastName = htmlspecialchars($data['last_name'] ?? 'prenom');
             $birthDate = new DateTime($data['birth_date'] ?? '1990-01-01');
             $profilePicture = htmlspecialchars($data['profile_picture'] ?? 'uploads/default.png');
-            $rating = (int)($data['rating'] ?? 0);
             $totalTrips = (int)($data['total_trips'] ?? 0);
             $accountStatus = htmlspecialchars($data['account_status'] ?? 'active');
 
@@ -268,7 +267,6 @@ class AdminController
                 $profilePicture,
                 $email,
                 $password,
-                $rating,
                 $totalTrips,
                 $accountStatus,
                 $roleId
@@ -318,13 +316,16 @@ class AdminController
             $username = htmlspecialchars($data['username'] ?? '');
             $email = htmlspecialchars($data['email'] ?? '');
 
-            if (empty($username) && empty($email)) {
-                throw new Exception("Champs requis (username ou email) manquants.", 400);
+            if (empty($username) || empty($email)) {
+                throw new Exception("Champs requis (username ET email) manquants.", 400);
             }
 
-            $user = User::findByUsername($username) ?? User::findByEmail($email);
-            if (!$user) {
-                throw new Exception("Utilisateur non trouvé.", 404);
+            // Recherche par username
+            $user = User::findByUsername($username);
+            
+            // Vérification que l'email correspond aussi
+            if (!$user || $user->getEmail() !== $email) {
+                throw new Exception("Utilisateur non trouvé ou email ne correspondant pas.", 404);
             }
 
             if ($user->getAccountStatus() === 'suspended') {
@@ -380,13 +381,16 @@ class AdminController
             $username = htmlspecialchars($data['username'] ?? '');
             $email = htmlspecialchars($data['email'] ?? '');
 
-            if (empty($username) && empty($email)) {
-                throw new Exception("Champs requis (username ou email) manquants.", 400);
+            if (empty($username) || empty($email)) {
+                throw new Exception("Champs requis (username ET email) manquants.", 400);
             }
 
-            $user = User::findByUsername($username) ?? User::findByEmail($email);
-            if (!$user) {
-                throw new Exception("Utilisateur non trouvé.", 404);
+            // Recherche par username
+            $user = User::findByUsername($username);
+            
+            // Vérification que l'email correspond aussi
+            if (!$user || $user->getEmail() !== $email) {
+                throw new Exception("Utilisateur non trouvé ou email ne correspondant pas.", 404);
             }
 
             if ($user->getAccountStatus() === 'active') {
@@ -443,17 +447,21 @@ class AdminController
             $email = htmlspecialchars($data['email'] ?? '');
             $roleId = (int)($data['role_id'] ?? 0);
 
-            if (empty($username) && empty($email)) {
-                throw new Exception("Champs requis (username ou email) manquants.", 400);
+            // Modification : username ET email requis
+            if (empty($username) || empty($email)) {
+                throw new Exception("Champs requis (username ET email) manquants.", 400);
             }
 
             if (!in_array($roleId, [2, 3])) {
                 throw new Exception("Rôle invalide. Les rôles valides sont modérateur (2) et utilisateur (3).", 400);
             }
 
-            $user = User::findByUsername($username) ?? User::findByEmail($email);
-            if (!$user) {
-                throw new Exception("Utilisateur non trouvé.", 404);
+            // Recherche par username
+            $user = User::findByUsername($username);
+            
+            // Vérification que l'email correspond aussi
+            if (!$user || $user->getEmail() !== $email) {
+                throw new Exception("Utilisateur non trouvé ou email ne correspondant pas.", 404);
             }
 
             $user->setRoleId($roleId);
@@ -471,6 +479,43 @@ class AdminController
             exit;
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la modification du rôle de l'utilisateur: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            exit;
+        }
+    }
+
+    // Méthode pour récupérer tous les utilisateurs
+    public function getAllUsers(): void
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+
+            $userRole = (int)$decodedToken->data->role;
+            if (!$this->isAdmin($userRole)) {
+                $this->logger->warning("Unauthorized access attempt by user: {$decodedToken->data->id}");
+                throw new Exception("Accès non autorisé.", 403);
+            }
+
+            $users = User::findAll();
+            $usersArray = [];
+            foreach ($users as $user) {
+                $usersArray[] = $user->toArray();
+            }
+
+            http_response_code(200);
+            echo json_encode([
+                "success" => true,
+                "data" => $usersArray
+            ]);
+            exit;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des utilisateurs: " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
             echo json_encode(["success" => false, "message" => $e->getMessage()]);
             exit;

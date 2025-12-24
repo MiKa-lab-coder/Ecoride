@@ -61,7 +61,6 @@ class User extends BaseModel
 
     public function getPhoto(): ?string
     {
-        // Assure que le chemin de la photo est toujours absolu pour le front-end
         if ($this->photo === null || $this->photo === '') {
             return '/uploads/default.png'; // Chemin par défaut absolu
         }

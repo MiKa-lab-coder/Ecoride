@@ -102,39 +102,12 @@
             <div id="review-content-content" class="dashboard-section js-hidden">
                 <h3>Modérations des annonces</h3>
                 <div id="manage-announcements-container" class="card-container"></div>
-<!--                <ul>-->
-<!--                    <li>-->
-<!--                        &lt;!&ndash; Mettre en place une boucle pour afficher toutes les annonces en attente de modération,-->
-<!--                         max 9 pour eviter poid trop important&ndash;&gt;-->
-<!--                        <p>ID Annonce : ${id_annonce}</p>-->
-<!--                        <p>Titre annonce : ${titre_annonce}</p>-->
-<!--                        <p>Email Chaufeur : ${id}</p>-->
-<!--                        &lt;!&ndash; Verifier si conform avec regle de la plateforme? &ndash;&gt;-->
-<!--                        <p>Description : ${description_annonce}</p>-->
-<!--                        <p>Date du trajet : ${date_trajet}</p>-->
-<!--                        <p>Prix : ${prix}</p>-->
-<!--                        <input type="submit" class="validate-announcement-btn" value="Accepter">-->
-<!--                        <input type="submit" class="reject-announcement-btn" value="Rejeter">-->
-<!--                    </li>-->
-<!--                </ul>-->
             </div>
             <div id="user-reports-content" class="dashboard-section js-hidden">
                 <h3>Gestion des litiges</h3>
                 <div id="report-container" class="card-container"></div>
-<!--                <ul>-->
-<!--                    <li>-->
-<!--                        <p>ID Trajet : ${id_trajet}</p>-->
-<!--                        <p>Titre trajet : ${titre_trajet}</p>-->
-<!--                        <p>ID chauffeur : ${id_chaufeur}</p>-->
-<!--                        <p>ID passager : ${id_passager}</p>-->
-<!--                        <p>Heure de départ : ${heure_depart}</p>-->
-<!--                        <p>Heure d'arrivée : ${heure_arrivee}</p>-->
-<!--                        <p>Commentaires : ${commentaire} </p>-->
-<!--                        <input type="submit" class="close-dispute-btn" value="Clore le litige">-->
-<!--                    </li>-->
-<!--                </ul>-->
             </div>
-            <div id="manage-users-content" class="dashboard-section js js-hidden">
+            <div id="manage-users-content" class="dashboard-section js-hidden">
                 <h2>Gestion des Utilisateurs</h2>
                 <form id="manage-account-form" method="post" action="">
                     <label for="username">Nom d'utilisateur</label>
@@ -162,6 +135,23 @@
                     <input type="submit" class="update-user-btn" value="Modifier">
                     <input type="submit" class="restore-user-btn" value="reactiver">
                 </form>
+                <div class="user-list-container">
+                    <h3>Liste des utilisateurs</h3>
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Rôle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list-tbody">
+                            <!-- Les utilisateurs seront insérés ici par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div id="manage-stats-content" class="dashboard-section js-hidden">
                 <h2>Statistiques</h2>
