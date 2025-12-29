@@ -94,7 +94,7 @@ class TransactionController
             $platformTransaction = new Transaction(
                 user_id: 1, // ID de l'utilisateur "Admin"
                 amount: self::PLATFORM_FEE, // Crédit des frais de plateforme
-                transaction_type: 'platform_fee',
+                transaction_type: 'service_fee',
                 reference: $tripRef
             );
             $platformTransaction->save();
@@ -207,20 +207,18 @@ class TransactionController
         }
     }
     // Méthode pour obtenir les statistiques de crédit de la plateforme (total crédits par jour)
-    public function getPlatformStats(): false|string
+    public function getPlatformStats(): void
     {
         header('Content-Type: application/json');
 
         try {
-            // Récupération du token depuis l'en-tête Authorization
             $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
-            // On valide le token JWT et on récupère les données décodées
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
 
             // Vérification de l'autorisation (seul l'admin peut accéder aux stats)
-            if ($decodedToken->data->role !== '1') {
+            if ((int)$decodedToken->data->role !== 1) {
                 $this->logger->warning("Tentative d'accès non autorisé aux statistiques de la plateforme par
                  l'utilisateur ID: " . $decodedToken->data->id);
                 throw new Exception("Accès non autorisé.", 403);
@@ -230,25 +228,41 @@ class TransactionController
             // Calcul de la plage de dates (vue sur 7 jours)
             $endDate = new \DateTime();
             $startDate = (new \DateTime())->sub(new \DateInterval('P7D'));
+            
             // Récupération des statistiques de la plateforme
             $dailyStats = Transaction::getPlatformEarningsByDate(
                 $startDate->format('Y-m-d'),
                 $endDate->format('Y-m-d')
             );
-            $weeklyTotal = array_sum(array_column($dailyStats, 'daily_earnings'));
 
-            $totalCredits = Transaction::getTotalCredits();
-            return json_encode([
-                'daily_stats' => $dailyStats,
-                'weekly_total' => $weeklyTotal,
-                'total_credits' => $totalCredits
+            // Formatage pour Chart.js
+            $labels = [];
+            $data = [];
+            $earningsByDate = [];
+
+            foreach ($dailyStats as $stat) {
+                $earningsByDate[$stat['date']] = (int)$stat['daily_earnings'];
+            }
+
+            // Boucle sur les 7 derniers jours pour avoir des données continues
+            for ($i = 6; $i >= 0; $i--) {
+                $date = (new \DateTime())->modify("-$i days")->format('Y-m-d');
+                $labels[] = (new \DateTime($date))->format('d/m');
+                $data[] = $earningsByDate[$date] ?? 0;
+            }
+
+            http_response_code(200);
+            echo json_encode([
+                'labels' => $labels,
+                'data' => $data
             ]);
-
+            exit;
 
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la récupération des statistiques de la plateforme - " . $e->getMessage());
             http_response_code(500);
-            return json_encode(['message' => 'Erreur lors de la récupération des statistiques.', 'error' => $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la récupération des statistiques.', 'error' => $e->getMessage()]);
+            exit;
         }
     }
     // Méthode pour obtenir le solde de crédit d'un utilisateur (profil)

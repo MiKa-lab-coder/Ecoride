@@ -138,23 +138,25 @@ class Transaction extends BaseModel
             return 0;
         }
     }
-    public static function getPlatformEarningsByDate($startDate, $endDate): float|int|array
+    
+    public static function getPlatformEarningsByDate($startDate, $endDate): array
     {
-
         $db = Database::getInstance();
         try {
-            $stmt = $db->prepare("SELECT DATE(created_at) as transaction_date, SUM(amount) as daily_earnings
-                  FROM TRANSACTIONS
-                  WHERE user_id = 1 
-                  AND transaction_type = 'service_fee'
-                  AND created_at BETWEEN :start_date AND :end_date
-                  GROUP BY transaction_date
-                  ORDER BY transaction_date ASC");
+            $stmt = $db->prepare("
+                SELECT DATE(transaction_date) as date, SUM(amount) as daily_earnings
+                FROM TRANSACTIONS
+                WHERE user_id = 1 
+                AND transaction_type = 'service_fee'
+                AND transaction_date BETWEEN :start_date AND :end_date
+                GROUP BY date
+                ORDER BY date ASC
+            ");
             $stmt->bindParam(':start_date', $startDate);
             $stmt->bindParam(':end_date', $endDate);
             $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_OBJ);
-            return (float)$result['total_earnings'] ?? 0;
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             $logger = new Logger('transaction_logger');
             $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', 400));

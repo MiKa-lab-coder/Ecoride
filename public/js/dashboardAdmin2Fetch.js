@@ -10,8 +10,8 @@ export async function statTrips() {
     }
     // Récupérer le rôle de l'utilisateur
     const userRole = localStorage.getItem('userRole');
-    if (userRole !== '1') { // Vérification par ID de rôle
-        console.error('Accès refusé. Rôle administrateur requis.');
+    if (userRole !== '1') {
+        // console.error('Accès refusé. Rôle administrateur requis.');
         return;
     }
     try {
@@ -25,19 +25,18 @@ export async function statTrips() {
         const stats = await response.json();
         console.log('Statistiques des trajets:', stats);
 
-        // Récupérer le conteneur
-        const statsContainer = document.getElementById('stat-trips-board');
-        if (!statsContainer) {
-            console.error('Conteneur des statistiques non trouvé.');
+        // Récupérer le canvas existant
+        const canvas = document.getElementById('tripsChart');
+        if (!canvas) {
+            console.error('Canvas "tripsChart" non trouvé.');
             return;
         }
 
-        // Inserer un canvas pour le graphique
-        const canvas = document.createElement('canvas');
-        canvas.id = 'tripsChart';
-        // Vider le conteneur et y insérer le nouveau canvas
-        statsContainer.innerHTML = '';
-        statsContainer.appendChild(canvas);
+        // Détruire le graphique existant s'il y en a un pour éviter les superpositions
+        const existingChart = Chart.getChart(canvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
 
         // Préparer les données pour Chart.js
         const ctx = canvas.getContext('2d');
@@ -46,17 +45,21 @@ export async function statTrips() {
             data: {
                 labels: stats.labels,
                 datasets: [{
-                    label: 'Nombre de trajets hebdomadaires',
+                    label: 'Nombre de trajets par jour',
                     data: stats.data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
+                responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
                     }
                 }
             }
@@ -75,12 +78,11 @@ export async function statCredit() {
     }
     // Récupérer le rôle de l'utilisateur
     const userRole = localStorage.getItem('userRole');
-    if (userRole !== '1') { // Vérification par ID de rôle
-        console.error('Accès refusé. Rôle administrateur requis.');
+    if (userRole !== '1') {
         return;
     }
     try {
-        const response = await fetch('api/admin/statCredits', {
+        const response = await fetch('/api/admin/statCredits', {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -90,35 +92,36 @@ export async function statCredit() {
         const stats = await response.json();
         console.log('Statistiques des trajets:', stats);
 
-        // Récupérer le conteneur
-        const statsContainer = document.getElementById('stat-credits-board');
-        if (!statsContainer) {
-            console.error('Conteneur des statistiques non trouvé.');
+        // Récupérer le canvas existant
+        const canvas = document.getElementById('creditsChart');
+        if (!canvas) {
+            console.error('Canvas "creditsChart" non trouvé.');
             return;
         }
 
-        // Inserer un canvas pour le graphique
-        const canvas = document.createElement('canvas');
-        canvas.id = 'creditsChart';
-        // Vider le conteneur et y insérer le nouveau canvas
-        statsContainer.innerHTML = '';
-        statsContainer.appendChild(canvas);
+        // Détruire le graphique existant s'il y en a un
+        const existingChart = Chart.getChart(canvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
 
         // Préparer les données pour Chart.js
         const ctx = canvas.getContext('2d');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'line', // Graphique en ligne pour l'évolution des crédits
             data: {
                 labels: stats.labels,
                 datasets: [{
-                    label: 'Nombre de credits hebdomadaires',
+                    label: 'Crédits gagnés (cumulés)',
                     data: stats.data,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    borderWidth: 2,
+                    fill: true
                 }]
             },
             options: {
+                responsive: true,
                 scales: {
                     y: {
                         beginAtZero: true
@@ -127,6 +130,6 @@ export async function statCredit() {
             }
         });
     } catch (error) {
-        console.error('Erreur lors de la récupération des statistiques des trajets:', error);
+        console.error('Erreur lors de la récupération des statistiques des crédits:', error);
     }
 }

@@ -275,4 +275,30 @@ class TripController
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+
+    // Méthode pour récupérer les statistiques des trajets de la semaine (Admin)
+    public function getWeeklyTrips(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            
+            // Vérification du rôle admin (1)
+            if ($decodedToken->data->role !== 1) {
+                throw new Exception("Accès non autorisé.", 403);
+            }
+
+            $stats = Trip::getTripsCountLast7Days();
+            
+            http_response_code(200);
+            echo json_encode($stats);
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des statistiques de trajets: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
 }

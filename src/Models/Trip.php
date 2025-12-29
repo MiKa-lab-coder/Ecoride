@@ -393,7 +393,7 @@ class Trip extends BaseModel
             ");
             $stmt->bindValue(':status', $status, PDO::PARAM_STR);
             $stmt->execute();
-
+            
             $trips = [];
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $tripData) {
                 $trips[] = self::hydrate($tripData);
@@ -579,6 +579,49 @@ class Trip extends BaseModel
             return $stmt->execute();
         } catch (PDOException $e) {
             return false;
+        }
+    }
+
+    /**
+     * Récupère le nombre de trajets par jour sur les 7 derniers jours.
+     */
+    public static function getTripsCountLast7Days(): array
+    {
+        $db = Database::getInstance();
+        try {
+            // On récupère les trajets des 7 derniers jours
+            $stmt = $db->prepare("
+                SELECT departure_day, COUNT(*) as count
+                FROM TRIPS
+                WHERE departure_day >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                GROUP BY departure_day
+                ORDER BY departure_day ASC
+            ");
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // On prépare les données pour Chart.js (labels et data)
+            // On s'assure d'avoir tous les jours, même ceux sans trajet (optionnel mais mieux)
+            $data = [];
+            $labels = [];
+            
+            // Création d'un tableau associatif date => count
+            $countsByDate = [];
+            foreach ($results as $row) {
+                $countsByDate[$row['departure_day']] = (int)$row['count'];
+            }
+
+            // Boucle sur les 7 derniers jours
+            for ($i = 6; $i >= 0; $i--) {
+                $date = (new DateTime())->modify("-$i days")->format('Y-m-d');
+                $labels[] = (new DateTime($date))->format('d/m'); // Format jour/mois
+                $data[] = $countsByDate[$date] ?? 0;
+            }
+
+            return ['labels' => $labels, 'data' => $data];
+
+        } catch (PDOException $e) {
+            return ['labels' => [], 'data' => []];
         }
     }
 }
