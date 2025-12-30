@@ -35,6 +35,9 @@ class Booking extends BaseModel
         $this->trip_id = $trip_id;
     }
 
+    /**
+     * Création d'une réservation
+     */
     public function create(): bool
     {
         $logger = new Logger('booking_logger');
@@ -56,7 +59,9 @@ class Booking extends BaseModel
             return false;
         }
     }
-
+    /**
+    * Annulation d'une réservation
+    */
     public function cancel(): bool
     {
         $logger = new Logger('booking_logger');
@@ -72,6 +77,9 @@ class Booking extends BaseModel
         }
     }
 
+    /**
+     * Récupération d'une réservation par son ID
+     */
     public static function findById(int $booking_id): ?Booking
     {
         $logger = new Logger('booking_logger');
@@ -94,6 +102,9 @@ class Booking extends BaseModel
         }
     }
 
+    /**
+     * Récupération des réservations d'un utilisateur
+     */
     public static function getPassengersForTrip(int $tripId): array
     {
         $db = Database::getInstance();
@@ -112,6 +123,9 @@ class Booking extends BaseModel
         }
     }
 
+    /**
+     * Récupération des réservations d'un utilisateur avec les détails du trajet
+     */
     public static function getUserBookingsWithDetails(int $user_id): array
     {
         $db = Database::getInstance();
@@ -154,6 +168,29 @@ class Booking extends BaseModel
             return $stmt->fetchColumn() > 0;
         } catch (PDOException $e) {
             return false;
+        }
+    }
+
+    /**
+     * Récupère toutes les réservations pour un trajet donné.
+     */
+    public static function findByTripId(int $tripId): array
+    {
+        $db = Database::getInstance();
+        try {
+            $stmt = $db->prepare("SELECT * FROM BOOKINGS WHERE trip_id = :tripId");
+            $stmt->bindParam(':tripId', $tripId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $bookings = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $booking = new Booking(new DateTime($row['booking_date']), (int)$row['user_id'], (int)$row['trip_id']);
+                $booking->setBookingId((int)$row['booking_id']);
+                $bookings[] = $booking;
+            }
+            return $bookings;
+        } catch (PDOException $e) {
+            return [];
         }
     }
 }

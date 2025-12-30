@@ -15,6 +15,7 @@ use MongoDB\BSON\ObjectId;
  * -user_id (identifiant de l'utilisateur ayant posté le commentaire).
  * -trip_id (identifiant du voyage concerné par le commentaire).
  */
+
 class Review
 {
     private ?string $review_id; // ID du commentaire
@@ -29,37 +30,30 @@ class Review
     {
         return $this->review_id;
     }
-
     public function getUserId(): string
     {
         return $this->user_id;
     }
-
     public function getTripId(): string
     {
         return $this->trip_id;
     }
-
     public function getContent(): string
     {
         return $this->content;
     }
-
     public function setReviewId(string $review_id): void
     {
         $this->review_id = $review_id;
     }
-
     public function setUserId(string $user_id): void
     {
         $this->user_id = $user_id;
     }
-
     public function setTripId(string $trip_id): void
     {
         $this->trip_id = $trip_id;
     }
-
     public function setContent(string $content): void
     {
         $this->content = $content;
@@ -88,13 +82,15 @@ class Review
         ];
         $result = $reviewsCollection->insertOne($document);
 
-        $this->review_id = (string)$result->getInsertedId();
+        $this->review_id = (string) $result->getInsertedId();
 
         // Retourner true si l'insertion a réussi, sinon false
         return $result->getInsertedCount() > 0;
     }
 
-    // Méthode pour récupérer un commentaire par son ID(MongoDB ObjectId)
+    /**
+     * Récupère un commentaire par son ID.
+     */
     public function getReviewById(string $review_id): null|static
     {
         $reviewsCollection = $this->client->selectCollection('ecoride', 'reviews');
@@ -126,5 +122,32 @@ class Review
         ]);
 
         return $review ? $review['content'] : null;
+    }
+
+    /**
+     * Récupère tous les avis (note + commentaire) pour un conducteur donné.
+     */
+    public static function getReviewsForDriver(int $driverId): array
+    {
+        // Recuperation des notes du conducteur
+        $ratings = Rating::getRatingsForUser($driverId);
+        
+        $reviews = [];
+        foreach ($ratings as $rating) {
+            // Recuperation du commentaire associé à la note
+            $comment = self::getReviewComment((int)$rating['trip_id'], (int)$rating['passenger_id']);
+            
+            // Recuperation du nom de l'auteur du commentaire
+            $author = User::find((int)$rating['passenger_id']);
+            
+            if ($author) {
+                $reviews[] = [
+                    'author_name' => $author->getFirstname(),
+                    'rating' => $rating['rating_value'],
+                    'content' => $comment ?? 'Aucun commentaire laissé.'
+                ];
+            }
+        }
+        return $reviews;
     }
 }

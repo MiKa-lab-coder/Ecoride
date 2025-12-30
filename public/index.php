@@ -119,7 +119,7 @@ $routes = [
         '/api/issues/close' => [$issuesController, 'closeIssue'],
 
         // Rating
-        '/api/ratings' => [$reviewController, 'submitReview'], // Changé pour utiliser ReviewController
+        '/api/ratings' => [$reviewController, 'submitReview'],
 
         // Review
         '/api/reviews' => [$reviewController, 'submitReview'],
@@ -131,7 +131,7 @@ $routes = [
         // Trip
         '/api/trips' => [$tripController, 'proposeTrip'],
         '/api/trips/update' => [$tripController, 'updateTrip'],
-        '/api/trips/start' => [$tripController, 'startTrip'], // Ajout du '/' initial
+        '/api/trips/start' => [$tripController, 'startTrip'],
         '/api/trips/end' => [$tripController, 'endTrip'],
 
         // User

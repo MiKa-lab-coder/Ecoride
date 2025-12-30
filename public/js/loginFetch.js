@@ -1,3 +1,6 @@
+/**
+ * Connection d'un utilisateur.
+ */
 export async function setupLoginFetch() {
 // On récupère le formulaire et l'élément pour afficher les messages d'erreur
     const loginForm = document.getElementById('login-form');
@@ -42,21 +45,25 @@ export async function setupLoginFetch() {
                     }
 
                     const decodedToken = JSON.parse(atob(token.split('.')[1]));
-                    //console.log('Decoded Token:', decodedToken);
-                    //const userId = decodedToken?.data?.id;
                     const userRole = decodedToken?.data?.role;
 
                     // Stockage du token et des informations utilisateur dans le localStorage
-                    // pour l'accés aux pages protégées (dashboard, profil, etc.)
                     localStorage.setItem('token', token);
-                    //localStorage.setItem('userId', userId);
                     localStorage.setItem('userRole', userRole);
 
-                    window.location.href = '/html/dashboard.html';
+                    // Vérifier s'il y a une redirection en attente
+                    const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                    if (redirectUrl) {
+                        sessionStorage.removeItem('redirectAfterLogin');
+                        window.location.href = redirectUrl;
+                    } else {
+                        window.location.href = '/html/dashboard.html';
+                    }
 
                 } else {
                     const errorResult = await response.json();
-                    
+
+                    // Affichage en cas de compte suspendu
                     if (response.status === 403) {
                         errorMessage.innerHTML = 'Votre compte a été suspendu. Veuillez <a href="/html/contact.html">nous contacter</a>.';
                     } else {

@@ -16,6 +16,7 @@ use PDO;
 class BookingController
 {
     private Logger $logger;
+    private const PLATFORM_FEE = 2;
 
     public function __construct()
     {
@@ -23,7 +24,10 @@ class BookingController
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/booking.log', 100));
     }
 
-    public function bookTrip(int $trip_id): void
+    /**
+     * Réserver un trajet
+     */
+    public function bookTrip(): void
     {
         header('Content-Type: application/json');
         try {
@@ -31,6 +35,12 @@ class BookingController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
             $user_id = $decodedToken->data->id;
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['trip_id'])) {
+                throw new Exception("ID du trajet manquant.", 400);
+            }
+            $trip_id = (int)$data['trip_id'];
 
             $user = User::find($user_id);
             if (!$user) {
@@ -40,6 +50,12 @@ class BookingController
             $trip = Trip::findById($trip_id);
             if (!$trip) {
                 throw new Exception("Trajet non trouvé.", 404);
+            }
+
+            // Vérification du solde de l'utilisateur
+            $userBalance = Transaction::getUserBalance($user_id);
+            if ($userBalance < $trip->getTripPrice()) {
+                throw new Exception("Crédits insuffisants pour réserver ce trajet.", 402); // 402 Payment Required
             }
 
             if ($trip->calculateRemainingSeats() <= 0) {
@@ -53,12 +69,22 @@ class BookingController
 
             $trip->decrementAvailableSeats();
 
-            $transaction = new Transaction($user_id, -$trip->getTripPrice(), 'payment', $trip_id);
-            if (!$transaction->save()) {
+            // Transaction 1: Débit du passager
+            $passengerTransaction = new Transaction($user_id, -$trip->getTripPrice(), 'payment', $trip_id);
+            if (!$passengerTransaction->save()) {
                 $booking->cancel(); // Rollback booking
                 $trip->incrementAvailableSeats(); // Rollback seats
                 throw new Exception("Erreur lors du paiement du trajet.", 500);
             }
+
+            // Transaction 2: Crédit du conducteur
+            $driverAmount = $trip->getTripPrice() - self::PLATFORM_FEE;
+            $driverTransaction = new Transaction($trip->getDriverId(), $driverAmount, 'payment', $trip_id);
+            $driverTransaction->save();
+
+            // Transaction 3: Crédit de la plateforme
+            $platformTransaction = new Transaction(1, self::PLATFORM_FEE, 'service_fee', $trip_id);
+            $platformTransaction->save();
 
             http_response_code(201);
             echo json_encode(["message" => "Réservation et paiement effectués avec succès.", "booking_id" => $booking->getBookingId()]);
@@ -68,7 +94,10 @@ class BookingController
         }
     }
 
-    public function cancelBooking(int $booking_id): void
+    /**
+     * Annuler une réservation
+     */
+    public function cancelBooking(): void
     {
         header('Content-Type: application/json');
         try {
@@ -76,6 +105,12 @@ class BookingController
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
             $user_id = $decodedToken->data->id;
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!$data || !isset($data['booking_id'])) {
+                throw new Exception("ID de réservation manquant.", 400);
+            }
+            $booking_id = (int)$data['booking_id'];
 
             $booking = Booking::findById($booking_id);
             if (!$booking) {
@@ -97,11 +132,18 @@ class BookingController
 
             $trip->incrementAvailableSeats();
 
-            $transaction = new Transaction($user_id, $trip->getTripPrice(), 'cancellation', $trip->getTripId());
-            if (!$transaction->save()) {
-                // Log error but don't rollback cancellation, as user expects it
-                $this->logger->error("Erreur lors du remboursement pour la réservation ID: $booking_id");
-            }
+            // Transaction 1: Remboursement du passager
+            $passengerTransaction = new Transaction($user_id, $trip->getTripPrice(), 'cancellation', $trip->getTripId());
+            $passengerTransaction->save();
+
+            // Transaction 2: Débit du conducteur
+            $driverAmount = $trip->getTripPrice() - self::PLATFORM_FEE;
+            $driverTransaction = new Transaction($trip->getDriverId(), -$driverAmount, 'cancellation', $trip->getTripId());
+            $driverTransaction->save();
+
+            // Transaction 3: Débit de la plateforme
+            $platformTransaction = new Transaction(1, -self::PLATFORM_FEE, 'cancellation', $trip->getTripId());
+            $platformTransaction->save();
 
             http_response_code(200);
             echo json_encode(["message" => "Réservation annulée et remboursement effectué avec succès."]);
@@ -111,6 +153,9 @@ class BookingController
         }
     }
 
+    /**
+     * Récupération des réservations d'un utilisateur
+     */
     public function getUserBookings(): void
     {
         header('Content-Type: application/json');

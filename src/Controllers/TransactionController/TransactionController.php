@@ -33,7 +33,10 @@ class TransactionController
         $this->logger = new Logger('TransactionController');
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/app.log', 100));
     }
-    // Créer un paiement pour un trajet réservé de façon automatique
+
+    /**
+     * Méthode pour payer un trajet
+     */
     public function payTrip($userId, $amount, $tripRef): false|string
     {
         header('Content-Type: application/json');
@@ -58,7 +61,7 @@ class TransactionController
                 throw new Exception("Utilisateur non trouvé.", 404);
             }
             // Vérification de l'existence du trajet
-            $trip = Trip::findById($tripRef);// tripRef est l'id du trajet
+            $trip = Trip::findById($tripRef);
             if (!$trip) {
                 $this->logger->error("Trajet non trouvé pour la référence: $tripRef");
                 throw new Exception("Trajet non trouvé.", 404);
@@ -71,7 +74,7 @@ class TransactionController
             // Création de la transaction de paiement (utilisateur : débit du montant + frais de plateforme)
             $userTransaction = new Transaction(
                 user_id: $userId,
-                amount: -$amount, // Débit du montant du trajet + frais de plateforme
+                amount: -$amount, // Débit du montant du trajet
                 transaction_type: 'payment',
                 reference: $tripRef
             );
@@ -118,7 +121,9 @@ class TransactionController
         }
     }
 
-    // Méthode pour rembourser un trajet annulé/supprimé de façon automatique
+    /**
+     * Rembourser un trajet (automatiquement)
+     */
     public function payBackTrip($userId, $amount, $tripRef): false|string
     {
         header('Content-Type: application/json');
@@ -206,7 +211,10 @@ class TransactionController
             return json_encode(['message' => 'Erreur de remboursement.', 'error' => $e->getMessage()]);
         }
     }
-    // Méthode pour obtenir les statistiques de crédit de la plateforme (total crédits par jour)
+
+    /**
+     * Récupération des statistiques de la plateforme (7 derniers jours)
+     */
     public function getPlatformStats(): void
     {
         header('Content-Type: application/json');
@@ -265,7 +273,9 @@ class TransactionController
             exit;
         }
     }
-    // Méthode pour obtenir le solde de crédit d'un utilisateur (profil)
+    /**
+     * Récupération du solde de crédit d'un utilisateur
+     */
     public function getUserBalance($userId): false|string
     {
         header('Content-Type: application/json');

@@ -30,13 +30,16 @@ class Trip extends BaseModel
     private int $driver_id;
     private int $vehicle_id;
 
-    // Propriétés pour les jointures
+    // Nouvelles propriétés pour les jointures
     private ?string $driver_firstname = null;
     private ?string $driver_name = null;
     private ?string $driver_email = null;
     private ?string $brand = null;
     private ?string $model = null;
     private ?string $registration_number = null;
+    private ?string $driver_photo = null;
+    private ?float $driver_rating = null;
+    private ?string $energy_type = null;
 
 
     // Getters
@@ -149,6 +152,30 @@ class Trip extends BaseModel
     public function getRegistrationNumber(): ?string
     {
         return $this->registration_number;
+    }
+
+    public function getDriverPhoto(): ?string
+    {
+        // Assure que le chemin de la photo est toujours absolu pour le front-end
+        if ($this->driver_photo === null || $this->driver_photo === '') {
+            return '/uploads/default.png'; // Chemin par défaut absolu
+        }
+        // Si le chemin est déjà absolu, le retourner tel quel
+        if (strpos($this->driver_photo, '/') === 0) {
+            return $this->driver_photo;
+        }
+        // Si le chemin est relatif (ex: 'uploads/image.png'), le rendre absolu
+        return '/' . $this->driver_photo;
+    }
+
+    public function getDriverRating(): ?float
+    {
+        return $this->driver_rating;
+    }
+
+    public function getEnergyType(): ?string
+    {
+        return $this->energy_type;
     }
 
 
@@ -264,6 +291,21 @@ class Trip extends BaseModel
         $this->registration_number = $registration_number;
     }
 
+    public function setDriverPhoto(?string $driver_photo): void
+    {
+        $this->driver_photo = $driver_photo;
+    }
+
+    public function setDriverRating(?float $driver_rating): void
+    {
+        $this->driver_rating = $driver_rating;
+    }
+
+    public function setEnergyType(?string $energy_type): void
+    {
+        $this->energy_type = $energy_type;
+    }
+
 
     public function __construct(DateTime $departure_day, DateTime $arrival_day, string $departure_location, string $arrival_location,
                                 DateTime $departure_time, DateTime $arrival_time, int $trip_time, int $trip_price, string $trip_nature,
@@ -288,6 +330,9 @@ class Trip extends BaseModel
         $this->setVehicleId($vehicle_id);
     }
 
+    /**
+     * Hydrate un objet Trip à partir d'un tableau de données.
+     */
     public static function hydrate(array $data): Trip
     {
         $trip = new self(
@@ -316,10 +361,16 @@ class Trip extends BaseModel
         if (isset($data['brand'])) $trip->setBrand($data['brand']);
         if (isset($data['model'])) $trip->setModel($data['model']);
         if (isset($data['registration_number'])) $trip->setRegistrationNumber($data['registration_number']);
+        if (isset($data['driver_photo'])) $trip->setDriverPhoto($data['driver_photo']);
+        if (isset($data['driver_rating'])) $trip->setDriverRating((float)$data['driver_rating']);
+        if (isset($data['energy_type'])) $trip->setEnergyType($data['energy_type']);
 
         return $trip;
     }
 
+    /**
+     * Sauvegarde un objet Trip dans la base de données.
+     */
     public function save(): bool
     {
         $db = Database::getInstance();
@@ -367,6 +418,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Récupère un trajet par son ID.
+     */
     public static function findById(int $trip_id): ?Trip
     {
         $db = Database::getInstance();
@@ -381,6 +435,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Trouve un trajet par son statut.
+     */
     public static function findByStatus(string $status): array
     {
         $db = Database::getInstance();
@@ -404,6 +461,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Trouve les trajets par conducteur.
+     */
     public static function getTripsByDriverId(int $driver_id): array
     {
         $db = Database::getInstance();
@@ -435,6 +495,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Trouve les trajets "complétés" par utilisateur.
+     */
     public static function getCompletedTripsByUser(int $userId): array
     {
         $db = Database::getInstance();
@@ -500,6 +563,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Transforme un objet Trip en tableau de données.
+     */
     public function toArray(): array
     {
         return [
@@ -521,13 +587,19 @@ class Trip extends BaseModel
             'vehicle_id' => $this->getVehicleId(),
             'driver_firstname' => $this->getDriverFirstname(),
             'driver_name' => $this->getDriverName(),
-            'driver_email' => $this->getDriverEmail(), // Ajout de l'email
+            'driver_email' => $this->getDriverEmail(),
             'brand' => $this->getBrand(),
             'model' => $this->getModel(),
             'registration_number' => $this->getRegistrationNumber(),
+            'driver_photo' => $this->getDriverPhoto(),
+            'driver_rating' => $this->getDriverRating(),
+            'energy_type' => $this->getEnergyType(),
         ];
     }
 
+    /**
+     * Supprime un trajet par son ID.
+     */
     public function delete(): bool
     {
         if ($this->getTripId() === null) {
@@ -543,6 +615,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Calcul le nombre de places restantes pour un trajet.
+     */
     public function calculateRemainingSeats(): int
     {
         $db = Database::getInstance();
@@ -558,6 +633,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Décrémente le nombre de places restantes pour un trajet.
+     */
     public function decrementAvailableSeats(): bool
     {
         $db = Database::getInstance();
@@ -570,6 +648,9 @@ class Trip extends BaseModel
         }
     }
 
+    /**
+     * Incrémente le nombre de places restantes pour un trajet (en cas de réservation annulée)
+     */
     public function incrementAvailableSeats(): bool
     {
         $db = Database::getInstance();
@@ -622,6 +703,99 @@ class Trip extends BaseModel
 
         } catch (PDOException $e) {
             return ['labels' => [], 'data' => []];
+        }
+    }
+
+    /**
+     * Recherche des trajets avec filtres.
+     */
+    public static function searchTrips(array $filters): array
+    {
+        $db = Database::getInstance();
+        try {
+            $sql = "
+                SELECT 
+                    t.*,
+                    u.firstname as driver_firstname,
+                    u.name as driver_name,
+                    u.photo as driver_photo,
+                    (SELECT AVG(r.rating_value) FROM RATINGS r WHERE r.rated_user_id = u.user_id) as driver_rating,
+                    v.brand,
+                    v.model,
+                    v.registration_number,
+                    v.energy_type
+                FROM TRIPS t
+                JOIN USERS u ON t.driver_id = u.user_id
+                JOIN VEHICLES v ON t.vehicle_id = v.vehicle_id
+                WHERE t.status = 'approved'
+                AND t.seating > 0
+            ";
+
+            $params = [];
+
+            // Filtre par ID (pour les détails)
+            if (!empty($filters['trip_id'])) {
+                $sql .= " AND t.trip_id = :trip_id";
+                $params[':trip_id'] = (int)$filters['trip_id'];
+            }
+
+            // Filtre par ville de départ
+            if (!empty($filters['departure'])) {
+                $sql .= " AND t.departure_location LIKE :departure";
+                $params[':departure'] = '%' . $filters['departure'] . '%';
+            }
+
+            // Filtre par ville d'arrivée
+            if (!empty($filters['arrival'])) {
+                $sql .= " AND t.arrival_location LIKE :arrival";
+                $params[':arrival'] = '%' . $filters['arrival'] . '%';
+            }
+
+            // Filtre par date
+            if (!empty($filters['departure_day'])) {
+                $sql .= " AND t.departure_day = :departure_day";
+                $params[':departure_day'] = $filters['departure_day'];
+            }
+
+            // Filtre écologique (voiture électrique ou hybride)
+            if (!empty($filters['ecologic']) && $filters['ecologic'] === 'true') {
+                $sql .= " AND t.trip_nature = 'ecologic'";
+            }
+
+            // Filtre prix max
+            if (!empty($filters['max_price'])) {
+                $sql .= " AND t.trip_price <= :max_price";
+                $params[':max_price'] = (int)$filters['max_price'];
+            }
+
+            // Filtre durée max (en minutes)
+            if (!empty($filters['max_duration'])) {
+                $sql .= " AND t.trip_time <= :max_duration";
+                $params[':max_duration'] = (int)$filters['max_duration'];
+            }
+
+            // Filtre note minimale du conducteur
+            if (!empty($filters['min_rating'])) {
+                $sql .= " AND (SELECT AVG(r.rating_value) FROM RATINGS r WHERE r.rated_user_id = u.user_id) >= :min_rating";
+                $params[':min_rating'] = (float)$filters['min_rating'];
+            }
+
+            $sql .= " ORDER BY t.departure_day ASC, t.departure_time ASC";
+
+            $stmt = $db->prepare($sql);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+
+            $trips = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $tripData) {
+                $trips[] = self::hydrate($tripData);
+            }
+            return $trips;
+
+        } catch (PDOException $e) {
+            return [];
         }
     }
 }

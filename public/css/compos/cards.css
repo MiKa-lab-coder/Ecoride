@@ -49,6 +49,13 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+#bookings-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre les cartes horizontalement */
+    gap: 20px; /* Espace entre les cartes */
+}
+
 .booking-card {
     background-color: var(--spcing-light);
     border: 1px solid var(--boder-color);
@@ -57,9 +64,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 300px;
-    margin: 20px;
     text-align: center;
-    align-items: center;
 }
 
 .trip-card {

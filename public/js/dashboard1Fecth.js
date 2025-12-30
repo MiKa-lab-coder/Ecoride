@@ -1,5 +1,3 @@
-// --- Fonctions pour la gestion des trajets de l'utilisateur ---
-
 /**
  * Affiche les trajets auxquels l'utilisateur est inscrit.
  */
@@ -69,15 +67,24 @@ export async function fetchBooking() {
     }
 }
 
+/**
+ * Annule une réservation.
+ */
 async function cancelBooking(bookingId, token) {
     try {
-        const response = await fetch(`/api/bookings/${bookingId}/cancel`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetch('/api/bookings/cancel', {
+            method: 'DELETE', // Changé en DELETE pour correspondre à la route
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ booking_id: bookingId })
         });
         if (!response.ok) {
             throw new Error('L\'annulation de la réservation a échoué.');
         }
+        // Mettre à jour la page après l'annulation
+        window.location.reload();
     } catch (error) {
         console.error('Erreur lors de l\'annulation:', error);
         alert('Une erreur est survenue lors de l\'annulation.');
@@ -207,11 +214,15 @@ export async function fetchOfferedTrip() {
     }
 }
 
+/**
+ * Affiche le formulaire de création ou de modification d'un trajet.
+ */
 async function renderTripForm(container, tripData = null) {
     const token = localStorage.getItem('token');
     const vehiclesResponse = await fetch('/api/vehicles/user', { headers: { 'Authorization': `Bearer ${token}` } });
     const vehicles = await vehiclesResponse.json();
-    const vehicleOptions = vehicles.map(v => `<option value="${v.vehicle_id}" ${tripData && tripData.vehicle_id == v.vehicle_id ? 'selected' : ''}>${v.brand} ${v.model} (${v.registration_number})</option>`).join('');
+    const vehicleOptions = vehicles.map(v => `<option value="${v.vehicle_id}"
+    ${tripData && tripData.vehicle_id == v.vehicle_id ? 'selected' : ''}>${v.brand} ${v.model} (${v.registration_number})</option>`).join('');
 
     container.innerHTML = `
         <form id="propose-trip-form">
@@ -273,8 +284,8 @@ async function renderTripForm(container, tripData = null) {
         data.animal_pref = form.querySelector('[name="animal_pref"]').checked;
 
         const tripId = data.trip_id;
-        const method = tripId ? 'POST' : 'POST';
-        const url = tripId ? `/api/trips/${tripId}/update` : '/api/trips';
+        const method = 'POST';
+        const url = tripId ? '/api/trips/update' : '/api/trips';
 
         try {
             const response = await fetch(url, {
@@ -293,9 +304,13 @@ async function renderTripForm(container, tripData = null) {
 
 async function deleteTrip(tripId, token) {
     try {
-        const response = await fetch(`/api/trips/${tripId}`, {
+        const response = await fetch('/api/trips/delete', {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ trip_id: tripId })
         });
         if (!response.ok) throw new Error('Erreur lors de la suppression.');
     } catch (error) {
@@ -303,6 +318,9 @@ async function deleteTrip(tripId, token) {
     }
 }
 
+/**
+ * Lance un trajet.
+ */
 async function launchTrip(tripId, token) {
     try {
         const response = await fetch(`/api/trips/start`, {
@@ -355,7 +373,7 @@ export async function fetchPastTrips() {
         } else {
             trips.forEach(trip => {
                 const tripCard = document.createElement('div');
-                tripCard.className = 'trip-card';
+                tripCard.className = 'trip-card'; // Changé de 'past-trip-card' à 'trip-card' pour le style
                 tripCard.innerHTML = `
                     <h4>Trajet vers ${trip.arrival_location}</h4>
                     <p><strong>Date:</strong> ${new Date(trip.departure_day).toLocaleDateString()}</p>
