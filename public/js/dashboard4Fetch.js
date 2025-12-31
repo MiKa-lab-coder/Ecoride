@@ -74,7 +74,7 @@ export async function displayUserCar() {
                 <input type="text" id="registration_number" name="registration_number" required>
 
                 <label for="first_service">Date de première mise en circulation</label>
-                <input type="date" id="first_service" name="first_service" required>
+                <input type="date" id="first_service" name="first_service" max="9999-12-31" required>
 
                 <label for="brand">Marque</label>
                 <input type="text" id="brand" name="brand" required>

@@ -243,13 +243,13 @@ async function renderTripForm(container, tripData = null) {
             <input type="text" name="arrival_location" value="${tripData ? tripData.arrival_location : ''}" required>
 
             <label for="departure_day">Date de départ :</label>
-            <input type="date" name="departure_day" value="${tripData ? tripData.departure_day : ''}" required>
+            <input type="date" name="departure_day" max="9999-12-31" value="${tripData ? tripData.departure_day : ''}" required>
             
             <label for="departure_time">Heure de départ :</label>
             <input type="time" name="departure_time" value="${tripData ? tripData.departure_time : ''}" required>
 
             <label for="arrival_day">Date d'arrivée :</label>
-            <input type="date" name="arrival_day" value="${tripData ? tripData.arrival_day : ''}" required>
+            <input type="date" name="arrival_day" max="9999-12-31" value="${tripData ? tripData.arrival_day : ''}" required>
 
             <label for="arrival_time">Heure d'arrivée :</label>
             <input type="time" name="arrival_time" value="${tripData ? tripData.arrival_time : ''}" required>
