@@ -22,10 +22,14 @@ use App\Services\Mailler;
  */
 class AuthController
 {
+
+
+    /**
+     * Méthode pour s'inscrire
+     */
     public function registration(): void
     {
         $logger = new Logger('register_logger');
-        // Correction du chemin du logger : ../../ au lieu de ../../../
         $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', Logger::INFO));
 
         header('Content-Type: application/json');
@@ -80,21 +84,32 @@ class AuthController
                 $errors['username'] = 'Nom d\'utilisateur déjà pris.';
             }
 
+            // De base on prend une photo par défaut
             $photo_path = 'uploads/default.png';
+            // Vérification de l'upload de la photo
             if ($photo && $photo['error'] === UPLOAD_ERR_OK) {
+                // Validation de la photo avec Validator.php
                 $photoErrors = $validator->validatePhoto($photo);
                 if (!empty($photoErrors)) {
+                    // Enregistrement des erreurs dans un tableau
                     $errors = array_merge($errors, $photoErrors);
                 } else {
+                    // Défini le chemin d'accès de la photo
                     $uploadDir = __DIR__ . '/../../../public/uploads/';
+                    // Verifie si le dossier existe, sinon on le crée
                     if (!is_dir($uploadDir)) {
                         mkdir($uploadDir, 0755, true);
                     }
+                    // Génère un nom de fichier unique en utilisant uniqid() et le nom du fichier original
                     $photoName = uniqid() . '_' . basename($photo['name']);
+                    // Chemin complet du fichier
                     $uploadFile = $uploadDir . $photoName;
+                    // Déplacement du fichier temporaire vers le répertoire de destination
                     if (move_uploaded_file($photo['tmp_name'], $uploadFile)) {
+                        // Défini le chemin d'accès de la photo
                         $photo_path = 'uploads/' . $photoName;
                     } else {
+                        // Enregistrement des erreurs dans un tableau
                         $errors['photo'] = 'Échec du téléchargement de la photo de profil.';
                         $logger->error('Échec du téléchargement de la photo de profil.');
                     }
@@ -161,6 +176,9 @@ class AuthController
         }
     }
 
+    /**
+     * Méthode pour se connecter
+     */
     public function login(): void
     {
         $logger = new Logger('auth_logger');

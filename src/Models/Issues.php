@@ -33,7 +33,6 @@ class Issues extends BaseModel
     private ?string $driver_email = null;
 
 
-    // Getters et setters
     public function getIssueId(): int
     {
         return $this->issue_id;
@@ -178,7 +177,9 @@ class Issues extends BaseModel
         $this->trip_id = $trip_id;
     }
 
-    // Méthode pour enregistrer un litige
+    /**
+     * Méthode pour sauvegarder un litige
+     */
     public function save(): bool
     {
         try {
@@ -209,7 +210,9 @@ class Issues extends BaseModel
         }
     }
 
-    // Méthode pour récupérer un litige par son ID
+    /**
+     * Méthode pour récupérer un litige par son ID
+     */
     public static function findById(int $issue_id): ?Issues
     {
         try {
@@ -238,7 +241,9 @@ class Issues extends BaseModel
         }
     }
 
-    // Méthode pour récupérer tous les litiges avec les détails enrichis
+    /**
+     * Méthode pour récupérer tous les litiges avec details
+     */
     public static function getAllIssues(): array
     {
         try {

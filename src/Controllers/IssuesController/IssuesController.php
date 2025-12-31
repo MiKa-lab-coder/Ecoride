@@ -25,7 +25,7 @@ class IssuesController
     {
         // Initialisation du logger
         $this->logger = new Logger('IssuesController');
-        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/issues.log', 400));
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/issues.log', 400));
     }
 
     /**

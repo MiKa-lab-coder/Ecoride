@@ -145,8 +145,9 @@ class Vehicle extends BaseModel
         $this->vehicle_id = $vehicle_id;
     }
 
-    // Méthodes
-
+    /**
+     * Hydrate un objet Vehicle à partir d'un tableau de données
+     */
     public static function hydrate(array $data): Vehicle
     {
         $vehicle = new Vehicle(
@@ -163,7 +164,10 @@ class Vehicle extends BaseModel
         return $vehicle;
     }
 
-    // Méthode pour enregistrer une nouvelle voiture dans la base de données
+
+    /**
+     * Sauvegarde un objet Vehicle dans la base de données
+     */
     public function save(): bool
     {
         $db = Database::getInstance();
@@ -210,7 +214,10 @@ class Vehicle extends BaseModel
         }
     }
 
-    // Méthode pour supprimer un véhicule
+
+    /**
+     * Supprime un objet Vehicle de la base de données
+     */
     public static function delete(int $vehicle_id): bool
     {
         $db = Database::getInstance();
@@ -226,7 +233,10 @@ class Vehicle extends BaseModel
         }
     }
 
-    // Méthode pour recuperer les véhicules par utilisateur
+
+    /**
+     * Récupère tous les véhicules de la base de données pour un utilisateur donné
+     */
     public static function getVehiclesByUserId(int $user_id): array
     {
         $db = Database::getInstance();
@@ -249,7 +259,10 @@ class Vehicle extends BaseModel
         return $vehicles;
     }
 
-    // trouver un véhicule par son ID
+
+    /**
+     * Récupère un objet Vehicle par son ID
+     */
     public static function findById(int $vehicle_id): ?Vehicle
     {
         $db = Database::getInstance();
@@ -271,7 +284,10 @@ class Vehicle extends BaseModel
         }
     }
 
-    // trouver un véhicule par son numéro d'immatriculation
+
+    /**
+     * Récupère un objet Vehicle par son numéro de plaque
+     */
     public static function findByRegistration(string $registration_number): ?Vehicle
     {
         $db = Database::getInstance();
@@ -293,7 +309,10 @@ class Vehicle extends BaseModel
         }
     }
 
-    // Methode pour obtenir le type de carburant d'un véhicule par son ID, afin de vérifier si un trajet sera écologique
+
+    /**
+     * Récupère le type de carburant d'un véhicule par son ID
+     */
     public static function getFuelTypeById(int $vehicleId): ?string
     {
         $db = Database::getInstance();

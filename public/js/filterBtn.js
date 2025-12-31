@@ -1,3 +1,6 @@
+/**
+ * Gestion des filtres de recherche.
+ */
 export function setFilterBtn() {
     const filtersBtn = document.getElementById('filters-btn');
     const advancedSearchFilters = document.getElementById('advanced-search-filters');

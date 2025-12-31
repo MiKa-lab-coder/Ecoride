@@ -22,7 +22,9 @@ class ContactController
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/contact.log', 100));
     }
 
-    // Méthode pour gérer le formulaire de contact (envoi vers le modérateur)
+    /**
+     * Méthode pour gérer le formulaire de contact
+     */
     public function handleContactForm(): void
     {
         // Pas de verfication de token car le formulaire est accessible sans être connecté

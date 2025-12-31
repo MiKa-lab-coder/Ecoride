@@ -8,6 +8,7 @@ export async function displayUserCar() {
         return;
     }
 
+    // Récupération des conteneurs
     const myCarsContainer = document.querySelector('.my-cars');
     const carsContainer = document.getElementById('cars-container');
 
@@ -50,8 +51,7 @@ export async function displayUserCar() {
             });
         }
 
-        // --- Création et gestion du bouton et formulaire d'ajout ---
-        // Supprimer les anciens éléments s'ils existent pour éviter les doublons
+        // Gérer la suppression des véhicules
         let addCarBtn = document.getElementById('add-car-btn');
         let addCarFormContainer = document.querySelector('.add-car-form');
 
@@ -159,8 +159,6 @@ function setupAddNewCarListeners(addCarBtn, addCarFormContainer) {
 
 /**
  * Gère la logique de suppression d'un véhicule.
- * @param {number} carId - L'ID du véhicule à supprimer.
- * @param {string} token - Le token JWT.
  */
 async function deleteCar(carId, token) {
     try {
@@ -179,7 +177,6 @@ async function deleteCar(carId, token) {
 
 /**
  * Gère la soumission du formulaire pour ajouter un nouveau véhicule.
- * @param {Event} event - L'événement de soumission du formulaire.
  */
 async function addNewCar(event) {
     event.preventDefault();
@@ -189,6 +186,7 @@ async function addNewCar(event) {
         return;
     }
 
+    // Récupération des données du formulaire
     const form = event.target;
     const formData = new FormData(form);
     const carData = Object.fromEntries(formData.entries());
@@ -208,6 +206,7 @@ async function addNewCar(event) {
             throw new Error(errorData.message || 'Erreur lors de l\'ajout du véhicule.');
         }
 
+        // Réinitialiser le formulaire et masquer le formulaire
         form.reset();
         document.querySelector('.add-car-form').classList.add('js-hidden');
         document.getElementById('add-car-btn').classList.remove('js-hidden');

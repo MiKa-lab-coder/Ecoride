@@ -1,3 +1,6 @@
+/**
+ * Chargement du header et du footer
+ */
 export async function loadHeadFoot(url, elementId) {
     try {
         const response = await fetch(url);

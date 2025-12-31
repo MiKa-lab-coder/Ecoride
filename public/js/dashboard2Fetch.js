@@ -1,4 +1,6 @@
-// Affiche et gère l'ensemble du profil utilisateur (infos + photo)
+/**
+ * Affiche le profil de l'utilisateur et gère sa modification.
+ */
 export async function displayUserProfil() {
     const profileContainer = document.getElementById('profile-container');
     const profilePicContainer = document.getElementById('profile-pic-container');
@@ -28,7 +30,7 @@ export async function displayUserProfil() {
         // Création et gestion de la photo de profil
         setupProfilePicture(profilePicContainer, userData.photo);
 
-        // --- Affichage des informations textuelles ---
+        // Affichage des informations textuelles
         const averageRating = userData.driver_rating ? parseFloat(userData.driver_rating).toFixed(1) : 'N/A';
         const creditBalance = userData.credit !== null ? parseFloat(userData.credit).toFixed(0) : '0';
 
@@ -53,6 +55,9 @@ export async function displayUserProfil() {
     }
 }
 
+/**
+ * Affiche le formulaire de modification du profil.
+ */
 function displayEditForm(container, userData) {
     container.innerHTML = `
         <h2>Modifier le Profil</h2>
@@ -106,7 +111,9 @@ function displayEditForm(container, userData) {
     });
 }
 
-// Gestion de la modification de la photo de profil
+/**
+ * Gère la modification de la photo de profil.
+ */
 function setupProfilePicture(container, photoUrl) {
     // Création des éléments
     const profilePicImg = document.createElement('img');
@@ -146,6 +153,8 @@ function setupProfilePicture(container, photoUrl) {
         changePicForm.classList.add('js-hidden');
     });
 
+
+    // Gestion de l'envoi du formulaire de modification de photo
     changePicForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');

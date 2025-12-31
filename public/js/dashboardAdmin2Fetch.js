@@ -1,6 +1,6 @@
-// Récupération et affichage des statistiques de la plateforme
-// On utilisera Chart.js pour l'affichage des graphiques
-
+/**
+ * Affichage des statistiques (Trajets)
+ */
 export async function statTrips() {
     // Récupérer le token d'authentification
     const token = localStorage.getItem('token');
@@ -69,6 +69,9 @@ export async function statTrips() {
     }
 }
 
+/**
+ * Affichage des statistiques (Crédits)
+ */
 export async function statCredit() {
     // Récupérer le token d'authentification
     const token = localStorage.getItem('token');

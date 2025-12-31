@@ -84,6 +84,9 @@ class RatingController
         }
     }
 
+    /**
+     * Récupère la note moyenne d'un utilisateur
+     */
     public function getUserRating(int $userId): void
     {
         header('Content-Type: application/json');

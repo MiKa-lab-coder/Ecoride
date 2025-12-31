@@ -33,7 +33,7 @@ class User extends BaseModel
     private ?int $credit = null;
 
 
-    // Getters
+
     public function getUserId(): ?int
     {
         return $this->user_id;
@@ -59,6 +59,9 @@ class User extends BaseModel
         return $this->username;
     }
 
+    /**
+     * Rend un chemin absolu pour le front-end si nécessaire
+     */
     public function getPhoto(): ?string
     {
         if ($this->photo === null || $this->photo === '') {
@@ -68,7 +71,6 @@ class User extends BaseModel
         if (strpos($this->photo, '/') === 0) {
             return $this->photo;
         }
-        // Si le chemin est relatif (ex: 'uploads/image.png'), le rendre absolu
         return '/' . $this->photo;
     }
 
@@ -107,7 +109,6 @@ class User extends BaseModel
         return $this->credit;
     }
 
-    // Setters
     public function setName(string $name): void
     {
         $this->name = $name;
@@ -182,6 +183,10 @@ class User extends BaseModel
         $this->setRoleId($role_id);
     }
 
+
+    /**
+     * Sauvegarde un objet User dans la base de données
+     */
     public function save(): bool
     {
         $db = Database::getInstance();
@@ -230,7 +235,9 @@ class User extends BaseModel
         }
     }
 
-    // Méthodes statiques
+    /**
+     * Hydrate un objet User à partir d'un tableau de données
+     */
     private static function hydrate(array $data): self
     {
         $user = new self(
@@ -256,7 +263,9 @@ class User extends BaseModel
         return $user;
     }
 
-    // Trouver un utilisateur par son ID
+    /**
+     * Trouver un utilisateur par son ID
+     */
     public static function find(int $user_id): ?self
     {
         $db = Database::getInstance();
@@ -287,6 +296,9 @@ class User extends BaseModel
         return null;
     }
 
+    /**
+     * Trouver un utilisateur par son nom d'utilisateur
+     */
     public static function findByUsername(string $username): ?self
     {
         $db = Database::getInstance();
@@ -307,6 +319,9 @@ class User extends BaseModel
         return null;
     }
 
+    /**
+     * Trouver un utilisateur par son email
+     */
     public static function findByEmail(string $email): ?self
     {
         $db = Database::getInstance();
@@ -327,6 +342,9 @@ class User extends BaseModel
         return null;
     }
 
+    /**
+     * Vérifie si un email existe déjà dans la base de données
+     */
     public static function existsEmail(string $email): bool
     {
         $db = Database::getInstance();
@@ -345,6 +363,10 @@ class User extends BaseModel
         }
     }
 
+
+    /**
+     * Vérifie si un nom d'utilisateur existe déjà dans la base de données
+     */
     public static function existUsername(string $username): bool
     {
         $db = Database::getInstance();
@@ -362,7 +384,10 @@ class User extends BaseModel
             return false;
         }
     }
-    
+
+    /**
+     * Récupère tous les utilisateurs de la base de données
+     */
     public static function findAll(): array
     {
         $db = Database::getInstance();
@@ -384,6 +409,9 @@ class User extends BaseModel
         }
     }
 
+    /**
+     * Transforme un objet en tableau de données
+     */
     public function toArray(): array
     {
         return [
@@ -402,12 +430,17 @@ class User extends BaseModel
         ];
     }
 
-    // Méthodes de sécurité
+    /**
+     * Set sécurisé du mot de passe
+     */
     public function setPassword(string $password): void
     {
         $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 
+    /**
+     * Vérifie si le mot de passe est correct
+     */
     public function verifyPassword(string $password): bool
     {
         if (password_verify($password, $this->password)) {

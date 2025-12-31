@@ -26,7 +26,6 @@ class Review
 
     private Client $client; // Instance de la connexion MongoDB
 
-    // getters et setters
     public function getReviewId(): ?string
     {
         return $this->review_id;
@@ -81,7 +80,9 @@ class Review
         $this->client = MongoDatabase::getInstance();
     }
 
-    // Méthode pour créer un nouveau commentaire
+    /**
+     * Création d'un commentaire.
+     */
     public function create(): bool
     {
         $reviewsCollection = $this->client->selectCollection('ecoride', 'reviews');

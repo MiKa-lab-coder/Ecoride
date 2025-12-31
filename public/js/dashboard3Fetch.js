@@ -8,7 +8,7 @@ export async function fetchReceivedReviews() {
         return;
     }
 
-
+    // Récupération du conteneur des cartes
     const container = document.getElementById('reviews-container');
     if (!container) {
         console.warn('Le conteneur d\'évaluations "reviews-container" est introuvable.');
@@ -34,7 +34,7 @@ export async function fetchReceivedReviews() {
         } else {
             reviews.forEach(review => {
                 const reviewCard = document.createElement('div');
-                reviewCard.className = 'trip-card'; // Réutilisation du style des cartes de trajet
+                reviewCard.className = 'trip-card';
 
                 // Création des étoiles pour la note
                 let stars = '';

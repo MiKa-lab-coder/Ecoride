@@ -18,14 +18,45 @@ class Booking extends BaseModel
     private int $trip_id;
 
     // Getters et setters
-    public function getBookingId(): int { return $this->booking_id; }
-    public function getBookingDate(): DateTime { return $this->booking_date; }
-    public function getUserId(): int { return $this->user_id; }
-    public function getTripId(): int { return $this->trip_id; }
-    public function setBookingId(int $booking_id): void { $this->booking_id = $booking_id; }
-    public function setBookingDate(DateTime $booking_date): void { $this->booking_date = $booking_date; }
-    public function setUserId(int $user_id): void { $this->user_id = $user_id; }
-    public function setTripId(int $trip_id): void { $this->trip_id = $trip_id; }
+    public function getBookingId(): int
+    {
+        return $this->booking_id;
+    }
+
+    public function getBookingDate(): DateTime
+    {
+        return $this->booking_date;
+    }
+
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function getTripId(): int
+    {
+        return $this->trip_id;
+    }
+
+    public function setBookingId(int $booking_id): void
+    {
+        $this->booking_id = $booking_id;
+    }
+
+    public function setBookingDate(DateTime $booking_date): void
+    {
+        $this->booking_date = $booking_date;
+    }
+
+    public function setUserId(int $user_id): void
+    {
+        $this->user_id = $user_id;
+    }
+
+    public function setTripId(int $trip_id): void
+    {
+        $this->trip_id = $trip_id;
+    }
 
     public function __construct(DateTime $booking_date, int $user_id, int $trip_id)
     {
@@ -59,9 +90,10 @@ class Booking extends BaseModel
             return false;
         }
     }
+
     /**
-    * Annulation d'une réservation
-    */
+     * Annulation d'une réservation
+     */
     public function cancel(): bool
     {
         $logger = new Logger('booking_logger');
@@ -181,7 +213,7 @@ class Booking extends BaseModel
             $stmt = $db->prepare("SELECT * FROM BOOKINGS WHERE trip_id = :tripId");
             $stmt->bindParam(':tripId', $tripId, PDO::PARAM_INT);
             $stmt->execute();
-            
+
             $bookings = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $booking = new Booking(new DateTime($row['booking_date']), (int)$row['user_id'], (int)$row['trip_id']);

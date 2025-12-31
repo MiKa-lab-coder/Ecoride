@@ -180,7 +180,8 @@ class TripController
 
             if ($trip->save()) {
                 http_response_code(200);
-                echo json_encode(["message" => "Trajet modifié avec succès. Les réservations existantes ont été annulées et remboursées. Le trajet est en attente de re-validation."]);
+                echo json_encode(["message" => "Trajet modifié avec succès. Les réservations existantes ont été annulées
+                                    et remboursées. Le trajet est en attente de re-validation."]);
             } else {
                 throw new Exception("Erreur lors de la modification du trajet.", 500);
             }

@@ -450,7 +450,7 @@ class Trip extends BaseModel
             ");
             $stmt->bindValue(':status', $status, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             $trips = [];
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $tripData) {
                 $trips[] = self::hydrate($tripData);
@@ -685,7 +685,7 @@ class Trip extends BaseModel
             // On s'assure d'avoir tous les jours, même ceux sans trajet (optionnel mais mieux)
             $data = [];
             $labels = [];
-            
+
             // Création d'un tableau associatif date => count
             $countsByDate = [];
             foreach ($results as $row) {

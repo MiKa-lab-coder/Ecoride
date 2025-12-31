@@ -1,4 +1,6 @@
-// Revue du contenu
+/**
+ * Récuperation des annonces en attente de validation par le modérateur
+ */
 export async function reviewOffer() {
     const reviewContainer = document.getElementById('manage-announcements-container');
     if (!reviewContainer) return;
@@ -113,7 +115,10 @@ export async function reviewOffer() {
         reviewContainer.innerHTML = '<p class="error">Une erreur est survenue lors de la récupération des offres.</p>';
     }
 }
-// Revue des litiges
+
+/**
+ * Récupération des litiges en attente de traitement par le modérateur
+ */
 export async function reviewReports() {
     const reportContainer = document.getElementById('report-container');
     if (!reportContainer) return;
@@ -166,7 +171,7 @@ export async function reviewReports() {
                 <hr>
                 <p><strong>Description :</strong></p>
                 <p><em>"${issue.description}"</em></p>
-                <button class="resolve-btn" data-id="${issue.id}" style="background-color: #27ae60; color: white; margin-top: 10px;">Clore le litige</button>
+                <button class="resolve-btn" data-id="${issue.id}" style="background-color: #6b8e23; color: white; margin-top: 10px;">Clore le litige</button>
             `;
             reportContainer.appendChild(issueCard);
         });

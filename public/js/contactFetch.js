@@ -1,4 +1,6 @@
-// On récupère le formulaire et le conteneur de réponse via le DOM
+/**
+ * Formulaire de contact
+ */
 const contactForm = document.getElementById('contact-form');
 const formResponse = document.getElementById('form-response');
 
@@ -9,7 +11,7 @@ if (contactForm) {
         formResponse.innerHTML = '';
         formResponse.style.color = 'red';
 
-        // --- Validation côté client ---
+        // Validation côté client
         const formData = new FormData(contactForm);
         const data = Object.fromEntries(formData.entries());
         const errors = [];
@@ -43,12 +45,11 @@ if (contactForm) {
             formResponse.appendChild(errorList);
             return; // On n'envoie pas le formulaire
         }
-        // --- Fin de la validation côté client ---
+        // Fin de validation
 
         const jsonData = JSON.stringify(data);
 
         try {
-            // On envoie les données au serveur
             const response = await fetch('/api/contact/contact', {
                 method: 'POST',
                 headers: {
@@ -61,12 +62,10 @@ if (contactForm) {
             formResponse.innerHTML = ''; // On vide à nouveau
 
             if (response.ok) {
-                // Si la réponse est OK, on affiche un message de succès
                 formResponse.textContent = responseData.message || 'Message envoyé avec succès !';
                 formResponse.style.color = 'green';
                 contactForm.reset(); // On réinitialise le formulaire
             } else {
-                // Si le serveur retourne des erreurs
                 if (responseData.errors) {
                     const errorList = document.createElement('ul');
                     responseData.errors.forEach(error => {

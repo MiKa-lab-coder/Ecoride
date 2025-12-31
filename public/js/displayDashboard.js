@@ -1,4 +1,6 @@
-// Permet d'afficher le lien de navigation du tableau dans le menu si l'utilisateur est connecté
+/**
+ * Gestion de la navigation du tableau de bord
+ */
 export async function createDashboardLink() {
     const token = localStorage.getItem('token');
     const dashboardLink = document.querySelector('.nav-links');
@@ -13,6 +15,9 @@ export async function createDashboardLink() {
     }
 }
 
+/**
+ * Affichage du contenu du tableau de bord en fonction du rôle de l'utilisateur
+ */
 export function displayDashboardContentByRoles() {
     // 1. Définir les éléments de la page
     const adminNav = document.querySelector('.admin-nav');

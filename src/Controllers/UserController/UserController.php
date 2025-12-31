@@ -74,8 +74,6 @@ class UserController
 
     /**
      * Met à jour le profil de l'utilisateur connecté à partir de son ID.
-     * @param int $userId L'ID de l'utilisateur à mettre à jour.
-     * @return void
      */
     public function updateMyProfile(int $userId): void
     {
@@ -155,6 +153,10 @@ class UserController
             throw new exception("erreur",$e->getMessage(), $code_status);
         }
     }
+
+    /**
+     * Met à jour la photo de profil de l'utilisateur connecté à partir de son ID.
+     */
     public function updateMyPhoto(int $userId): void
     {
         header('Content-Type: application/json');
@@ -224,7 +226,10 @@ class UserController
             exit;
         }
     }
-    // Recuperer la photo d'un utilisateur pour l'afficher
+
+    /**
+     * Met à jour le mot de passe de l'utilisateur connecté à partir de son ID.
+     */
     public function showMyPhoto(int $userId): void
     {
         header('Content-Type: application/json');

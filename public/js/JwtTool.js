@@ -1,4 +1,6 @@
-// Fonction utilitaire pour décoder un token JWT
+/**
+ * Parse un token JWT en JSON.
+ */
 export function parseJwt(token) {
     try {
         if (!token) {

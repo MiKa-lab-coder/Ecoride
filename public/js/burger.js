@@ -1,4 +1,6 @@
-//burger menu
+/**
+ * Menu burger pour le responsive
+ */
 export function setBurger(){
     const toggle = document.querySelector('.toggle');
     const navWrap = document.querySelector('.nav-wrap');

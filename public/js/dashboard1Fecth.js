@@ -50,7 +50,7 @@ export async function fetchBooking() {
                 bookingsContainer.appendChild(bookingCard);
             });
         }
-
+        // Attacher les écouteurs d'événements
         bookingsContainer.querySelectorAll('.cancel-booking-btn').forEach(button => {
             button.addEventListener('click', async (e) => {
                 const bookingId = e.target.dataset.bookingId;

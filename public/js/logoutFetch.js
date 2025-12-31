@@ -1,7 +1,9 @@
-// Methode pour se déconnecter et supprimer le token du localStorage
+/**
+ * Fonction de déconnexion (suppression du token dans le localStorage).
+ */
 export function logout() {
     localStorage.removeItem('token');
-    localStorage.removeItem('userId');
+    //localStorage.removeItem('userId');
     localStorage.removeItem('userRole');
     window.location.href = '/index.html'; // Redirige vers la page d'accueil
 }

@@ -1,3 +1,6 @@
+/**
+ * Actions de l'administrateur.
+ */
 export async function manageAdminActions() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -9,7 +12,8 @@ export async function manageAdminActions() {
     if (userRole !== '1') {
         return;
     }
-    
+
+    // Gestion des comptes utilisateur
     const form = document.getElementById('manage-account-form');
     if (form) {
         form.addEventListener('submit', async (e) => {
@@ -85,6 +89,9 @@ export async function manageAdminActions() {
     await displayUserList(token);
 }
 
+/**
+ * Affiche la liste des utilisateurs.
+ */
 async function displayUserList(token) {
     const tbody = document.getElementById('user-list-tbody');
     if (!tbody) return;

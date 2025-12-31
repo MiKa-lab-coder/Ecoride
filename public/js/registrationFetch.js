@@ -1,3 +1,6 @@
+/**
+ * Gestion de l'inscription.
+ */
 export async function setupRegistrationFetch() {
 
 // Récupérer le formulaire d'inscription

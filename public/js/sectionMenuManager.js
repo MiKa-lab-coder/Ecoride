@@ -1,4 +1,6 @@
-//selection des liens et des sections
+/**
+ * Gestion du menu de section.
+ */
 const links = document.querySelectorAll('a[data-action]');
 const sections = document.querySelectorAll('.dashboard-section');
 

@@ -17,7 +17,6 @@ class Rating extends BaseModel
     private int $trip_id;
     private int $rating_value;
 
-    // Getters et setters
     public function getRatingId(): int
     {
         return $this->rating_id;
@@ -57,6 +56,9 @@ class Rating extends BaseModel
         $this->rating_value = $rating_value;
     }
 
+    /**
+     * Enregistre une note pour un trajet.
+     */
     public function save(): bool
     {
         $db = Database::getInstance();
@@ -73,6 +75,9 @@ class Rating extends BaseModel
         }
     }
 
+    /**
+     * Récupère la note moyenne d'un utilisateur.
+     */
     public static function getAverageRatingForUser(int $userId): float
     {
         $db = Database::getInstance();
@@ -87,6 +92,9 @@ class Rating extends BaseModel
         }
     }
 
+    /**
+     * Vérifie si un utilisateur a déjà évalué un trajet.
+     */
     public static function hasUserRatedTrip(int $raterId, int $tripId, int $ratedId): bool
     {
         $db = Database::getInstance();

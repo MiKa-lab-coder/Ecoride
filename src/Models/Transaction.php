@@ -24,7 +24,6 @@ class Transaction extends BaseModel
     private ?int $reference; // Point de référence de la transaction (trajet), peut être NULL
     private DateTime $transaction_date;
 
-    //getter et setters
     public function getTransactionId(): int
     {
         return $this->transaction_id;
