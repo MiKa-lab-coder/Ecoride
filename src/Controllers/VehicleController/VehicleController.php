@@ -28,7 +28,9 @@ class VehicleController
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/vehicle.log', Logger::DEBUG));
     }
 
-    // Ajouter un véhicule
+    /**
+     * Méthode pour ajouter/créer un véhicule
+     */
     public function addCar(): void
     {
         header("Content-Type: application/json");
@@ -41,11 +43,18 @@ class VehicleController
             $decodedToken = $tokenValidator->validateToken($token);
 
             // Récupération des données l'utilisateur pour récupérer l'user_id nécessaire pour relier le véhicule à son propriétaire
-            $user_id = $decodedToken->sub;
+            $user_id = $decodedToken->data->id;
             $user = User::find($user_id);
             if (!$user) {
                 throw new Exception("Utilisateur non trouvé.", 404);
             }
+
+            // Vérification du nombre de véhicules
+            $userVehicles = Vehicle::getVehiclesByUserId($user_id);
+            if (count($userVehicles) >= 3) {
+                throw new Exception("Vous ne pouvez pas enregistrer plus de 3 véhicules.", 403);
+            }
+
             // Récupération et validation des données envoyées en JSON
             $data = json_decode(file_get_contents('php://input'), true);
             if (!$data) {
@@ -62,13 +71,15 @@ class VehicleController
                 || empty($data['energy_type'])) {
                 throw new Exception("Tous les champs obligatoires doivent être remplis.", 400);
             }
+
             // Validation des données
             $validator = new Validator();
             if (!$validator->validateRegistrationNumber($data['registration_number'])) {
                 throw new Exception("Numéro d'immatriculation invalide.", 400);
             }
-            if (!$validator->validateDateFormat($data['first_service'])) {
-                throw new Exception("Date de première mise en circulation invalide. Format attendu: d-m-Y.", 400);
+            // Utilisation de validateYmdDateFormat car le front envoie Y-m-d
+            if (!$validator->validateYmdDateFormat($data['first_service'])) {
+                throw new Exception("Date de première mise en circulation invalide. Format attendu: Y-m-d.", 400);
             }
             if (!$validator->validateBrand($data['brand'])) {
                 throw new Exception("Marque invalide.", 400);
@@ -85,8 +96,13 @@ class VehicleController
             if (!$validator->validateEnergyType($data['energy_type'])) {
                 throw new Exception("Type d'énergie invalide.", 400);
             }
+
+            // Normalisation de la plaque d'immatriculation
+            $cleanPlate = strtoupper(str_replace('-', '', $data['registration_number']));
+            $normalizedPlate = substr($cleanPlate, 0, 2) . '-' . substr($cleanPlate, 2, 3) . '-' . substr($cleanPlate, 5, 2);
+            
             // Protection contre les attaques XSS
-            $registration_number = htmlspecialchars($data['registration_number'], ENT_QUOTES, 'UTF-8');
+            $registration_number = htmlspecialchars($normalizedPlate, ENT_QUOTES, 'UTF-8');
             $first_service_str = htmlspecialchars($data['first_service'], ENT_QUOTES, 'UTF-8');
             $brand = htmlspecialchars($data['brand'], ENT_QUOTES, 'UTF-8');
             $model = htmlspecialchars($data['model'], ENT_QUOTES, 'UTF-8');
@@ -138,7 +154,9 @@ class VehicleController
         }
     }
 
-    // supprimer un véhicule
+    /**
+     * Méthode pour modifier un véhicule
+     */
     public function deleteCar(int $vehicleId): void
     {
         header("Content-Type: application/json");
@@ -151,7 +169,7 @@ class VehicleController
             $decodedToken = $tokenValidator->validateToken($token);
 
             // Récupération des données l'utilisateur pour récupérer l'user_id nécessaire pour relier le véhicule à son propriétaire
-            $user_id = $decodedToken->sub;
+            $user_id = $decodedToken->data->id;
             $user = User::find($user_id);
             if (!$user) {
                 throw new Exception("Utilisateur non trouvé.", 404);
@@ -183,7 +201,10 @@ class VehicleController
             exit;
         }
     }
-    // Méthode pour afficher les véhicules d'un utilisateur dans son espace personnel
+
+    /**
+     * Affiche les véhicules de l'utilisateur dans son espace
+     */
     public function getUserCars(): void
     {
         header("Content-Type: application/json");

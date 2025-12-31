@@ -6,6 +6,7 @@ use App\Models\Trip;
 use App\Models\User;
 use App\Services\Validator;
 use App\Services\TokenValidator;
+use App\Services\Mailler;
 use DateTime;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -38,7 +39,9 @@ class AdminController
         return $roleId === 1 || $roleId === 2;
     }
 
-    // Méthode pour récupérer les annonces de voyage en attente de validation
+    /**
+     * Méthode pour récupérer les annonces de voyage en attente de validation
+     */
     public function getPendingTrips(): void
     {
         header('Content-Type: application/json');
@@ -84,7 +87,9 @@ class AdminController
         }
     }
 
-    // Méthode pour valider une annonce
+    /**
+     * Méthode pour valider une annonce
+     */
     public function approuveTrips(): void
     {
         header('Content-Type: application/json');
@@ -139,7 +144,9 @@ class AdminController
         }
     }
 
-    // Methode pour rejeter une annonce
+    /**
+     * Méthode pour refuser une annonce
+     */
     public function rejectTrips(): void
     {
         header('Content-Type: application/json');
@@ -200,6 +207,9 @@ class AdminController
      * Les modérateurs ne peuvent pas créer de comptes.
      */
 
+    /**
+     * Méthode pour créer un compte
+     */
     public function createAccount(): void
     {
         header('Content-Type: application/json');
@@ -289,7 +299,9 @@ class AdminController
         }
     }
 
-    // Méthode pour suspendre un utilisateur
+    /**
+     * Méthode pour suspendre un utilisateur
+     */
     public function suspendUser(): void
     {
         header('Content-Type: application/json');
@@ -337,6 +349,11 @@ class AdminController
                 throw new Exception("Erreur lors de la suspension de l'utilisateur.", 500);
             }
 
+            // Mail à l'utilisateur pour lui notifier la suspension de compte
+            $mailler = new Mailler();
+            $mailler->sendUserSuspendMail($user->getEmail(), $user->getUsername());
+
+
             $this->logger->info("Utilisateur {$user->getUserId()} suspendu par l'utilisateur ID: 
             {$decodedToken->data->id}");
             http_response_code(200);
@@ -353,7 +370,9 @@ class AdminController
         }
     }
 
-    // Méthode pour réactiver un utilisateur
+    /**
+     * Méthode pour réactiver un utilisateur
+     */
     public function reactivateUser(): void
     {
         header('Content-Type: application/json');
@@ -403,6 +422,10 @@ class AdminController
                 throw new Exception("Erreur lors de la réactivation de l'utilisateur.", 500);
             }
 
+            // Mail à l'utilisateur pour lui notifier la réactivation de compte
+            $mailler = new Mailler();
+            $mailler->sendUserReactivateMail($user->getEmail(),$user->getUsername());
+
             $this->logger->info("Utilisateur {$user->getUserId()} réactivé par l'utilisateur ID: {$decodedToken->data->id}");
             http_response_code(200);
             echo json_encode([
@@ -418,7 +441,9 @@ class AdminController
         }
     }
 
-    // Méthode pour modifier utilisateur (role uniquement pour l'instant)
+    /**
+     * Méthode pour modifier le rôle d'un utilisateur
+     */
     public function changeUserRole(): void
     {
         header('Content-Type: application/json');
@@ -485,7 +510,9 @@ class AdminController
         }
     }
 
-    // Méthode pour récupérer tous les utilisateurs
+    /**
+     * Méthode pour récupérer tous les utilisateurs
+     */
     public function getAllUsers(): void
     {
         header('Content-Type: application/json');

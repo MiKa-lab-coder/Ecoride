@@ -111,6 +111,15 @@ export async function fetchOfferedTrip() {
 
     if (addTripsBtn && addTripFormContainer) {
         addTripsBtn.addEventListener('click', () => {
+            // Vérification si l'utilisateur a des véhicules
+            const carsContainer = document.getElementById('cars-container');
+            const hasCars = carsContainer && carsContainer.querySelectorAll('.car-card').length > 0;
+
+            if (!hasCars) {
+                alert("Vous ne pouvez pas proposer de trajet sans véhicule enregistré. Veuillez ajouter un véhicule dans la section 'Mon Profil'.");
+                return;
+            }
+
             addTripFormContainer.classList.toggle('js-hidden');
             if (!addTripFormContainer.classList.contains('js-hidden')) {
                 renderTripForm(addTripFormContainer);
@@ -221,8 +230,7 @@ async function renderTripForm(container, tripData = null) {
     const token = localStorage.getItem('token');
     const vehiclesResponse = await fetch('/api/vehicles/user', { headers: { 'Authorization': `Bearer ${token}` } });
     const vehicles = await vehiclesResponse.json();
-    const vehicleOptions = vehicles.map(v => `<option value="${v.vehicle_id}"
-    ${tripData && tripData.vehicle_id == v.vehicle_id ? 'selected' : ''}>${v.brand} ${v.model} (${v.registration_number})</option>`).join('');
+    const vehicleOptions = vehicles.map(v => `<option value="${v.vehicle_id}" ${tripData && tripData.vehicle_id == v.vehicle_id ? 'selected' : ''}>${v.brand} ${v.model} (${v.registration_number})</option>`).join('');
 
     container.innerHTML = `
         <form id="propose-trip-form">

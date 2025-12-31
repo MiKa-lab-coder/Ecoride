@@ -125,7 +125,36 @@ class TripController
                 throw new Exception("Trajet non trouvé ou non autorisé.", 404);
             }
 
-            // Logique de mise à jour
+            // Gestion des réservations existantes : Remboursement et annulation
+            $bookings = Booking::findByTripId($tripId);
+            if (!empty($bookings)) {
+                $mailler = new Mailler();
+                foreach ($bookings as $booking) {
+                    // Remboursement passager
+                    $passengerTransaction = new Transaction($booking->getUserId(), $trip->getTripPrice(), 'cancellation', $tripId);
+                    $passengerTransaction->save();
+
+                    // Débit conducteur
+                    $driverAmount = $trip->getTripPrice() - self::PLATFORM_FEE;
+                    $driverTransaction = new Transaction($trip->getDriverId(), -$driverAmount, 'cancellation', $tripId);
+                    $driverTransaction->save();
+
+                    // Débit plateforme
+                    $platformTransaction = new Transaction(1, -self::PLATFORM_FEE, 'cancellation', $tripId);
+                    $platformTransaction->save();
+
+                    // Envoi de l'email d'annulation au passager
+                    $passenger = User::find($booking->getUserId());
+                    if ($passenger) {
+                        $mailler->sendTripCancellationMail($passenger->getEmail(), $passenger->getFirstname(), $trip);
+                    }
+
+                    // Annuler la réservation
+                    $booking->cancel();
+                }
+            }
+
+            // Logique de mise à jour des données du trajet
             if (isset($data['departure_location'])) $trip->setDepartureLocation(htmlspecialchars($data['departure_location'], ENT_QUOTES, 'UTF-8'));
             if (isset($data['arrival_location'])) $trip->setArrivalLocation(htmlspecialchars($data['arrival_location'], ENT_QUOTES, 'UTF-8'));
             if (isset($data['departure_day'])) $trip->setDepartureDay(new DateTime($data['departure_day']));
@@ -146,14 +175,12 @@ class TripController
                 }
             }
 
-            // Si le trajet était déjà 'approved', il repasse en 'pending' pour re-validation
-            if ($trip->getStatus() === 'approved') {
-                $trip->setStatus('pending');
-            }
+            // Le trajet repasse toujours en 'pending' après modification
+            $trip->setStatus('pending');
 
             if ($trip->save()) {
                 http_response_code(200);
-                echo json_encode(["message" => "Trajet modifié avec succès. Il est en attente de re-validation."]);
+                echo json_encode(["message" => "Trajet modifié avec succès. Les réservations existantes ont été annulées et remboursées. Le trajet est en attente de re-validation."]);
             } else {
                 throw new Exception("Erreur lors de la modification du trajet.", 500);
             }
@@ -184,24 +211,33 @@ class TripController
                 throw new Exception("Trajet non trouvé ou non autorisé.", 404);
             }
 
-            // Rembourser les passagers avant de supprimer
+            // Rembourser les passagers et envoyer email avant de supprimer
             $bookings = Booking::findByTripId($tripId);
-            foreach ($bookings as $booking) {
-                // Remboursement passager
-                $passengerTransaction = new Transaction($booking->getUserId(), $trip->getTripPrice(), 'cancellation', $tripId);
-                $passengerTransaction->save();
+            if (!empty($bookings)) {
+                $mailler = new Mailler();
+                foreach ($bookings as $booking) {
+                    // Remboursement passager
+                    $passengerTransaction = new Transaction($booking->getUserId(), $trip->getTripPrice(), 'cancellation', $tripId);
+                    $passengerTransaction->save();
 
-                // Débit conducteur
-                $driverAmount = $trip->getTripPrice() - self::PLATFORM_FEE;
-                $driverTransaction = new Transaction($trip->getDriverId(), -$driverAmount, 'cancellation', $tripId);
-                $driverTransaction->save();
+                    // Débit conducteur
+                    $driverAmount = $trip->getTripPrice() - self::PLATFORM_FEE;
+                    $driverTransaction = new Transaction($trip->getDriverId(), -$driverAmount, 'cancellation', $tripId);
+                    $driverTransaction->save();
 
-                // Débit plateforme
-                $platformTransaction = new Transaction(1, -self::PLATFORM_FEE, 'cancellation', $tripId);
-                $platformTransaction->save();
+                    // Débit plateforme
+                    $platformTransaction = new Transaction(1, -self::PLATFORM_FEE, 'cancellation', $tripId);
+                    $platformTransaction->save();
 
-                // Annuler la réservation
-                $booking->cancel();
+                    // Envoi de l'email d'annulation au passager
+                    $passenger = User::find($booking->getUserId());
+                    if ($passenger) {
+                        $mailler->sendTripCancellationMail($passenger->getEmail(), $passenger->getFirstname(), $trip);
+                    }
+
+                    // Annuler la réservation
+                    $booking->cancel();
+                }
             }
 
             if ($trip->delete()) {
@@ -283,6 +319,18 @@ class TripController
 
             $trip->setStatus('completed');
             if ($trip->save()) {
+                // Envoi d'un email aux passagers
+                $bookings = Booking::findByTripId($tripId);
+                if (!empty($bookings)) {
+                    $mailler = new Mailler();
+                    foreach ($bookings as $booking) {
+                        $passenger = User::find($booking->getUserId());
+                        if ($passenger) {
+                            $mailler->sendEndRideMail($passenger->getEmail(), $passenger->getFirstname());
+                        }
+                    }
+                }
+
                 http_response_code(200);
                 echo json_encode(["message" => "Trajet terminé avec succès."]);
             } else {

@@ -210,3 +210,98 @@ export async function reviewReports() {
         reportContainer.innerHTML = '<p class="error">Une erreur est survenue lors de la récupération des litiges.</p>';
     }
 }
+
+/**
+ * Récupération des évaluations pour validation par modérateur
+ */
+export async function fetchPendingReviews() {
+    const ratingContainer = document.getElementById('rating-container');
+    if (!ratingContainer) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        ratingContainer.innerHTML = '<p class="error">Vous devez être connecté pour accéder à cette page.</p>';
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/reviews/pending', {
+            method: 'GET',
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+
+        if (!response.ok) throw new Error('Erreur lors de la récupération des évaluations.');
+
+        const reviews = await response.json();
+
+        if (reviews.length === 0) {
+            ratingContainer.innerHTML = '<p>Aucune évaluation en attente de validation.</p>';
+            return;
+        }
+
+        ratingContainer.innerHTML = '';
+
+        reviews.forEach(review => {
+            const reviewCard = document.createElement('div');
+            reviewCard.className = 'trip-card';
+            reviewCard.innerHTML = `
+                <h4>Évaluation du trajet ${review.trip_departure} -> ${review.trip_arrival}</h4>
+                <p><strong>Auteur:</strong> ${review.author_name}</p>
+                <p><strong>Note:</strong> ${review.rating} ★</p>
+                <p><strong>Commentaire:</strong> <em>"${review.comment}"</em></p>
+                <button class="approve-review-btn" data-id="${review.review_id}">Approuver</button>
+                <button class="reject-review-btn" data-id="${review.review_id}">Rejeter</button>
+            `;
+            ratingContainer.appendChild(reviewCard);
+        });
+
+
+    } catch (error) {
+        console.error('Erreur:', error);
+        ratingContainer.innerHTML = '<p class="error">Une erreur est survenue lors de la récupération des évaluations.</p>';
+    }
+
+    // Utilisation de la délégation d'événements pour les boutons
+    ratingContainer.addEventListener('click', async (e) => {
+        const target = e.target;
+        const reviewId = target.getAttribute('data-id');
+        let newStatus = '';
+
+        if (target.classList.contains('approve-review-btn')) {
+            newStatus = 'approved';
+        } else if (target.classList.contains('reject-review-btn')) {
+            if (!confirm("Voulez-vous vraiment rejeter cette évaluation ?")) {
+                return;
+            }
+            newStatus = 'rejected';
+        }
+
+        if (newStatus) {
+            try {
+                const res = await fetch('/api/reviews/update-status', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ review_id: reviewId, status: newStatus })
+                });
+                if (!res.ok) throw new Error('Erreur lors de la mise à jour de l\'évaluation.');
+
+                const card = target.closest('.trip-card');
+                if (card) card.remove();
+
+                alert(`Évaluation ${newStatus === 'approved' ? 'approuvée' : 'rejetée'} avec succès.`);
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert("Erreur lors de la mise à jour de l'évaluation.");
+            }
+
+            // Si le conteneur devient vide
+            if (ratingContainer.children.length === 0) {
+                ratingContainer.innerHTML = '<p>Aucune évaluation en attente de validation.</p>';
+            }
+        }
+    });
+}

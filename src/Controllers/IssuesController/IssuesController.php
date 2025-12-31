@@ -28,7 +28,9 @@ class IssuesController
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/issues.log', 400));
     }
 
-    // Méthode pour créer une nouvelle issue (pour les utilisateurs)
+    /**
+     * Créer un litige sur un trajet
+     */
     public function startIssue(): void
     {
         header('Content-Type: application/json');
@@ -100,8 +102,8 @@ class IssuesController
                 $this->logger->info("Problème créé avec succès pour l'utilisateur ID: $userId et le trajet ID: $tripId.");
                 
                 // Envoi d'un email automatique aux modérateurs (simulation)
-                // $mailler = new Mailler();
-                // $mailler->sendAutoReportMail($user->getUsername(), (string)$user->getUserId());
+                $mailler = new Mailler();
+                $mailler->sendAutoReportMail($user->getUsername(), (string)$user->getUserId());
                 
                 http_response_code(201);
                 echo json_encode(['message' => 'Litige signalé avec succès.']);
@@ -116,7 +118,9 @@ class IssuesController
         }
     }
 
-    // Méthode pour clore une issue (pour les admins/modérateurs)
+    /**
+     * Cloture d'un litige pour un trajet (pour les admins/modérateurs)
+     */
     public function closeIssue(): void
     {
         header('Content-Type: application/json');
@@ -166,7 +170,9 @@ class IssuesController
         }
     }
 
-    // Méthode pour récupérer les litiges (pour les admins/modérateurs)
+    /**
+     * Récuperation des litiges en cours
+     */
     public function viewIssues(): void
     {
         header('Content-Type: application/json');
@@ -191,7 +197,6 @@ class IssuesController
                     'description' => $issue->getDescription(),
                     'user_id' => (string)$issue->getUserId(),
                     'trip_id' => (string)$issue->getTripId(),
-                    // Données enrichies
                     'plaintiff_username' => $issue->getPlaintiffUsername(),
                     'plaintiff_email' => $issue->getPlaintiffEmail(),
                     'driver_username' => $issue->getDriverUsername(),

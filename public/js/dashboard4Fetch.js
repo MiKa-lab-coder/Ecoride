@@ -91,8 +91,8 @@ export async function displayUserCar() {
                 <label for="energy_type">Énergie</label>
                 <select id="energy_type" name="energy_type" required>
                     <option value="combustion">Combustion</option>
-                    <option value="electric">Électrique</option>
-                    <option value="hybrid">Hybride</option>
+                    <option value="electric">Électric</option>
+                    <option value="hybrid">Hybrid</option>
                 </select>
 
                 <br>

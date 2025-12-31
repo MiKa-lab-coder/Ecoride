@@ -22,6 +22,7 @@ class Review
     private string $user_id; // ID de l'utilisateur ayant posté le commentaire
     private string $trip_id; // ID du voyage concerné par le commentaire
     private string $content; // Contenu du commentaire
+    private string $status;
 
     private Client $client; // Instance de la connexion MongoDB
 
@@ -42,6 +43,10 @@ class Review
     {
         return $this->content;
     }
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
     public function setReviewId(string $review_id): void
     {
         $this->review_id = $review_id;
@@ -58,14 +63,19 @@ class Review
     {
         $this->content = $content;
     }
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+    
 
-
-    public function __construct(string $user_id, string $trip_id, string $content, ?string $review_id = null)
+    public function __construct(string $user_id, string $trip_id, string $content, ?string $review_id = null, ?string $status = 'pending')
     {
         $this->user_id = $user_id;
         $this->trip_id = $trip_id;
         $this->content = $content;
         $this->review_id = $review_id ?? '';
+        $this->status = $status;
 
         // Initialiser la connexion MongoDB
         $this->client = MongoDatabase::getInstance();
@@ -79,6 +89,7 @@ class Review
             'user_id' => $this->user_id,
             'trip_id' => $this->trip_id,
             'content' => $this->content,
+            'status' => $this->status
         ];
         $result = $reviewsCollection->insertOne($document);
 
@@ -118,7 +129,8 @@ class Review
 
         $review = $reviewsCollection->findOne([
             'trip_id' => (string)$tripId,
-            'user_id' => (string)$authorId
+            'user_id' => (string)$authorId,
+            'status' => 'approved' // On ne récupère que les commentaires approuvés
         ]);
 
         return $review ? $review['content'] : null;
@@ -149,5 +161,45 @@ class Review
             }
         }
         return $reviews;
+    }
+    
+    /**
+     * Récupère tous les avis
+     *
+     * @return array
+     */
+    public static function getPendingReviews(): array
+    {
+        $client = MongoDatabase::getInstance();
+        $reviewsCollection = $client->selectCollection('ecoride', 'reviews');
+        
+        $reviews = $reviewsCollection->find(['status' => 'pending']);
+        
+        $pendingReviews = [];
+        foreach ($reviews as $review) {
+            $pendingReviews[] = new Review(
+                (string)$review->user_id,
+                (string)$review->trip_id,
+                (string)$review->content,
+                (string)$review->_id
+            );
+        }
+        return $pendingReviews;
+    }
+
+    /**
+     * Met à jour le statut d'un avis.
+     */
+    public static function updateStatus(string $reviewId, string $newStatus): bool
+    {
+        $client = MongoDatabase::getInstance();
+        $reviewsCollection = $client->selectCollection('ecoride', 'reviews');
+
+        $result = $reviewsCollection->updateOne(
+            ['_id' => new ObjectId($reviewId)],
+            ['$set' => ['status' => $newStatus]]
+        );
+
+        return $result->getModifiedCount() > 0;
     }
 }

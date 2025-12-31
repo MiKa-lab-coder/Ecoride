@@ -74,6 +74,7 @@ $routes = [
 
         // Review
         '/api/reviews/received' => [$reviewController, 'getReceivedReviews'],
+        '/api/reviews/pending' => [$reviewController, 'getPendingReviews'],
 
         // Transaction
         '/api/transactions/credits' => [$transactionController, 'getUserBalance'],
@@ -123,6 +124,7 @@ $routes = [
 
         // Review
         '/api/reviews' => [$reviewController, 'submitReview'],
+        '/api/reviews/update-status' => [$reviewController, 'updateReviewStatus'],
 
         // Transaction
         '/api/transactions' => [$transactionController, 'payTrip'],

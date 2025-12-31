@@ -118,4 +118,22 @@ class Rating extends BaseModel
             return [];
         }
     }
+
+    /**
+     * Récupère une note spécifique pour un trajet et un utilisateur.
+     */
+    public static function getRatingForTripByUser(int $tripId, int $authorId): ?array
+    {
+        $db = Database::getInstance();
+        try {
+            $stmt = $db->prepare("SELECT * FROM RATINGS WHERE trip_id = :tripId AND passenger_id = :authorId");
+            $stmt->bindParam(':tripId', $tripId, PDO::PARAM_INT);
+            $stmt->bindParam(':authorId', $authorId, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ?: null;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
 }

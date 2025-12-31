@@ -21,7 +21,7 @@ class Transaction extends BaseModel
     private int $user_id; // ID de l'utilisateur effectuant la transaction
     private int $amount; // Montant de la transaction en chiffres entiers
     private string $transaction_type; // Pour savoir si c'est un paiement ou frais de plateforme
-    private int $reference; // Point de référence de la transaction (trajet)
+    private ?int $reference; // Point de référence de la transaction (trajet), peut être NULL
     private DateTime $transaction_date;
 
     //getter et setters
@@ -45,7 +45,7 @@ class Transaction extends BaseModel
         return $this->transaction_type;
     }
 
-    public function getReference(): int
+    public function getReference(): ?int
     {
         return $this->reference;
     }
@@ -70,12 +70,12 @@ class Transaction extends BaseModel
         $this->transaction_type = $transaction_type;
     }
 
-    public function setReference(int $reference): void
+    public function setReference(?int $reference): void
     {
         $this->reference = $reference;
     }
 
-    public function __construct(int $user_id, int $amount, string $transaction_type, int $reference)
+    public function __construct(int $user_id, int $amount, string $transaction_type, ?int $reference = null)
     {
         // pas de transaction_id dans le constructeur, car il est auto-increment
         parent::__construct();
@@ -85,7 +85,9 @@ class Transaction extends BaseModel
         $this->reference = $reference;
     }
 
-    // Méthode pour enregistrer une transaction dans la base de données
+    /**
+     * Enregistrement d'une transaction dans la base de données
+     */
     public function save(): bool
     {
         try {
@@ -95,7 +97,7 @@ class Transaction extends BaseModel
             $stmt->bindParam(':user_id', $this->user_id);
             $stmt->bindParam(':amount', $this->amount);
             $stmt->bindParam(':transaction_type', $this->transaction_type);
-            $stmt->bindParam(':reference', $this->reference);
+            $stmt->bindValue(':reference', $this->reference, $this->reference === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             return $stmt->execute();
         } catch (Exception $e) {
             $logger = new Logger('transaction_logger');
@@ -105,7 +107,9 @@ class Transaction extends BaseModel
         }
     }
 
-    // Méthode pour recupérer le solde d'un utilisateur pour affichage dans son profil
+    /**
+     * Récupérer le solde de l'utilisateur
+     */
     public static function getUserBalance(int $user_id): int
     {
         try {
@@ -122,7 +126,10 @@ class Transaction extends BaseModel
             return 0;
         }
     }
-    // Recupérer l'ensemble des crédits de la plateforme
+
+    /**
+     * Récupérer l'ensemble des credits de la plateforme
+     */
     public static function getTotalCredits(): int
     {
         try {
@@ -138,7 +145,10 @@ class Transaction extends BaseModel
             return 0;
         }
     }
-    
+
+    /**
+     * Récupérer l'ensemble des frais de la plateforme entre deux dates
+     */
     public static function getPlatformEarningsByDate($startDate, $endDate): array
     {
         $db = Database::getInstance();

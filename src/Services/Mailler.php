@@ -7,6 +7,7 @@ use PHPMailer\PHPMailer\Exception;
 use Dotenv\Dotenv;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use App\Models\Trip;
 
 /**
  * Class Mailler
@@ -57,6 +58,9 @@ class Mailler
      * @return bool Vrai si l'email a été envoyé avec succès, faux sinon.
      */
 
+    /**
+     * Configuration de l'envoi d'email.
+     */
     public function configEmail(string $to, string $subject, string $body): bool
     {
         try {
@@ -82,11 +86,15 @@ class Mailler
         }
     }
 
-    // Méthode pour envoyer un email de confirmation d'inscription
+    /**
+     * Méthode pour envoyer un email de confirmation d'inscription.
+     */
     public function sendComfirmationMail(string $to, string $username): bool
     {
         $subject = "Confirmation d'inscription";
-        $body = "<h1>Bienvenue, $username!</h1><br><p>Merci pour votre inscription sur notre plateforme.</p>";
+        $body = "<h1>Bienvenue, $username!</h1><br><p>Merci pour votre inscription sur notre plateforme.</p><br>
+        <p>Nous sommes heureux de vous offrir 20 crédits pour profiter de nos offres<p>";
+
         return $this->configEmail($to, $subject, $body);
     }
 
@@ -97,7 +105,9 @@ class Mailler
      * @return bool
      */
 
-    // Méthode pour envoyer un email auto pour signalement de litige
+    /**
+     * Mail de signalement de litige
+     */
     public function sendAutoReportMail(string $username, string $userId): bool
     {
         $to = $_ENV['MODERATOR_EMAIL'];
@@ -110,34 +120,71 @@ class Mailler
     }
 
 
-    // Méthode pour envoyer de demande d'information supplémentaire
-    public function needInfoMail(string $to, string $username): bool
+//    // Méthode pour envoyer de demande d'information supplémentaire
+//    public function needInfoMail(string $to, string $username): bool
+//    {
+//        $subject = "Informations supplémentaires requises";
+//        $body = "<h1>Bonjour, $username!</h1><br><p>Nous aurions besoin de quelques informations supplémentaires
+//        pour la gestion de votre litige.</p><br>
+//        <p>Pouvez-vous nous contacter via notre formulaire.</p>";
+//        return $this->configEmail($to, $subject, $body);
+//    }
+
+    /**
+     * Mail de suspension de compte
+     */
+    public function sendUserSuspendMail(string $to,string $username): bool
     {
-        $subject = "Informations supplémentaires requises";
-        $body = "<h1>Bonjour, $username!</h1><br><p>Nous aurions besoin de quelques informations supplémentaires
-        pour la gestion de votre litige.</p><br>
-        <p>Pouvez-vous nous contacter via notre formulaire.</p>";
-        return $this->configEmail($to, $subject, $body);
+        $subject = "Compte utilisateur suspendu";
+        $body = "<h1>Bonjour, $username!</h1><br>
+        <p>Votre compte a enfreint les règles de la plateforme.</p><br>
+        <p>Il a été suspendu, vous pouvez nous contater via notre formulaire.</p><br>
+        <p></p>";
+        return $this->configEmail ($to, $subject, $body);
     }
 
-    // Méthode pour envoyer un email a l'admin
-    public function sendAdminSuspendMail(string $username): bool
+    /**
+     * Mail de reactivation de compte
+     */
+    public function sendUserReactivateMail(string $to,string $username): bool
     {
-        $to = $_ENV['ADMIN_EMAIL'];
-        $subject = "Nouvelle inscription sur le site";
-        $body = "<h1>Bonjour, Admin !</h1><br>
-        <p>Le compte de $username a enfreint les règles de la plateforme.</p><br>
-        <p>Pouvez-vous supendre son Compte</p>";
-        return $this->configEmail($to, $subject, $body);
+        $subject = "Compte utilisateur réactivé";
+        $body = "<h1>Bonjour, $username!</h1><br>
+        <p>Votre compte a été réactivé.</p><br>
+        <p>Merci pour votre patience</p>";
+        return $this->configEmail ($to, $subject, $body);
     }
 
-    // Méthode pour envoyer un email pour signaler la fin d'un trajet
+
+    /**
+     * Mail de fin de trajet
+     */
     public function sendEndRideMail(string $to, string $username): bool
     {
         $subject = "Fin de trajet";
         $body = "<h1>Bonjour, $username!</h1><br>
         <p>Votre trajet est terminé. Merci d'avoir utilisé notre plateforme.</p><br>
         <p>N'hésitez pas à laisser un avis sur votre expérience.</p>";
+        return $this->configEmail($to, $subject, $body);
+    }
+
+    /**
+     * Mail d'annulation/suppression de trajet
+     */
+    public function sendTripCancellationMail(string $to, string $passengerName, Trip $trip): bool
+    {
+        $subject = "Annulation de votre trajet";
+        $body = "
+            <h1>Bonjour, $passengerName!</h1>
+            <p>Nous sommes au regret de vous informer que le trajet suivant a été annulé par le conducteur :</p>
+            <ul>
+                <li><strong>Départ :</strong> " . $trip->getDepartureLocation() . "</li>
+                <li><strong>Arrivée :</strong> " . $trip->getArrivalLocation() . "</li>
+                <li><strong>Date :</strong> " . $trip->getDepartureDay()->format('d/m/Y') . "</li>
+            </ul>
+            <p>Vous avez été intégralement remboursé de " . $trip->getTripPrice() . " crédits.</p>
+            <p>Nous nous excusons pour ce désagrément.</p>
+        ";
         return $this->configEmail($to, $subject, $body);
     }
 }

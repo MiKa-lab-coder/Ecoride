@@ -25,7 +25,8 @@ class AuthController
     public function registration(): void
     {
         $logger = new Logger('register_logger');
-        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/app.log', Logger::INFO));
+        // Correction du chemin du logger : ../../ au lieu de ../../../
+        $logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/app.log', Logger::INFO));
 
         header('Content-Type: application/json');
 
@@ -126,7 +127,7 @@ class AuthController
                     $user->getUserId(),
                     20,
                     'welcome_bonus',
-                    0 // pas de référence pour les crédits de bienvenue
+                    null
                 );
                 // on enregistre la transaction
                 if ($welcomeCredit->save()) {

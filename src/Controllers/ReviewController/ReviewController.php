@@ -28,7 +28,9 @@ class ReviewController
         $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../../logs/error.log', 400));
     }
 
-    // Soumission d'un commentaire pour un voyage
+    /**
+     * Soumettre un commentaire
+     */
     public function submitReview(): void
     {
         header('Content-Type: application/json');
@@ -105,7 +107,9 @@ class ReviewController
         }
     }
 
-    // Récupérer les avis reçus par l'utilisateur connecté
+    /**
+     * Récupération des avis reçus par un utilisateur
+     */
     public function getReceivedReviews(): void
     {
         header('Content-Type: application/json');
@@ -154,6 +158,111 @@ class ReviewController
 
         } catch (Exception $e) {
             $this->logger->error("Erreur lors de la récupération des avis reçus: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+    
+    /**
+     * Recuperer les reviews qui on un status pending
+     */
+    public function getPendingReviews(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                throw new Exception("Méthode non autorisée.", 405);
+            }
+            
+            // recuperation des autorisations
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $roleId = $decodedToken->data->role;
+
+            // On vérifie que l'utilisateur est bien un admin (1) ou un modérateur (2)
+            if ($roleId != 1 && $roleId != 2) {
+                throw new Exception("Accès non autorisé.", 403);
+            }
+
+            $reviews = Review::getPendingReviews();
+            $reviewsData = [];
+
+            foreach ($reviews as $review) {
+                $trip = Trip::findById((int)$review->getTripId());
+                $user = User::find((int)$review->getUserId());
+
+                // Récupérer la note associée depuis la table SQL
+                $rating = Rating::getRatingForTripByUser((int)$review->getTripId(), (int)$review->getUserId());
+
+                if ($trip && $user && $rating) {
+                    $reviewsData[] = [
+                        'review_id' => $review->getReviewId(),
+                        'trip_departure' => $trip->getDepartureLocation(),
+                        'trip_arrival' => $trip->getArrivalLocation(),
+                        'trip_date' => $trip->getDepartureDay()->format('d/m/Y'),
+                        'author_name' => $user->getFirstname() . ' ' . $user->getName(),
+                        'rating' => $rating['rating_value'],
+                        'comment' => $review->getContent(),
+                        'status' => $review->getStatus()
+                    ];
+                }
+            }
+
+            echo json_encode($reviewsData);
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la récupération des avis en attente: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Mettre à jour le statut d'un avis.
+     */
+    public function updateReviewStatus(): void
+    {
+        header('Content-Type: application/json');
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception("Méthode non autorisée.", 405);
+            }
+
+            // Vérification du rôle (modérateur/admin)
+            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            $tokenValidator = new TokenValidator();
+            $decodedToken = $tokenValidator->validateToken($token);
+            $roleId = $decodedToken->data->role;
+
+            if ($roleId != 1 && $roleId != 2) {
+                throw new Exception("Accès non autorisé.", 403);
+            }
+
+            // Récupération des données
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (!isset($data['review_id']) || !isset($data['status'])) {
+                throw new Exception("Les champs 'review_id' et 'status' sont obligatoires.", 400);
+            }
+
+            $reviewId = $data['review_id'];
+            $newStatus = $data['status'];
+
+            // Validation du statut
+            if (!in_array($newStatus, ['approved', 'rejected'])) {
+                throw new Exception("Statut invalide.", 400);
+            }
+
+            // Mise à jour du statut dans la base de données
+            if (Review::updateStatus($reviewId, $newStatus)) {
+                http_response_code(200);
+                echo json_encode(["message" => "Statut de l'avis mis à jour avec succès."]);
+            } else {
+                throw new Exception("Erreur lors de la mise à jour du statut de l'avis.", 500);
+            }
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur lors de la mise à jour du statut de l'avis: " . $e->getMessage());
             http_response_code($e->getCode() ?: 500);
             echo json_encode(["error" => $e->getMessage()]);
         }

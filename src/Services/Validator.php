@@ -19,7 +19,7 @@ class Validator
     public function validatePassword(string $password): bool
     {
         // Au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial
-        $pass = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+        $pass = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/';
         return preg_match($pass, $password) === 1;
     }
     public function validateName(string $name): bool
@@ -98,7 +98,8 @@ class Validator
     // véhicules
     public function validateRegistrationNumber(string $registration): bool
     {
-        $reg = '/^[A-Z]{2}-\d{3}-[A-Z]{2}$/';
+        // Accepte AA-123-BB, aa-123-bb, AA123BB, aa123bb
+        $reg = '/^[a-zA-Z]{2}-?\d{3}-?[a-zA-Z]{2}$/';
         return preg_match($reg, $registration) === 1;
     }
 
@@ -119,7 +120,7 @@ class Validator
     }
     public function validateEnergyType(string $energy): bool
     {
-        $valid_energies = ['thermique', 'électrique', 'hybride'];
+        $valid_energies = ['combustion', 'electric', 'hybrid'];
         return in_array($energy, $valid_energies);
     }
     public function validateBrand(string $brand): bool
