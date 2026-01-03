@@ -50,6 +50,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 # Définit le répertoire de travail
 WORKDIR /var/www/html
 
+# Crée le répertoire de logs et définit les permissions
+# L'utilisateur 'www-data' est l'utilisateur par défaut de PHP-FPM dans cette image Alpine
+RUN mkdir -p logs && \
+    chown -R www-data:www-data logs && \
+    chmod -R 775 logs
+
 # Expose le port de PHP-FPM
 EXPOSE 9000
 

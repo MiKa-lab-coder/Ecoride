@@ -99,7 +99,8 @@ class VehicleController
 
             // Normalisation de la plaque d'immatriculation
             $cleanPlate = strtoupper(str_replace('-', '', $data['registration_number']));
-            $normalizedPlate = substr($cleanPlate, 0, 2) . '-' . substr($cleanPlate, 2, 3) . '-' . substr($cleanPlate, 5, 2);
+            $normalizedPlate = substr($cleanPlate, 0, 2) . '-' . substr($cleanPlate,
+                    2, 3) . '-' . substr($cleanPlate, 5, 2);
             
             // Protection contre les attaques XSS
             $registration_number = htmlspecialchars($normalizedPlate, ENT_QUOTES, 'UTF-8');

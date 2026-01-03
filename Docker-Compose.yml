@@ -42,6 +42,7 @@ services:
       - mongo
     env_file:
       - .env # Charge le fichier .env
+    command: sh -c "chmod -R 777 /var/www/html/public && chmod -R 777 /var/www/html/logs && exec docker-php-entrypoint php-fpm"
 
   # nginx
   nginx:
