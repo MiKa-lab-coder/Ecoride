@@ -23,7 +23,7 @@ export async function statTrips() {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
         const stats = await response.json();
-        console.log('Statistiques des trajets:', stats);
+        //console.log('Statistiques des trajets:', stats);
 
         // Récupérer le canvas existant
         const canvas = document.getElementById('tripsChart');
@@ -93,7 +93,7 @@ export async function statCredit() {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
         const stats = await response.json();
-        console.log('Statistiques des trajets:', stats);
+        //console.log('Statistiques des trajets:', stats);
 
         // Récupérer le canvas existant
         const canvas = document.getElementById('creditsChart');
