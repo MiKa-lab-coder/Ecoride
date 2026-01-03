@@ -1,0 +1,19 @@
+# ------------------------------------------------------------------------------
+# Configuration pour le serveur Apache (OVH)
+# ------------------------------------------------------------------------------
+
+# Désactiver l'affichage du contenu des dossiers
+Options -Indexes
+
+# Activer la réécriture d'URL
+RewriteEngine On
+
+# Empêcher l'accès direct aux fichiers sensibles (.env, logs, etc.)
+RedirectMatch 403 /\.(env|git|gitignore)$
+RewriteRule ^logs/.*$ - [F,L]
+
+# Si le fichier ou le dossier demandé n'existe pas physiquement,
+# on redirige tout vers l'index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
