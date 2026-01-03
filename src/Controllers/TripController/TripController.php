@@ -70,6 +70,12 @@ class TripController
 
             $departureDay = new DateTime($data['departure_day']);
             $arrivalDay = new DateTime($data['arrival_day']);
+            
+            // Validation de la date d'arrivée
+            if ($arrivalDay < $departureDay) {
+                throw new Exception("La date d'arrivée ne peut pas être antérieure à la date de départ.", 400);
+            }
+
             $departureTime = new DateTime($data['departure_time']);
             $arrivalTime = new DateTime($data['arrival_time']);
             $trip_time = ($arrivalTime->getTimestamp() - $departureTime->getTimestamp()) / 60;
@@ -166,6 +172,11 @@ class TripController
             if (isset($data['animal_pref'])) $trip->setAnimalPref((bool)$data['animal_pref']);
             if (isset($data['smoking_pref'])) $trip->setSmokingPref((bool)$data['smoking_pref']);
             if (isset($data['vehicle_id'])) $trip->setVehicleId((int)$data['vehicle_id']);
+
+            // Validation de la date d'arrivée lors de la mise à jour
+            if ($trip->getArrivalDay() < $trip->getDepartureDay()) {
+                throw new Exception("La date d'arrivée ne peut pas être antérieure à la date de départ.", 400);
+            }
 
             // Recalculer la nature du trajet si le véhicule change
             if (isset($data['vehicle_id'])) {

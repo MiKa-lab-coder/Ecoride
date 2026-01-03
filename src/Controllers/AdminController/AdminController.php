@@ -178,9 +178,19 @@ class AdminController
                 throw new Exception("L'annonce n'est pas en attente de validation.", 400);
             }
 
+            // Récupérer le conducteur avant de supprimer le trajet
+            $driver = User::find($trip->getDriverId());
+
             if (!$trip->delete()) {
                 throw new Exception("Erreur lors du rejet de l'annonce.", 500);
             }
+
+            // Mail à l'utilisateur pour lui notifier le rejet de l'annonce
+
+                $mailler = new Mailler();
+                $mailler->sendTripRejectionMail($driver->getEmail(), $driver->getUsername());
+
+
 
             $this->logger->info("Annonce {$tripId} rejetée par l'utilisateur ID: {$decodedToken->data->id}");
             http_response_code(200);

@@ -110,7 +110,11 @@ export async function fetchOfferedTrip() {
     }
 
     if (addTripsBtn && addTripFormContainer) {
-        addTripsBtn.addEventListener('click', () => {
+        // On clone le bouton pour supprimer les anciens écouteurs d'événements
+        const newAddTripsBtn = addTripsBtn.cloneNode(true);
+        addTripsBtn.parentNode.replaceChild(newAddTripsBtn, addTripsBtn);
+
+        newAddTripsBtn.addEventListener('click', () => {
             // Vérification si l'utilisateur a des véhicules
             const carsContainer = document.getElementById('cars-container');
             const hasCars = carsContainer && carsContainer.querySelectorAll('.car-card').length > 0;
@@ -277,16 +281,27 @@ async function renderTripForm(container, tripData = null) {
         </form>
     `;
 
+    // Ecouteurs d'événements pour l'annulation
     container.querySelector('.cancel-form-btn').addEventListener('click', () => {
         container.innerHTML = '';
         container.classList.add('js-hidden');
     });
 
+    // Ecouteurs d'événements pour la soumission du formulaire
     container.querySelector('#propose-trip-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        
+        // Validation des dates côté client
+        const departureDay = new Date(data.departure_day);
+        const arrivalDay = new Date(data.arrival_day);
+
+        if (arrivalDay < departureDay) {
+            alert("La date d'arrivée ne peut pas être antérieure à la date de départ.");
+            return;
+        }
         
         data.smoking_pref = form.querySelector('[name="smoking_pref"]').checked;
         data.animal_pref = form.querySelector('[name="animal_pref"]').checked;
@@ -303,7 +318,8 @@ async function renderTripForm(container, tripData = null) {
             });
             if (!response.ok) throw new Error(tripId ? 'Erreur lors de la modification.' : 'Erreur lors de la création.');
             
-            await fetchOfferedTrip();
+            // Recharger la page pour éviter les problèmes d'écouteurs d'événements
+            window.location.reload();
         } catch (error) {
             console.error(error);
         }
@@ -478,7 +494,7 @@ function renderRatingForm(container, trip, token) {
             
             await fetchPastTrips();
         } catch (error) {
-            console.error(error);
+            //console.error(error);
             alert(error.message);
         }
     });

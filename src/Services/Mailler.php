@@ -133,26 +133,26 @@ class Mailler
     /**
      * Mail de suspension de compte
      */
-    public function sendUserSuspendMail(string $to,string $username): bool
+    public function sendUserSuspendMail(string $to, string $username): bool
     {
         $subject = "Compte utilisateur suspendu";
         $body = "<h1>Bonjour, $username!</h1><br>
         <p>Votre compte a enfreint les règles de la plateforme.</p><br>
         <p>Il a été suspendu, vous pouvez nous contater via notre formulaire.</p><br>
         <p></p>";
-        return $this->configEmail ($to, $subject, $body);
+        return $this->configEmail($to, $subject, $body);
     }
 
     /**
      * Mail de reactivation de compte
      */
-    public function sendUserReactivateMail(string $to,string $username): bool
+    public function sendUserReactivateMail(string $to, string $username): bool
     {
         $subject = "Compte utilisateur réactivé";
         $body = "<h1>Bonjour, $username!</h1><br>
         <p>Votre compte a été réactivé.</p><br>
         <p>Merci pour votre patience</p>";
-        return $this->configEmail ($to, $subject, $body);
+        return $this->configEmail($to, $subject, $body);
     }
 
 
@@ -185,6 +185,19 @@ class Mailler
             <p>Vous avez été intégralement remboursé de " . $trip->getTripPrice() . " crédits.</p>
             <p>Nous nous excusons pour ce désagrément.</p>
         ";
+        return $this->configEmail($to, $subject, $body);
+    }
+
+    /**
+     * Mail de rejet de trajet
+     */
+    public function sendTripRejectionMail(string $to, string $passengerName): bool
+    {
+        $subject = "Rejet de votre trajet";
+        $body = "
+            <h1>Bonjour, $passengerName!</h1>
+            <p>Nous sommes au regret de vous informer que le trajet suivant a été rejeté par le moderateur :</p>
+            ";
         return $this->configEmail($to, $subject, $body);
     }
 }

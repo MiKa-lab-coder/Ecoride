@@ -79,7 +79,7 @@ export async function reviewOffer() {
                 }
             } else if (target.classList.contains('reject-btn')) {
                 const driverEmail = target.getAttribute('data-email');
-                if (confirm(`Êtes-vous sûr de vouloir rejeter ce trajet ? Un email sera simulé à ${driverEmail}.`)) {
+                if (confirm(`Êtes-vous sûr de vouloir rejeter ce trajet ? Un email sera envoyé à ${driverEmail}.`)) {
                     try {
                         const res = await fetch('/api/admin/reject-trip', {
                             method: 'POST',
@@ -91,8 +91,7 @@ export async function reviewOffer() {
                         });
                         if (!res.ok) throw new Error('Erreur lors du rejet de l\'offre.');
                         
-                        // Simuler l'envoi d'email
-                        console.log(`Email de rejet envoyé (simulé) à : ${driverEmail}`);
+
                         alert(`Trajet rejeté. Un email a été envoyé à ${driverEmail}.`);
                         
                         const card = target.closest('.trip-card');
@@ -299,7 +298,7 @@ export async function fetchPendingReviews() {
                 alert(`Évaluation ${newStatus === 'approved' ? 'approuvée' : 'rejetée'} avec succès.`);
 
             } catch (error) {
-                console.error('Erreur:', error);
+                //console.error('Erreur:', error);
                 alert("Erreur lors de la mise à jour de l'évaluation.");
             }
 
