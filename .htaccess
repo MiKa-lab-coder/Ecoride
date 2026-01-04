@@ -8,12 +8,22 @@ Options -Indexes
 # Activer la réécriture d'URL
 RewriteEngine On
 
-# Empêcher l'accès direct aux fichiers sensibles (.env, logs, etc.)
-RedirectMatch 403 /\.(env|git|gitignore)$
-RewriteRule ^logs/.*$ - [F,L]
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
-# Si le fichier ou le dossier demandé n'existe pas physiquement,
-# on redirige tout vers l'index.php
+# 1. Rediriger le "non-www" vers le "www" ET forcer le HTTPS
+RewriteCond %{HTTP_HOST} !^www\. [NC,OR]
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://www.ecoride-project.ovh%{REQUEST_URI} [L,R=301]
+
+# 2. Sécurité : Bloquer l'accès aux fichiers sensibles
+RewriteRule ^(\.env|composer\.(json|lock)|Dockerfile|docker-compose\.yml)$ - [F,L]
+
+# 3. Rediriger tout vers le dossier public/
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# 4. Gestion du routeur (index.php)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^(.*)$ public/index.php [QSA,L]

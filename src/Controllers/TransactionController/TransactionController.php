@@ -6,7 +6,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Trip;
 use App\Services\Validator;
-use App\services\TokenValidator;
+use App\Services\TokenValidator;
 use Exception;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;

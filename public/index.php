@@ -4,6 +4,8 @@
  * Va etre le routeur principal de l'application, il va rediriger les requetes vers les bons controllers
  * Sur le principe du Single Entry Point.
  */
+//ini_set('display_errors', 1);
+//error_reporting(E_ALL);
 
 // On appelle le fichier autoload de composer
 require_once __DIR__ . '/../vendor/autoload.php';
