@@ -318,6 +318,10 @@ async function renderTripForm(container, tripData = null) {
             });
             if (!response.ok) throw new Error(tripId ? 'Erreur lors de la modification.' : 'Erreur lors de la création.');
             
+            if (!tripId) {
+                alert('Votre annonce a bien été enregistrée. Elle sera validée avant d\'être affichée.');
+            }
+
             // Recharger la page pour éviter les problèmes d'écouteurs d'événements
             window.location.reload();
         } catch (error) {
@@ -397,7 +401,7 @@ export async function fetchPastTrips() {
         } else {
             trips.forEach(trip => {
                 const tripCard = document.createElement('div');
-                tripCard.className = 'trip-card'; // Changé de 'past-trip-card' à 'trip-card' pour le style
+                tripCard.className = 'trip-card';
                 tripCard.innerHTML = `
                     <h4>Trajet vers ${trip.arrival_location}</h4>
                     <p><strong>Date:</strong> ${new Date(trip.departure_day).toLocaleDateString()}</p>
@@ -473,7 +477,7 @@ function renderRatingForm(container, trip, token) {
             <button type="submit">Envoyer</button>
         </form>
     `;
-
+    // Ecouteurs d'événements pour la soumission du formulaire de notation
     container.querySelector('.rating-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -492,6 +496,7 @@ function renderRatingForm(container, trip, token) {
             });
             if (!response.ok) throw new Error('Erreur lors de la soumission de l\'évaluation.');
             
+            alert('Votre avis a bien été enregistré. Il sera visible après validation.');
             await fetchPastTrips();
         } catch (error) {
             //console.error(error);
