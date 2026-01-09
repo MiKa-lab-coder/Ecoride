@@ -316,7 +316,11 @@ async function renderTripForm(container, tripData = null) {
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            if (!response.ok) throw new Error(tripId ? 'Erreur lors de la modification.' : 'Erreur lors de la création.');
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || (tripId ? 'Erreur lors de la modification.' : 'Erreur lors de la création.'));
+            }
             
             if (!tripId) {
                 alert('Votre annonce a bien été enregistrée. Elle sera validée avant d\'être affichée.');
@@ -326,6 +330,7 @@ async function renderTripForm(container, tripData = null) {
             window.location.reload();
         } catch (error) {
             console.error(error);
+            alert(error.message);
         }
     });
 }
