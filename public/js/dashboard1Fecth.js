@@ -323,7 +323,7 @@ async function renderTripForm(container, tripData = null) {
             }
             
             if (!tripId) {
-                alert('Votre annonce a bien été enregistrée. Elle sera validée avant d\'être affichée.');
+                alert('Votre annonce a bien été enregistrée. Elle sera visible dans votre espace après modération.');
             }
 
             // Recharger la page pour éviter les problèmes d'écouteurs d'événements
@@ -501,7 +501,7 @@ function renderRatingForm(container, trip, token) {
             });
             if (!response.ok) throw new Error('Erreur lors de la soumission de l\'évaluation.');
             
-            alert('Votre avis a bien été enregistré. Il sera visible après validation.');
+            alert('Votre évaluation a bien été enregistré. Elle sera visible après modération.');
             await fetchPastTrips();
         } catch (error) {
             //console.error(error);
