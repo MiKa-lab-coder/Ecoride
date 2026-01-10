@@ -49,6 +49,35 @@ class TripController
                     throw new Exception("Le champ '{$field}' est obligatoire.", 400);
                 }
             }
+
+            // Validation des données
+            $validator = new Validator();
+            
+            if (!$validator->validateDepartureOrArrival($data['departure_location'])) {
+                throw new Exception("Le lieu de départ contient des caractères invalides.", 400);
+            }
+            if (!$validator->validateDepartureOrArrival($data['arrival_location'])) {
+                throw new Exception("Le lieu d'arrivée contient des caractères invalides.", 400);
+            }
+            if (!$validator->validateYmdDateFormat($data['departure_day'])) {
+                throw new Exception("Le format de la date de départ est invalide (Y-m-d requis).", 400);
+            }
+            if (!$validator->validateYmdDateFormat($data['arrival_day'])) {
+                throw new Exception("Le format de la date d'arrivée est invalide (Y-m-d requis).", 400);
+            }
+            if (!$validator->validateTime($data['departure_time'])) {
+                throw new Exception("Le format de l'heure de départ est invalide (H:i requis).", 400);
+            }
+            if (!$validator->validateTime($data['arrival_time'])) {
+                throw new Exception("Le format de l'heure d'arrivée est invalide (H:i requis).", 400);
+            }
+            if (!$validator->validateTripPrice((int)$data['trip_price'])) {
+                throw new Exception("Le prix du trajet doit être un entier positif.", 400);
+            }
+            if (!$validator->validateSeatsAvailable((int)$data['seating'])) {
+                throw new Exception("Le nombre de places doit être compris entre 1 et 9.", 400);
+            }
+
             // recuperation des vehicules de l'utilisateur
             $userVehicles = Vehicle::getVehiclesByUserId($userId);
             if (empty($userVehicles)) throw new Exception("Vous devez enregistrer un véhicule avant de proposer un trajet.", 400);
@@ -129,6 +158,34 @@ class TripController
             $trip = Trip::findById($tripId);
             if (!$trip || $trip->getDriverId() !== $userId) {
                 throw new Exception("Trajet non trouvé ou non autorisé.", 404);
+            }
+
+            // Validation des données modifiées
+            $validator = new Validator();
+
+            if (isset($data['departure_location']) && !$validator->validateDepartureOrArrival($data['departure_location'])) {
+                throw new Exception("Le lieu de départ contient des caractères invalides.", 400);
+            }
+            if (isset($data['arrival_location']) && !$validator->validateDepartureOrArrival($data['arrival_location'])) {
+                throw new Exception("Le lieu d'arrivée contient des caractères invalides.", 400);
+            }
+            if (isset($data['departure_day']) && !$validator->validateYmdDateFormat($data['departure_day'])) {
+                throw new Exception("Le format de la date de départ est invalide (Y-m-d requis).", 400);
+            }
+            if (isset($data['arrival_day']) && !$validator->validateYmdDateFormat($data['arrival_day'])) {
+                throw new Exception("Le format de la date d'arrivée est invalide (Y-m-d requis).", 400);
+            }
+            if (isset($data['departure_time']) && !$validator->validateTime($data['departure_time'])) {
+                throw new Exception("Le format de l'heure de départ est invalide (H:i requis).", 400);
+            }
+            if (isset($data['arrival_time']) && !$validator->validateTime($data['arrival_time'])) {
+                throw new Exception("Le format de l'heure d'arrivée est invalide (H:i requis).", 400);
+            }
+            if (isset($data['trip_price']) && !$validator->validateTripPrice((int)$data['trip_price'])) {
+                throw new Exception("Le prix du trajet doit être un entier positif.", 400);
+            }
+            if (isset($data['seating']) && !$validator->validateSeatsAvailable((int)$data['seating'])) {
+                throw new Exception("Le nombre de places doit être compris entre 1 et 9.", 400);
             }
 
             // Gestion des réservations existantes : Remboursement et annulation

@@ -78,6 +78,11 @@ class ReviewController
             if (Rating::hasUserRatedTrip($loggedInUserId, $tripId, $ratedUserId)) {
                 throw new Exception("Vous avez déjà évalué cet utilisateur pour ce trajet.", 400);
             }
+            // Vérification de la validité de la note
+            $validator = new Validator();
+            if (!$validator->validateDriverRating($ratingValue)) {
+                throw new Exception("La note doit être comprise entre 1 et 5.", 400);
+            }
 
             // Enregistrement de la note (SQL)
             $rating = new Rating($ratedUserId, $loggedInUserId, $tripId, $ratingValue);

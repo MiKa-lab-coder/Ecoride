@@ -40,7 +40,8 @@ class RatingController
 
             $tripId = $data['trip_id'] ?? null;
             $ratingValue = $data['rating'] ?? null;
-            $comment = $data['comment'] ?? '';
+            $commentRaw = $data['comment'] ?? '';
+            $comment = htmlspecialchars($commentRaw, ENT_QUOTES, 'UTF-8');
 
             if (!$tripId || !$ratingValue) {
                 throw new Exception("L'ID du trajet et la note sont obligatoires.", 400);

@@ -65,7 +65,7 @@ class Validator
 
     public function validateDriverRating(int $driver_rating): bool
     {
-        return $driver_rating >= 0 && $driver_rating <= 5;
+        return $driver_rating >= 1 && $driver_rating <= 5;
     }
     public function validateAccountStatus(string $account_status): bool
     {
