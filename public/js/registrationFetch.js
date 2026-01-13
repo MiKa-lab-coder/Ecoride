@@ -45,7 +45,7 @@ export async function setupRegistrationFetch() {
             //console.log(data);
 
             try {
-                // Création d'un nouvel objet FormData pour l'envoi, incluant le fichier
+                // Création d'un nouvel objet FormData pour l'envoi
                 const sendFormData = new FormData();
 
                 // On ajoute les champs de texte à l'objet FormData
@@ -56,20 +56,6 @@ export async function setupRegistrationFetch() {
                 sendFormData.append('email', data.email);
                 sendFormData.append('password', data.password);
                 sendFormData.append('confirmPassword', data.confirmPassword);
-
-                // On gère le fichier
-                const photoInput = document.getElementById('photo');
-                const photoFile = photoInput.files[0];
-
-                if (photoFile) {
-                    if (photoFile.size > 3 * 1024 * 1024) {
-                        const p = document.createElement("p");
-                        p.textContent = "La taille de la photo ne doit pas dépasser 3 Mo.";
-                        errorMsg.appendChild(p);
-                        return;
-                    }
-                    sendFormData.append('photo', photoFile);
-                }
 
                 // Envoi des données au serveur via fetch
                 const response = await fetch('/api/auth/registration', {

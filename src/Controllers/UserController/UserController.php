@@ -75,7 +75,7 @@ class UserController
     /**
      * Met à jour le profil de l'utilisateur connecté à partir de son ID.
      */
-    public function updateMyProfile(int $userId): void
+    public function updateMyProfile(): void
     {
         header('Content-Type: application/json');
 
@@ -86,12 +86,9 @@ class UserController
             // On valide le token JWT et on récupère les données décodées
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
-
-            // Vérification de l'autorisation
-            if ((int)$decodedToken->data->id !== $userId) {
-                $this->logger->warning("Tentative d'accès non autorisé au profil de l'utilisateur ID: $userId");
-                throw new Exception("Accès non autorisé.", 403);
-            }
+            
+            // On récupère l'ID de l'utilisateur depuis le token
+            $userId = (int)$decodedToken->data->id;
 
             // Récupération des données du corps de la requête
             $requestData = json_decode(file_get_contents('php://input'), true);
@@ -149,7 +146,7 @@ class UserController
 
         } catch (Exception $e) {
             $code_status = $e->getCode() > 100 ? $e->getCode() : 500;
-            $this->logger->error("Erreur lors de la mise à jour du profil pour l'ID: $userId - " . $e->getMessage());
+            $this->logger->error("Erreur lors de la mise à jour du profil - " . $e->getMessage());
             throw new exception("erreur",$e->getMessage(), $code_status);
         }
     }
@@ -157,7 +154,7 @@ class UserController
     /**
      * Met à jour la photo de profil de l'utilisateur connecté à partir de son ID.
      */
-    public function updateMyPhoto(int $userId): void
+    public function updateMyPhoto(): void
     {
         header('Content-Type: application/json');
 
@@ -168,12 +165,9 @@ class UserController
             // On valide le token JWT et on récupère les données décodées
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
-
-            // Vérification de l'autorisation
-            if ((int)$decodedToken->data->id !== $userId) {
-                $this->logger->warning("Tentative d'accès non autorisé au profil de l'utilisateur ID: $userId");
-                throw new Exception("Accès non autorisé.", 403);
-            }
+            
+            // On récupère l'ID de l'utilisateur depuis le token
+            $userId = (int)$decodedToken->data->id;
 
             // Récupération de l'utilisateur
             $user = User::find($userId);
@@ -193,7 +187,7 @@ class UserController
             }
 
             // Enregistrement de la photo
-            $uploadDir = __DIR__ . '/../../public/uploads/';
+            $uploadDir = __DIR__ . '/../../../public/uploads/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -220,7 +214,7 @@ class UserController
 
         } catch (Exception $e) {
             $code_status = $e->getCode() > 100 ? $e->getCode() : 500;
-            $this->logger->error("Erreur lors de la mise à jour de la photo pour l'ID: $userId - " . $e->getMessage());
+            $this->logger->error("Erreur lors de la mise à jour de la photo pour l'ID: " . ($userId ?? 'inconnu') . " - " . $e->getMessage());
             http_response_code($code_status);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
             exit;
@@ -230,7 +224,7 @@ class UserController
     /**
      * Met à jour le mot de passe de l'utilisateur connecté à partir de son ID.
      */
-    public function showMyPhoto(int $userId): void
+    public function showMyPhoto(): void
     {
         header('Content-Type: application/json');
 
@@ -241,12 +235,9 @@ class UserController
             // On valide le token JWT et on récupère les données décodées
             $tokenValidator = new TokenValidator();
             $decodedToken = $tokenValidator->validateToken($token);
-
-            // Vérification de l'autorisation
-            if ((int)$decodedToken->data->id !== $userId) {
-                $this->logger->warning("Tentative d'accès non autorisé au profil de l'utilisateur ID: $userId");
-                throw new Exception("Accès non autorisé.", 403);
-            }
+            
+            // On récupère l'ID de l'utilisateur depuis le token
+            $userId = (int)$decodedToken->data->id;
 
             // Récupération des informations de l'utilisateur
             $user = User::find($userId);
@@ -266,7 +257,7 @@ class UserController
             exit;
         } catch (Exception $e) {
             $code_status = $e->getCode() > 100 ? $e->getCode() : 500;
-            $this->logger->error("Erreur lors de la récupération de la photo pour l'ID: $userId - " . $e->getMessage());
+            $this->logger->error("Erreur lors de la récupération de la photo pour l'ID: " . ($userId ?? 'inconnu') . " - " . $e->getMessage());
             http_response_code($code_status);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
             exit;

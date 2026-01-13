@@ -95,7 +95,7 @@ function displayEditForm(container, userData) {
 
         try {
             const token = localStorage.getItem('token');
-            const updateResponse = await fetch(`/api/user/profile/${userData.id}/update`, {
+            const updateResponse = await fetch(`/api/user/profile/update`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedData)
