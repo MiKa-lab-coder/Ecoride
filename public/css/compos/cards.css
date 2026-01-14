@@ -3,9 +3,9 @@
 /* container des cards */
 .card-container {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 20px;
-    max-width: 450px;
     width: 100%;
 }
 
@@ -75,7 +75,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 250px;
-    margin-bottom: 20px;
+    margin-bottom: 0; /* remplacé par gap */
     text-align: center;
 }
 
@@ -83,8 +83,6 @@
 /* tablets */
 @media screen and (min-width: 768px) {
     .card-container {
-        width: 50%;
-        max-width: 500px;
         gap: 30px;
     }
 
@@ -100,29 +98,18 @@
 /* desktops */
 @media screen and (min-width: 1024px) {
     .card-container {
-        max-width: 550px;
         gap: 40px;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-/* desktops 1200 */
-@media screen and (min-width: 1200px) {
-    .card-container {
-        max-width: 600px;
     }
 }
 /* desktops 1440 */
 @media screen and (min-width: 1440px) {
     .card-container {
         gap: 50px;
-        max-width: 700px;
     }
 }
 /* desktops 1920 */
 @media screen and (min-width: 1920px) {
     .card-container {
         gap: 60px;
-        max-width: 800px;
     }
 }

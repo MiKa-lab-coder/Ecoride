@@ -417,7 +417,10 @@ export async function fetchPastTrips() {
                 if (!trip.has_rated) {
                     const rateBtn = document.createElement('button');
                     rateBtn.textContent = 'Évaluer';
-                    rateBtn.onclick = () => renderRatingForm(tripCard.querySelector('.rating-form-container'), trip, token);
+                    rateBtn.onclick = () => {
+                        renderRatingForm(tripCard.querySelector('.rating-form-container'), trip, token);
+                        rateBtn.classList.add('js-hidden');
+                    };
                     tripCard.appendChild(rateBtn);
                 } else {
                     tripCard.innerHTML += '<p><em>Évaluation déjà soumise.</em></p>';
