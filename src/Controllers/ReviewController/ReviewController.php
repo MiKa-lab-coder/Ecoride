@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Booking;
 use App\Models\Rating;
 use App\Services\Validator;
+use App\Services\Mailler;
 use App\Services\TokenValidator;
 use Exception;
 use Monolog\Logger;
@@ -260,6 +261,19 @@ class ReviewController
 
             // Mise à jour du statut dans la base de données
             if (Review::updateStatus($reviewId, $newStatus)) {
+                
+                // Si rejet, mail a l'utilisateur qui l'a soumisse
+                if ($newStatus === 'rejected') {
+                    $review = Review::find($reviewId);
+                    if ($review) {
+                        $user = User::find((int)$review->getUserId());
+                        if ($user) {
+                            $mailler = new Mailler();
+                            $mailler->sendReviewRejectionMail($user->getEmail(), $user->getFirstname());
+                        }
+                    }
+                }
+
                 http_response_code(200);
                 echo json_encode(["message" => "Statut de l'avis mis à jour avec succès."]);
             } else {

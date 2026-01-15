@@ -200,4 +200,18 @@ class Mailler
             ";
         return $this->configEmail($to, $subject, $body);
     }
+
+    /**
+     * Mail de rejet d'evaluation
+     */
+    public function sendReviewRejectionMail(string $to, string $passengerName): bool
+    {
+        $subject = "Rejet de votre evaluation";
+        $body = "
+            <h1>Bonjour, $passengerName!</h1>
+            <p>Nous sommes au regret de vous informer que votre evaluation à été rejetée par le moderateur :<p>
+            ";
+        return $this->configEmail($to, $subject, $body);
+    }
+
 }

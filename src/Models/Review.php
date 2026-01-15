@@ -203,4 +203,25 @@ class Review
 
         return $result->getModifiedCount() > 0;
     }
+
+    /**
+     * Trouver un avis
+     */
+    public static function find(string $reviewId): ?Review
+    {
+        $client = MongoDatabase::getInstance();
+        $reviewsCollection = $client->selectCollection('ecoride', 'reviews');
+
+        $review = $reviewsCollection->findOne(['_id' => new ObjectId($reviewId)]);
+
+        if ($review) {
+            return new Review(
+                (string)$review->user_id,
+                (string)$review->trip_id,
+                (string)$review->content,
+                (string)$review->_id
+            );
+        }
+        return null;
+    }
 }
